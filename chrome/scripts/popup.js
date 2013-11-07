@@ -24,6 +24,11 @@
 function renderService(
   name, lowercaseName, blocked, requestCount, control, badge, text
 ) {
+
+  //HACK: Correct spell of Yahoo!
+  if (lowercaseName == 'yahoo!')
+    lowercaseName='yahoo';
+
   if (blocked) {
     control.title = 'Unblock ' + name;
     badge.src = IMAGES + lowercaseName + '-activated.png';
@@ -47,7 +52,7 @@ const GET = BACKGROUND.GET;
 const DESERIALIZE = BACKGROUND.deserialize;
 
 /* The third parties. */
-const SERVICES = ['Facebook', 'Google', 'LinkedIn', 'Twitter', 'Yahoo'];
+const SERVICES = ['Facebook', 'Google', 'Twitter', 'Yahoo!'];
 
 /* The number of third parties. */
 const SERVICE_COUNT = SERVICES.length;
@@ -113,6 +118,10 @@ const IMAGES = '../images/';
             text
           );
           localStorage.whitelist = JSON.stringify(WHITELIST);
+
+          console.log('Actualizado whitelist');
+          syncWhitelist();
+          
           TABS.reload(ID);
         }.bind(null, name, lowercaseName, requestCount, control, badge, text);
       }
@@ -172,3 +181,4 @@ const IMAGES = '../images/';
 
   }, true
 );
+

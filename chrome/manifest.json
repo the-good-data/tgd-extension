@@ -30,6 +30,8 @@
       "scripts/vendor/sjcl/sjcl.js",
       "scripts/data.js",
       "scripts/services.js",
+      "scripts/config.js",
+      "scripts/common.js",
       "scripts/background.js"
     ]
   },
