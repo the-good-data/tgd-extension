@@ -303,6 +303,9 @@ function syncWhitelist(){
       }
 
       if ( xhr.status == 200)  {
+
+          localStorage.whitelist = xhr.responseText;
+
           if (DEBUG && DEBUG_WHITELIST)
             console.log(xhr.responseText);
         }
