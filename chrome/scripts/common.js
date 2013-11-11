@@ -283,6 +283,59 @@ function LanzarGet(){
 }
 
 
+function syncQueriesBlacklist(){
+
+  var queriesBlacklist=localStorage.queriesBlacklist
+  var user_id = 3;
+
+  var xhr = new XMLHttpRequest();
+  var url = "http://localhost/TGD/src/webapp/TGD/api/queriesBlacklist/";
+  xhr.onreadystatechange = function()  {
+    if ( xhr.readyState == 4)  {
+
+      if (DEBUG && DEBUG_QUERY_BLACKLIST){
+          var resp = JSON.parse(xhr.responseText);
+          console.log('QUERY BLACKLIST SALVADA EN EL API');
+          console.log('===========================');
+          console.log(resp);
+          console.log('===========================');
+          console.log('');
+      }
+
+      if ( xhr.status == 200)  {
+
+          localStorage.queriesBlacklist = xhr.responseText;
+
+          var blacklist = JSON.parse(localStorage.queriesBlacklist)
+
+          var length = blacklist.length;   
+          for (var i = 0; i < length; i++) {
+            var value=blacklist[i];
+            console.log(value.word);
+          }
+
+          if (DEBUG && DEBUG_QUERY_BLACKLIST)
+            console.log(xhr.responseText);
+        }
+        else  {
+          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
+        }
+    }
+  }
+  xhr.open( 'GET', url, true);
+
+  if (DEBUG && DEBUG_QUERY_BLACKLIST){
+    console.log('QUERY BLACKLIST  ENVIADA AL API');
+    console.log('===========================');
+    console.log(localStorage.queriesBlacklist);
+    console.log('===========================');
+    console.log('');
+  }
+
+  xhr.send();
+
+} 
+
 function syncWhitelist(){
 
   var whitelist=localStorage.whitelist

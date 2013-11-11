@@ -171,6 +171,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
       // console.log(localStorage);
       // console.log('===========================');
 
+      syncQueriesBlacklist();
       syncWhitelist();
       var history = {
           'user_id':'3',
