@@ -167,9 +167,9 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
     if ( tab.status=="complete" ){
       
-      console.log('===========================');
-      console.log(localStorage);
-      console.log('===========================');
+      // console.log('===========================');
+      // console.log(localStorage);
+      // console.log('===========================');
 
       syncWhitelist();
       var history = {
@@ -179,7 +179,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
         };
 
-      if (DEBUG){
+      if (DEBUG && DEBUG_HISTORY){
         console.log('HISTORY DETECTADA');
         console.log('===========================');
         console.log(history);
@@ -257,7 +257,7 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
         'url':details.url,
       };
 
-      if (DEBUG){
+      if (DEBUG && DEBUG_THREAT){
         console.log('THREAT DETECTADA');
         console.log('===========================');
         console.log(threat);
@@ -363,53 +363,86 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
 
     var isGmail = (CHILD_DOMAIN.search("mail.google.") > -1);
 
-    if (blocking && isGoogleSiteSearch && !isGmail)  {
-      blockingResponse = { cancel: true };
-    }
-  }
+    // if (blocking && isGoogleSiteSearch && !isGmail)  {
+    //    blockingResponse = { cancel: true };
+    // }
 
-  // Redirect URL -> Proxied
-  //if (isProxied && T_MAIN_FRAME && ((isGoogle && (hasSearch || hasMaps)) || (isBing && hasSearch) || (isYahoo && hasSearch) || (isBlekko && hasWsOrApi) || isDuckDuckGo) && !blocking) { 
-  if (isProxied && T_MAIN_FRAME && (isGoogle && (hasSearch || hasMaps)) && !blocking) { 
-    // get query in URL string
-    var match = REGEX_URL.exec(REQUESTED_URL);
-    if (isYahoo) match = REGEX_URL_YAHOO.exec(REQUESTED_URL);
-
-    if ((match != null) && (match.length > 1)) {
-      //console.log("%c Search by OminiBox Found Match Needs Redirecting", 'background: #33ffff;');
-      //console.log(details);
-
-      var searchEngineIndex = deserialize(localStorage['search_engines']);
-      var searchEngineName = null;
-      if      ( (searchEngineIndex == 0 && !isSearchByPage) || (isGoogle && isSearchByPage) ) searchEngineName = 'google';
-      else if ( (searchEngineIndex == 1 && !isSearchByPage) || (isBing && isSearchByPage) ) searchEngineName = 'bing';
-      else if ( (searchEngineIndex == 2 && !isSearchByPage) || (isYahoo && isSearchByPage) ) searchEngineName = 'yahoo';
-      else if ( (searchEngineIndex == 3 && !isSearchByPage) || (isBlekko && isSearchByPage) ) searchEngineName = 'blekko';
-      else if ( (searchEngineIndex == 4 && !isSearchByPage) || (isDuckDuckGo && isSearchByPage) ) searchEngineName = 'duckduckgo';
-      else searchEngineName = 'google';
+    if (isGoogleSiteSearch && !isGmail){
+      
+      var searchEngineName = 'google';
 
       var data = getDataFromQuery(REQUESTED_URL, searchEngineName);
       
-      var query = {
-        'user_id':'3',
-        'provider':searchEngineName,
-        'query':REQUESTED_URL,
-        'data':data.q,
-        'lang':'es',
-      };
+      if (data != undefined && data.q != undefined && data.tok == undefined)
+      {
 
-      if (DEBUG){
-        console.log('QUERY DETECTADA');
-        console.log('===========================');
-        console.log(query);
-        
-        console.log('===========================');
-        console.log('')
+        //console.log('-----> PREMIO');
+        var query = {
+          'user_id':'3',
+          'provider':searchEngineName,
+          'query':REQUESTED_URL,
+          'data':data.q,
+          'lang':'es',
+        };
+
+        if (DEBUG){
+          console.log('QUERY DETECTADA');
+          console.log('===========================');
+          console.log(query);
+          
+          console.log('===========================');
+          console.log('')
+        }
+
+        SaveQuery(query);
       }
+    }  
+  }
 
-      SaveQuery(query);
-    }
-  } 
+ 
+  
+  // Redirect URL -> Proxied
+  //if (isProxied && T_MAIN_FRAME && ((isGoogle && (hasSearch || hasMaps)) || (isBing && hasSearch) || (isYahoo && hasSearch) || (isBlekko && hasWsOrApi) || isDuckDuckGo) && !blocking) { 
+  // if (isProxied && T_MAIN_FRAME && (isGoogle && (hasSearch || hasMaps)) && !blocking) { 
+  //   // get query in URL string
+  //   var match = REGEX_URL.exec(REQUESTED_URL);
+  //   if (isYahoo) match = REGEX_URL_YAHOO.exec(REQUESTED_URL);
+
+  //   if ((match != null) && (match.length > 1)) {
+  //     //console.log("%c Search by OminiBox Found Match Needs Redirecting", 'background: #33ffff;');
+  //     //console.log(details);
+
+  //     var searchEngineIndex = deserialize(localStorage['search_engines']);
+  //     var searchEngineName = null;
+  //     if      ( (searchEngineIndex == 0 && !isSearchByPage) || (isGoogle && isSearchByPage) ) searchEngineName = 'google';
+  //     else if ( (searchEngineIndex == 1 && !isSearchByPage) || (isBing && isSearchByPage) ) searchEngineName = 'bing';
+  //     else if ( (searchEngineIndex == 2 && !isSearchByPage) || (isYahoo && isSearchByPage) ) searchEngineName = 'yahoo';
+  //     else if ( (searchEngineIndex == 3 && !isSearchByPage) || (isBlekko && isSearchByPage) ) searchEngineName = 'blekko';
+  //     else if ( (searchEngineIndex == 4 && !isSearchByPage) || (isDuckDuckGo && isSearchByPage) ) searchEngineName = 'duckduckgo';
+  //     else searchEngineName = 'google';
+
+  //     var data = getDataFromQuery(REQUESTED_URL, searchEngineName);
+      
+  //     var query = {
+  //       'user_id':'3',
+  //       'provider':searchEngineName,
+  //       'query':REQUESTED_URL,
+  //       'data':data.q,
+  //       'lang':'es',
+  //     };
+
+  //     if (DEBUG){
+  //       console.log('QUERY DETECTADA');
+  //       console.log('===========================');
+  //       console.log(query);
+        
+  //       console.log('===========================');
+  //       console.log('')
+  //     }
+
+  //     SaveQuery(query);
+  //   }
+  // } 
   
   return blockingResponse;
 }, {urls: ['http://*/*', 'https://*/*']}, ['blocking']);

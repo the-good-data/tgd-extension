@@ -139,7 +139,7 @@ function SaveHistory(history){
       if (xhr.readyState == 4) {
         // WARNING! Might be evaluating an evil script!
         
-        if (DEBUG){
+        if (DEBUG && DEBUG_HISTORY){
           var resp = JSON.parse(xhr.responseText);
           console.log('HISTORY SALVADA EN EL API');
           console.log('===========================');
@@ -149,7 +149,7 @@ function SaveHistory(history){
         }
 
         if ( xhr.status == 200)  {
-          if (DEBUG)
+          if (DEBUG && DEBUG_HISTORY)
             console.log(xhr.responseText);
         }
         else  {
@@ -158,7 +158,7 @@ function SaveHistory(history){
       }
   };
 
-  if (DEBUG){
+  if (DEBUG && DEBUG_HISTORY){
     console.log('HISTORY ENVIADA AL API');
     console.log('===========================');
     console.log(data);
@@ -188,7 +188,7 @@ function SaveThreat(threat){
 
         
         // WARNING! Might be evaluating an evil script!
-        if (DEBUG){
+        if (DEBUG && DEBUG_THREAT){
           var resp = JSON.parse(xhr.responseText);
           console.log('THREAT SALVADA EN EL API');
           console.log('===========================');
@@ -198,7 +198,7 @@ function SaveThreat(threat){
         }
 
         if ( xhr.status == 200)  {
-          if (DEBUG)
+          if (DEBUG && DEBUG_THREAT)
             console.log(xhr.responseText);
         }
         else  {
@@ -208,7 +208,7 @@ function SaveThreat(threat){
       }
   };
 
-  if (DEBUG){
+  if (DEBUG && DEBUG_THREAT){
     console.log('THREAT ENVIADA AL API');
     console.log('===========================');
     console.log(data);
@@ -235,7 +235,7 @@ function SaveQuery(query){
       if (xhr.readyState == 4) {
         // WARNING! Might be evaluating an evil script!
 
-        if (DEBUG){
+        if (DEBUG  && DEBUG_QUERY){
           var resp = JSON.parse(xhr.responseText);
           console.log('QUERY SALVADA EN EL API');
           console.log('===========================');
@@ -245,7 +245,7 @@ function SaveQuery(query){
         }
 
         if ( xhr.status == 200)  {
-          if (DEBUG)
+          if (DEBUG && DEBUG_QUERY)
             console.log(xhr.responseText);
         }
         else  {
@@ -255,7 +255,7 @@ function SaveQuery(query){
       }
   };
 
-  if (DEBUG){
+  if (DEBUG && DEBUG_QUERY){
     console.log('QUERY ENVIADA AL API');
     console.log('===========================');
     console.log(data);
@@ -293,7 +293,7 @@ function syncWhitelist(){
   xhr.onreadystatechange = function()  {
     if ( xhr.readyState == 4)  {
 
-      if (DEBUG){
+      if (DEBUG && DEBUG_WHITELIST){
           var resp = JSON.parse(xhr.responseText);
           console.log('WHITELIST SALVADA EN EL API');
           console.log('===========================');
@@ -303,7 +303,7 @@ function syncWhitelist(){
       }
 
       if ( xhr.status == 200)  {
-          if (DEBUG)
+          if (DEBUG && DEBUG_WHITELIST)
             console.log(xhr.responseText);
         }
         else  {
@@ -313,7 +313,7 @@ function syncWhitelist(){
   }
   xhr.open( 'PUT', url, true);
 
-  if (DEBUG){
+  if (DEBUG && DEBUG_WHITELIST){
     console.log('WHITELIST ENVIADA AL API');
     console.log('===========================');
     console.log(localStorage.whitelist);
@@ -327,28 +327,36 @@ function syncWhitelist(){
 
 function getDataFromQuery(requested_url, searchEngineName){
   var paramJSON = {};
-  var parameters = requested_url.split("?")[1].split("&");
-  
-  var excludeParam = new Array;
-  var url_params = "/?s=" + C_MN;
-  
-  if(requested_url.indexOf("se=") == -1)
-    url_params += "&se=" + searchEngineName;
 
-  var alreadyHasQ = false;
+  try
+  {
+    var parameters = requested_url.split("?")[1].split("&");
+    
+    var excludeParam = new Array;
+    var url_params = "/?s=" + C_MN;
+    
+    if(requested_url.indexOf("se=") == -1)
+      url_params += "&se=" + searchEngineName;
 
-  for (var i=0; i<parameters.length; i++) {
-    var aux = parameters[i].split("=");
-    if (aux[0] == "q" || aux[0] == "p") {
-      if (searchEngineName == 'yahoo') aux[0] = "q";
-      aux[1] = aux[1].replace(/'/g, "%27");
+    var alreadyHasQ = false;
+
+    for (var i=0; i<parameters.length; i++) {
+      var aux = parameters[i].split("=");
+      if (aux[0] == "q" || aux[0] == "p") {
+        if (searchEngineName == 'yahoo') aux[0] = "q";
+        aux[1] = aux[1].replace(/'/g, "%27");
+      }
+      if(!alreadyHasQ) paramJSON[aux[0]] = aux[1];
+      if(aux[0] == "q") alreadyHasQ = true;
     }
-    if(!alreadyHasQ) paramJSON[aux[0]] = aux[1];
-    if(aux[0] == "q") alreadyHasQ = true;
+    for (var i=0; i<excludeParam.length; i++) {
+      delete paramJSON[excludeParam[i]];
+    }
   }
-  for (var i=0; i<excludeParam.length; i++) {
-    delete paramJSON[excludeParam[i]];
-  }
+  catch(err)
+  {
 
+  }
+  
   return paramJSON;
 };
