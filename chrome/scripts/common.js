@@ -381,6 +381,55 @@ function syncWhitelist(){
 
 } 
 
+function loginUser(username,password){
+
+  password = hex_md5(SALT + password);
+  
+  var xhr = new XMLHttpRequest();
+  var url = "http://localhost/TGD/src/webapp/TGD/api/user/username/"+username+"/password/"+password;
+  xhr.onreadystatechange = function()  {
+    if ( xhr.readyState == 4)  {
+
+      if (DEBUG && DEBUG_CREDENTIAL){
+          var resp = xhr.responseText;
+          console.log('CREDENTIAL SALVADA EN EL API');
+          console.log('===========================');
+          console.log(resp);
+          console.log('===========================');
+          console.log('');
+      }
+
+      if ( xhr.status == 200)  {
+
+          localStorage.whitelist = xhr.responseText;
+
+          if (DEBUG && DEBUG_CREDENTIAL)
+            console.log(xhr.responseText);
+        }
+        else  {
+          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
+        }
+    }
+  }
+  xhr.open( 'GET', url, true);
+
+  if (DEBUG && DEBUG_CREDENTIAL){
+    console.log('CREDENTIAL ENVIADA AL API');
+    console.log('===========================');
+
+    var data = new Array();
+    data['username']=username;
+    data['password']=password;
+
+    console.log(data);
+    console.log('===========================');
+    console.log('');
+  }
+
+  xhr.send();
+
+} 
+
 function getDataFromQuery(requested_url, searchEngineName){
   var paramJSON = {};
 

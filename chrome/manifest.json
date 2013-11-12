@@ -28,6 +28,7 @@
       "scripts/vendor/jquery/jquery-1.7.2.min.js",
       "scripts/vendor/sitename/sitename.js",
       "scripts/vendor/sjcl/sjcl.js",
+      "scripts/md5.js",
       "scripts/data.js",
       "scripts/services.js",
       "scripts/config.js",

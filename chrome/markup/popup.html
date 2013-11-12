@@ -21,23 +21,30 @@
 -->
 <link rel="stylesheet" href="../stylesheets/popup.css">
 <script src="../scripts/vendor/port/port.js"></script>
+<script src="../scripts/md5.js"></script>
 
 <script src="../scripts/config.js"></script>
 <script src="../scripts/common.js"></script>
 <script src="../scripts/popup.js"></script>
 
 <p>AQUI VIENE EL INTERFAZ</p>
-<div style="display:none">
 
-  <div id="panel_anonimo" style="text-align:left; margin-left:25px">
+<div id="panel_login" style="text-align:left; margin-left:25px">
     <p>Formularios de validacion de usuario</p>
     <form>
-    Username: <input type="text" name="firstname"><br>
-    Password: <input type="text" name="lastname">
-    <br>
-    <button>Acceder</button>
+      Username: <input type="text" name="username" id="txtUsername"><br>
+      Password: <input type="password" name="password" id="txtPassword">
+      <br>
+      <p id="pError" style="color:red"></p>
+      <hr>
+      <button id="btnAcceder">Acceder</button>
+      <hr>
     </form>
-  </div>
+</div>
+
+<div style="display:none">
+
+  
 
   <hr>
 

@@ -179,6 +179,33 @@ const IMAGES = '../images/';
     };
 
 
+
+
+    var btnAcceder=document.getElementById('btnAcceder');//.addEventListener('click', clickHandler);
+
+    btnAcceder.onclick = function() {
+    
+      var txtUsername=document.getElementById('txtUsername');
+      var txtPassword=document.getElementById('txtPassword');
+
+      
+      var username=txtUsername.value;
+      var password=txtPassword.value;
+      
+      if (username == "" || password == ""){
+        pError.innerHTML="Datos no validos";
+      }
+      else{
+        loginUser(username,password);
+      }
+
+
+
+      return false;
+          // var TXT=document.getElementById('txt');
+          // TXT.innerHTML=TXT.innerHTML+"<br>"+JSON.stringify(localStorage);
+    };
+
   }, true
 );
 
