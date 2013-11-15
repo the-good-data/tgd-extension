@@ -119,6 +119,8 @@ const IMAGES = '../images/';
           );
           localStorage.whitelist = JSON.stringify(WHITELIST);
 
+          console.log(localStorage.whitelist);
+          
           console.log('Actualizado whitelist');
           syncWhitelist();
           

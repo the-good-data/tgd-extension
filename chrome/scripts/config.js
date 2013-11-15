@@ -3,9 +3,9 @@ const SALT = "";
 
 const DEBUG = true;
 
-const DEBUG_THREAT = false;
-const DEBUG_HISTORY = false;
-const DEBUG_QUERY = false;
+const DEBUG_ADTRACK = false;
+const DEBUG_BROWSING = false;
+const DEBUG_QUERY = true;
 const DEBUG_QUERY_BLACKLIST = false;
 const DEBUG_WHITELIST = false;
-const DEBUG_CREDENTIAL= true;
+const DEBUG_CREDENTIAL= false;

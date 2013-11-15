@@ -174,14 +174,14 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
       syncQueriesBlacklist();
       syncWhitelist();
       var history = {
-          'user_id':'3',
+          'member_id':'3',
           'domain':'domain',
           'url':tab.url,
 
         };
 
-      if (DEBUG && DEBUG_HISTORY){
-        console.log('HISTORY DETECTADA');
+      if (DEBUG && DEBUG_BROWSING){
+        console.log('BROWSING DETECTADA');
         console.log('===========================');
         console.log(history);
         
@@ -189,7 +189,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
         console.log('')
       }
 
-      SaveHistory(history);
+      SaveBrowsing(history);
 
     }  
 });
@@ -249,8 +249,8 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
       // console.log('BLOQUEADO ALGO en '+PARENT_DOMAIN+'!!!');
       // console.log(childService);
 
-      var threat = {
-        'user_id':'3',
+      var adtrack = {
+        'member_id':'3',
         'category':childService.category,
         'service_name':childService.name,
         'service_url':childService.url,
@@ -258,15 +258,15 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
         'url':details.url,
       };
 
-      if (DEBUG && DEBUG_THREAT){
-        console.log('THREAT DETECTADA');
+      if (DEBUG && DEBUG_ADTRACK){
+        console.log('ADTRACK DETECTADA');
         console.log('===========================');
-        console.log(threat);
+        console.log(adtrack);
         
         console.log('===========================');
         console.log('')
       }
-      SaveThreat(threat);
+      SaveThreat(adtrack);
 
       incrementCounter(TAB_ID, childService, !whitelisted);
     }
@@ -379,7 +379,7 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
 
         //console.log('-----> PREMIO');
         var query = {
-          'user_id':'3',
+          'member_id':'3',
           'provider':searchEngineName,
           'query':REQUESTED_URL,
           'data':data.q,
@@ -399,52 +399,7 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
       }
     }  
   }
-
  
-  
-  // Redirect URL -> Proxied
-  //if (isProxied && T_MAIN_FRAME && ((isGoogle && (hasSearch || hasMaps)) || (isBing && hasSearch) || (isYahoo && hasSearch) || (isBlekko && hasWsOrApi) || isDuckDuckGo) && !blocking) { 
-  // if (isProxied && T_MAIN_FRAME && (isGoogle && (hasSearch || hasMaps)) && !blocking) { 
-  //   // get query in URL string
-  //   var match = REGEX_URL.exec(REQUESTED_URL);
-  //   if (isYahoo) match = REGEX_URL_YAHOO.exec(REQUESTED_URL);
-
-  //   if ((match != null) && (match.length > 1)) {
-  //     //console.log("%c Search by OminiBox Found Match Needs Redirecting", 'background: #33ffff;');
-  //     //console.log(details);
-
-  //     var searchEngineIndex = deserialize(localStorage['search_engines']);
-  //     var searchEngineName = null;
-  //     if      ( (searchEngineIndex == 0 && !isSearchByPage) || (isGoogle && isSearchByPage) ) searchEngineName = 'google';
-  //     else if ( (searchEngineIndex == 1 && !isSearchByPage) || (isBing && isSearchByPage) ) searchEngineName = 'bing';
-  //     else if ( (searchEngineIndex == 2 && !isSearchByPage) || (isYahoo && isSearchByPage) ) searchEngineName = 'yahoo';
-  //     else if ( (searchEngineIndex == 3 && !isSearchByPage) || (isBlekko && isSearchByPage) ) searchEngineName = 'blekko';
-  //     else if ( (searchEngineIndex == 4 && !isSearchByPage) || (isDuckDuckGo && isSearchByPage) ) searchEngineName = 'duckduckgo';
-  //     else searchEngineName = 'google';
-
-  //     var data = getDataFromQuery(REQUESTED_URL, searchEngineName);
-      
-  //     var query = {
-  //       'user_id':'3',
-  //       'provider':searchEngineName,
-  //       'query':REQUESTED_URL,
-  //       'data':data.q,
-  //       'lang':'es',
-  //     };
-
-  //     if (DEBUG){
-  //       console.log('QUERY DETECTADA');
-  //       console.log('===========================');
-  //       console.log(query);
-        
-  //       console.log('===========================');
-  //       console.log('')
-  //     }
-
-  //     SaveQuery(query);
-  //   }
-  // } 
-  
   return blockingResponse;
 }, {urls: ['http://*/*', 'https://*/*']}, ['blocking']);
 
@@ -472,7 +427,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
     return;
   }
   
-  if (request.initialized) {
+  if (request.initialized && TAB.url != undefined) {
     const URL = TAB.url;
     const BLACKLIST = [];
     const SITE_WHITELIST =
@@ -491,3 +446,9 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
   }
 });
 
+
+/* Launch when extension is installed */
+if (localStorage.user_id == undefined){
+  localStorage.user_id = createUUID();
+  console.log('Generador user_id : '+localStorage.user_id);
+}

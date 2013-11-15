@@ -6,6 +6,7 @@
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean vehicula, magna eu condimentum gravida, nulla erat ultrices tortor, pretium suscipit urna eros sodales felis.",
   "icons": {"48": "images/48.png", "128": "images/128.png"},
   "permissions": [
+    "management",
     "chrome://favicon/",
     "contextMenus",
     "cookies",

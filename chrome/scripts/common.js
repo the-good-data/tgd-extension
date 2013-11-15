@@ -1,3 +1,19 @@
+/* Generate a user_id for anSaveHistoryonymous user. */
+function createUUID() {
+    // http://www.ietf.org/rfc/rfc4122.txt
+    var s = [];
+    var hexDigits = "0123456789abcdef";
+    for (var i = 0; i < 36; i++) {
+        s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+    }
+    s[14] = "4";  // bits 12-15 of the time_hi_and_version field to 0010
+    s[19] = hexDigits.substr((s[19] & 0x3) | 0x8, 1);  // bits 6-7 of the clock_seq_hi_and_reserved to 01
+    s[8] = s[13] = s[18] = s[23] = "-";
+
+    var uuid = s.join("");
+    return uuid;
+}
+
 /* Populates an array of a given length with a default value. */
 function initializeArray(length, defaultValue) {
   const ARRAY = [];
@@ -126,22 +142,22 @@ function reduceCookies(url, service, name) {
 }
 
 
-function SaveHistory(history){
+function SaveBrowsing(browsing){
 
   var data = new FormData();
-  data.append('user_id', history.user_id);
-  data.append('domain', history.domain);
-  data.append('url', history.url);
+  data.append('member_id', browsing.member_id);
+  data.append('domain', browsing.domain);
+  data.append('url', browsing.url);
   
   var xhr = new XMLHttpRequest();
-  xhr.open('POST', "http://localhost/TGD/src/webapp/TGD/api/history", true);
+  xhr.open('POST', "http://localhost/TGD/src/webapp/TGD/api/browsing", true);
   xhr.onload = function () {
       if (xhr.readyState == 4) {
         // WARNING! Might be evaluating an evil script!
         
-        if (DEBUG && DEBUG_HISTORY){
+        if (DEBUG && DEBUG_BROWSING){
           var resp = JSON.parse(xhr.responseText);
-          console.log('HISTORY SALVADA EN EL API');
+          console.log('BROWSING SALVADA EN EL API');
           console.log('===========================');
           console.log(resp);
           console.log('===========================');
@@ -149,7 +165,7 @@ function SaveHistory(history){
         }
 
         if ( xhr.status == 200)  {
-          if (DEBUG && DEBUG_HISTORY)
+          if (DEBUG && DEBUG_BROWSING)
             console.log(xhr.responseText);
         }
         else  {
@@ -158,8 +174,8 @@ function SaveHistory(history){
       }
   };
 
-  if (DEBUG && DEBUG_HISTORY){
-    console.log('HISTORY ENVIADA AL API');
+  if (DEBUG && DEBUG_BROWSING){
+    console.log('BROWSING ENVIADA AL API');
     console.log('===========================');
     console.log(data);
     console.log('===========================');
@@ -173,7 +189,7 @@ function SaveHistory(history){
 function SaveThreat(threat){
 
   var data = new FormData();
-  data.append('user_id', threat.user_id);
+  data.append('member_id', threat.member_id);
   data.append('category', threat.category);
   data.append('service_name', threat.service_name);
   data.append('service_url', threat.service_url);
@@ -182,15 +198,15 @@ function SaveThreat(threat){
   
   
   var xhr = new XMLHttpRequest();
-  xhr.open('POST', "http://localhost/TGD/src/webapp/TGD/api/threats", true);
+  xhr.open('POST', "http://localhost/TGD/src/webapp/TGD/api/adtracks", true);
   xhr.onload = function () {
       if (xhr.readyState == 4) {
 
         
         // WARNING! Might be evaluating an evil script!
-        if (DEBUG && DEBUG_THREAT){
+        if (DEBUG && DEBUG_ADTRACK){
           var resp = JSON.parse(xhr.responseText);
-          console.log('THREAT SALVADA EN EL API');
+          console.log('ADTRACK SALVADA EN EL API');
           console.log('===========================');
           console.log(resp);
           console.log('===========================');
@@ -198,7 +214,7 @@ function SaveThreat(threat){
         }
 
         if ( xhr.status == 200)  {
-          if (DEBUG && DEBUG_THREAT)
+          if (DEBUG && DEBUG_ADTRACK)
             console.log(xhr.responseText);
         }
         else  {
@@ -208,8 +224,8 @@ function SaveThreat(threat){
       }
   };
 
-  if (DEBUG && DEBUG_THREAT){
-    console.log('THREAT ENVIADA AL API');
+  if (DEBUG && DEBUG_ADTRACK){
+    console.log('ADTRACK ENVIADA AL API');
     console.log('===========================');
     console.log(data);
     console.log('===========================');
@@ -223,7 +239,7 @@ function SaveThreat(threat){
 function SaveQuery(query){
 
   var data = new FormData();
-  data.append('user_id', query.user_id);
+  data.append('member_id', query.member_id);
   data.append('provider', query.provider);
   data.append('data', query.data);
   data.append('query', query.query);
@@ -286,7 +302,7 @@ function LanzarGet(){
 function syncQueriesBlacklist(){
 
   var queriesBlacklist=localStorage.queriesBlacklist
-  var user_id = 3;
+  var member_id = 3;
 
   var xhr = new XMLHttpRequest();
   var url = "http://localhost/TGD/src/webapp/TGD/api/queriesBlacklist/";
@@ -311,7 +327,6 @@ function syncQueriesBlacklist(){
           var length = blacklist.length;   
           for (var i = 0; i < length; i++) {
             var value=blacklist[i];
-            console.log(value.word);
           }
 
           if (DEBUG && DEBUG_QUERY_BLACKLIST)
@@ -339,10 +354,10 @@ function syncQueriesBlacklist(){
 function syncWhitelist(){
 
   var whitelist=localStorage.whitelist
-  var user_id = 3;
+  var member_id = 3;
 
   var xhr = new XMLHttpRequest();
-  var url = "http://localhost/TGD/src/webapp/TGD/api/whitelists/"+user_id;
+  var url = "http://localhost/TGD/src/webapp/TGD/api/whitelists/"+member_id;
   xhr.onreadystatechange = function()  {
     if ( xhr.readyState == 4)  {
 
@@ -386,7 +401,7 @@ function loginUser(username,password){
   password = hex_md5(SALT + password);
   
   var xhr = new XMLHttpRequest();
-  var url = "http://localhost/TGD/src/webapp/TGD/api/user/username/"+username+"/password/"+password;
+  var url = "httpº://localhost/TGD/src/webapp/TGD/api/user/username/"+username+"/password/"+password;
   xhr.onreadystatechange = function()  {
     if ( xhr.readyState == 4)  {
 
