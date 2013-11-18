@@ -171,13 +171,16 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
       // console.log(localStorage);
       // console.log('===========================');
 
+      var localtime = new Date();
+
       syncQueriesBlacklist();
       syncWhitelist();
       var history = {
-          'member_id':'3',
+          'member_id':localStorage.member_id,
+          'user_id': localStorage.user_id,
           'domain':'domain',
           'url':tab.url,
-
+          'usertime': localtime.toUTCString()
         };
 
       if (DEBUG && DEBUG_BROWSING){
@@ -249,13 +252,17 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
       // console.log('BLOQUEADO ALGO en '+PARENT_DOMAIN+'!!!');
       // console.log(childService);
 
+      var localtime = new Date();
+
       var adtrack = {
-        'member_id':'3',
+        'member_id':localStorage.member_id,
+        'user_id': localStorage.user_id,
         'category':childService.category,
         'service_name':childService.name,
         'service_url':childService.url,
         'domain':PARENT_DOMAIN,
         'url':details.url,
+        'usertime': localtime.toUTCString()
       };
 
       if (DEBUG && DEBUG_ADTRACK){
@@ -377,13 +384,17 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
       if (data != undefined && data.q != undefined && data.tok == undefined)
       {
 
-        //console.log('-----> PREMIO');
+        var language = window.navigator.userLanguage || window.navigator.language;
+        var localtime = new Date();
+
         var query = {
-          'member_id':'3',
+          'member_id':localStorage.member_id,
+          'user_id': localStorage.user_id,
           'provider':searchEngineName,
           'query':REQUESTED_URL,
           'data':data.q,
-          'lang':'es',
+          'lang':language,
+          'usertime': localtime.toUTCString()
         };
 
         if (DEBUG){
@@ -427,7 +438,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
     return;
   }
   
-  if (request.initialized && TAB.url != undefined) {
+  if (TAB != undefined && TAB.url != undefined && request.initialized) {
     const URL = TAB.url;
     const BLACKLIST = [];
     const SITE_WHITELIST =
@@ -451,4 +462,9 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 if (localStorage.user_id == undefined){
   localStorage.user_id = createUUID();
   console.log('Generador user_id : '+localStorage.user_id);
+}
+
+if (localStorage.member_id == undefined){
+  localStorage.member_id = '';
+  console.log('Generador member_id : '+localStorage.member_id);
 }

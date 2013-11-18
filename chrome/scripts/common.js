@@ -146,8 +146,10 @@ function SaveBrowsing(browsing){
 
   var data = new FormData();
   data.append('member_id', browsing.member_id);
+  data.append('user_id', browsing.user_id);
   data.append('domain', browsing.domain);
   data.append('url', browsing.url);
+  data.append('usertime', browsing.usertime);
   
   var xhr = new XMLHttpRequest();
   xhr.open('POST', "http://localhost/TGD/src/webapp/TGD/api/browsing", true);
@@ -190,12 +192,13 @@ function SaveThreat(threat){
 
   var data = new FormData();
   data.append('member_id', threat.member_id);
+  data.append('user_id', threat.user_id);
   data.append('category', threat.category);
   data.append('service_name', threat.service_name);
   data.append('service_url', threat.service_url);
   data.append('url', threat.url);
   data.append('domain', threat.domain);
-  
+  data.append('usertime', threat.usertime);
   
   var xhr = new XMLHttpRequest();
   xhr.open('POST', "http://localhost/TGD/src/webapp/TGD/api/adtracks", true);
@@ -240,10 +243,13 @@ function SaveQuery(query){
 
   var data = new FormData();
   data.append('member_id', query.member_id);
+  data.append('user_id', query.user_id);
   data.append('provider', query.provider);
   data.append('data', query.data);
   data.append('query', query.query);
   data.append('lang', query.lang);
+  data.append('usertime', query.usertime);
+  
   
   var xhr = new XMLHttpRequest();
   xhr.open('POST', "http://localhost/TGD/src/webapp/TGD/api/queries", true);
@@ -283,26 +289,10 @@ function SaveQuery(query){
 
 }
 
-function LanzarGet(){
-
-  var xhr = new XMLHttpRequest();
-  xhr.open("GET", "http://localhost/TGD/src/webapp/TGD/api/users", true);
-  xhr.onreadystatechange = function() {
-    if (xhr.readyState == 4) {
-      // WARNING! Might be evaluating an evil script!
-      var resp = JSON.parse(xhr.responseText);
-      
-    }
-  }
-  xhr.send();
-
-}
-
-
 function syncQueriesBlacklist(){
 
   var queriesBlacklist=localStorage.queriesBlacklist
-  var member_id = 3;
+  var member_id = localStorage.member_id;
 
   var xhr = new XMLHttpRequest();
   var url = "http://localhost/TGD/src/webapp/TGD/api/queriesBlacklist/";
@@ -354,7 +344,7 @@ function syncQueriesBlacklist(){
 function syncWhitelist(){
 
   var whitelist=localStorage.whitelist
-  var member_id = 3;
+  var member_id = localStorage.member_id;
 
   var xhr = new XMLHttpRequest();
   var url = "http://localhost/TGD/src/webapp/TGD/api/whitelists/"+member_id;
@@ -401,7 +391,7 @@ function loginUser(username,password){
   password = hex_md5(SALT + password);
   
   var xhr = new XMLHttpRequest();
-  var url = "httpº://localhost/TGD/src/webapp/TGD/api/user/username/"+username+"/password/"+password;
+  var url = "http://localhost/TGD/src/webapp/TGD/api/user/username/"+username+"/password/"+password;
   xhr.onreadystatechange = function()  {
     if ( xhr.readyState == 4)  {
 
