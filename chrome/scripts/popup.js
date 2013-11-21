@@ -106,8 +106,13 @@ const IMAGES = '../images/';
         control.onclick = function(
           name, lowercaseName, requestCount, control, badge, text
         ) {
+
+
           const WHITELIST = DESERIALIZE(localStorage.whitelist) || {};
           const SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
+          
+          console.log(WHITELIST);
+
           renderService(
             name,
             lowercaseName,

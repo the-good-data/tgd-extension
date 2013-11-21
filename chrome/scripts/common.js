@@ -152,7 +152,7 @@ function SaveBrowsing(browsing){
   data.append('usertime', browsing.usertime);
   
   var xhr = new XMLHttpRequest();
-  xhr.open('POST', "http://localhost/TGD/src/webapp/TGD/api/browsing", true);
+  xhr.open('POST', TGD_API+"api/browsing", true);
   xhr.onload = function () {
       if (xhr.readyState == 4) {
         // WARNING! Might be evaluating an evil script!
@@ -201,7 +201,7 @@ function SaveThreat(threat){
   data.append('usertime', threat.usertime);
   
   var xhr = new XMLHttpRequest();
-  xhr.open('POST', "http://localhost/TGD/src/webapp/TGD/api/adtracks", true);
+  xhr.open('POST', TGD_API+"api/adtracks", true);
   xhr.onload = function () {
       if (xhr.readyState == 4) {
 
@@ -252,7 +252,7 @@ function SaveQuery(query){
   
   
   var xhr = new XMLHttpRequest();
-  xhr.open('POST', "http://localhost/TGD/src/webapp/TGD/api/queries", true);
+  xhr.open('POST', TGD_API+"api/queries", true);
   xhr.onload = function () {
       if (xhr.readyState == 4) {
         // WARNING! Might be evaluating an evil script!
@@ -295,7 +295,7 @@ function syncQueriesBlacklist(){
   var member_id = localStorage.member_id;
 
   var xhr = new XMLHttpRequest();
-  var url = "http://localhost/TGD/src/webapp/TGD/api/queriesBlacklist/";
+  var url = TGD_API+"api/queriesBlacklist/";
   xhr.onreadystatechange = function()  {
     if ( xhr.readyState == 4)  {
 
@@ -343,11 +343,13 @@ function syncQueriesBlacklist(){
 
 function syncWhitelist(){
 
+  
   var whitelist=localStorage.whitelist
+  var user_id=localStorage.user_id;
   var member_id = localStorage.member_id;
 
   var xhr = new XMLHttpRequest();
-  var url = "http://localhost/TGD/src/webapp/TGD/api/whitelists/"+member_id;
+  var url = TGD_API+"api/whitelists/"+user_id+"/"+member_id;
   xhr.onreadystatechange = function()  {
     if ( xhr.readyState == 4)  {
 
@@ -362,7 +364,7 @@ function syncWhitelist(){
 
       if ( xhr.status == 200)  {
 
-          localStorage.whitelist = xhr.responseText;
+          //localStorage.whitelist = xhr.responseText;
 
           if (DEBUG && DEBUG_WHITELIST)
             console.log(xhr.responseText);
@@ -391,7 +393,7 @@ function loginUser(username,password){
   password = hex_md5(SALT + password);
   
   var xhr = new XMLHttpRequest();
-  var url = "http://localhost/TGD/src/webapp/TGD/api/user/username/"+username+"/password/"+password;
+  var url = TGD_API+"api/user/username/"+username+"/password/"+password;
   xhr.onreadystatechange = function()  {
     if ( xhr.readyState == 4)  {
 
