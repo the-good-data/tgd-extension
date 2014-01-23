@@ -76,6 +76,8 @@ function incrementCounter(tabId, service, blocked) {
   safelyUpdateCounter(tabId, getCount(TAB_REQUESTS), !blocked);
 }
 
+const ADTRACKS = {};
+
 /* The current build number. */
 const CURRENT_BUILD = 42;
 
@@ -166,11 +168,8 @@ false && INSTANT_ENABLED.get({}, function(details) {
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
     if ( tab.status=="complete" ){
-      
-      // console.log('===========================');
-      // console.log(localStorage);
-      // console.log('===========================');
 
+      
       var localtime = new Date();
 
       syncQueriesBlacklist();
@@ -205,6 +204,7 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
   const REQUESTED_URL = details.url;
   const CHILD_DOMAIN = GET(REQUESTED_URL);
 
+  
   //console.log(REQUESTED_URL);
 
   if (PARENT) DOMAINS[TAB_ID] = CHILD_DOMAIN;
@@ -238,21 +238,52 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
         hardenedUrl = harden(REQUESTED_URL);
         hardened = hardenedUrl.hardened;
         hardenedUrl = hardenedUrl.url;
-        if (hardened) blockingResponse = {redirectUrl: hardenedUrl};
-        else whitelisted = true;
+        if (hardened) 
+          blockingResponse = {redirectUrl: hardenedUrl};
+        else 
+          whitelisted = true;
       }
-    } else blockingResponse = {
-      redirectUrl:
-          TYPE == 'image' ?
-              'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=='
-                  : 'about:blank'
-    }; // The request is denied.
+    } 
+    else 
+    {
+
+      if (isDeactivateCurrent(PARENT_DOMAIN,TAB_ID))
+      {
+        whitelisted = true; 
+
+        hardenedUrl = harden(REQUESTED_URL);
+        hardened = hardenedUrl.hardened;
+        hardenedUrl = hardenedUrl.url;
+        if (hardened) 
+          blockingResponse = {redirectUrl: hardenedUrl};
+        else 
+          whitelisted = true; 
+      }
+      else
+      {
+
+        blockingResponse = {
+          redirectUrl:
+            TYPE == 'image' ?
+                'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=='
+                    : 'about:blank'
+        }; // The request is denied.
+      }
+      
+    }
 
     if (blockingResponse.redirectUrl || whitelisted){
-      // console.log('BLOQUEADO ALGO en '+PARENT_DOMAIN+'!!!');
+      //console.log('BLOQUEADO ALGO en '+PARENT_DOMAIN+'!!!');
       // console.log(childService);
 
       var localtime = new Date();
+      var status='block';
+
+      if (whitelisted == true)
+        status = 'allow';
+
+      if ( childService.category == 'Disconnect')
+        childService.category='Others';
 
       var adtrack = {
         'member_id':localStorage.member_id,
@@ -262,7 +293,8 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
         'service_url':childService.url,
         'domain':PARENT_DOMAIN,
         'url':details.url,
-        'usertime': localtime.toUTCString()
+        'usertime': localtime.toUTCString(),
+        'status':status
       };
 
       if (DEBUG && DEBUG_ADTRACK){
@@ -275,6 +307,11 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
       }
       SaveThreat(adtrack);
 
+      if (ADTRACKS[TAB_ID] == undefined){
+        ADTRACKS[TAB_ID]= [];
+      }
+
+      ADTRACKS[TAB_ID].push(adtrack);
       incrementCounter(TAB_ID, childService, !whitelisted);
     }
   }
@@ -387,26 +424,88 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
         var language = window.navigator.userLanguage || window.navigator.language;
         var localtime = new Date();
 
-        var query = {
-          'member_id':localStorage.member_id,
-          'user_id': localStorage.user_id,
-          'provider':searchEngineName,
-          'query':REQUESTED_URL,
-          'data':data.q,
-          'lang':language,
-          'usertime': localtime.toUTCString()
-        };
+        // console.log('-------------');
+        // console.log(data);
+        // console.log('-------------');
 
-        if (DEBUG){
-          console.log('QUERY DETECTADA');
-          console.log('===========================');
-          console.log(query);
+        CheckQuery(data.q, function(data_queries){
+
+          if (data_queries.length==0){
+
+            var sTemp = '';
+
+            var share='true';
+
+            //Check if user has selected not to share info with our partner
+            if (castBool(localStorage.share_search)){
+              share='true';
+              console.log('---> SCRIPT DE CHANGO');
+            }
+            else
+            {
+              share='false';
+              console.log('---> BLOQUEADO SCRIPT DE CHANGO');
+            }
+            // sTemp += 'var myElem = document.getElementById("layer-tgd");';
+            // sTemp += 'if (myElem != null){';
+            // sTemp += '  myElem.parentNode.removeChild(myElem);';
+            // sTemp += '}';
+            // sTemp += '';
+            // sTemp += 'var div = document.createElement("div");';
+            // sTemp += 'div.id="layer-tgd";';
+            // sTemp += 'div.style.display="block";';
+            // sTemp += 'div.style.width = "600px";';
+            // sTemp += 'div.style.height = "30px";';
+            // sTemp += 'div.style.padding = "15px 15px 15px 15px";';
+            // sTemp += 'div.style.margin = "15px 0 15px 0";';
+            // sTemp += 'div.style.background = "#C2E2FF";';
+            // sTemp += 'div.style.color = "grey";';
+            // sTemp += 'div.innerHTML = "SE ACABA DE AÑADIR EL SCRIPT PARA CHANGO";';
+            // sTemp += 'document.body.insertBefore(div, document.body.firstChild);';
+
+            // chrome.tabs.executeScript(null,
+            //   {code:sTemp});
+
+
+
+            var query = {
+              'member_id':localStorage.member_id,
+              'user_id': localStorage.user_id,
+              'provider':searchEngineName,
+              'query':REQUESTED_URL,
+              'data':data.q,
+              'lang':language,
+              'share':share,
+              'usertime': localtime.toUTCString()
+            };
+
+            if (DEBUG && DEBUG_QUERY){
+              console.log('QUERY DETECTADA');
+              console.log('===========================');
+              console.log(query);
+              
+              console.log('===========================');
+              console.log('')
+            }
+
+            if ( castBool(localStorage.store_navigation) )
+            {
+              console.log('---> SALVADO QUERY');
+              SaveQuery(query);              
+            }
+            else
+            {
+              console.log('---> BLOQUEADO SALVADO QUERY');
+            }
+
+          }
+          else{
+            console.log('----> IMPOSIBLE');
+          }
+
+        })
+        
           
-          console.log('===========================');
-          console.log('')
-        }
-
-        SaveQuery(query);
       }
     }  
   }
@@ -419,6 +518,7 @@ chrome.webNavigation.onCommitted.addListener(function(details) {
   const TAB_ID = details.tabId;
 
   if (!details.frameId) {
+    delete ADTRACKS[TAB_ID];
     delete REQUEST_COUNTS[TAB_ID];
     safelyUpdateCounter(TAB_ID, 0);
   }
@@ -444,11 +544,16 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
     const SITE_WHITELIST =
         (deserialize(localStorage.whitelist) || {})[GET(URL)] || {};
 
+    // console.log('SITE_WHITELIST');
+    // console.log(SITE_WHITELIST);
+
     for (var i = 0; i < 0; i++) {
       var service = [];
       BLACKLIST[i] = [service[1], !!service[2], !SITE_WHITELIST[service[0]]];
     }
 
+    // console.log('BLACKLIST');
+    // console.log(BLACKLIST)
 
     sendResponse({url: URL, blacklist: BLACKLIST});
   } else {
@@ -465,6 +570,7 @@ if (localStorage.user_id == undefined){
 }
 
 if (localStorage.member_id == undefined){
-  localStorage.member_id = '';
+  localStorage.member_id = 0;
+  localStorage.member_username='';
   console.log('Generador member_id : '+localStorage.member_id);
 }

@@ -1,3 +1,176 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>TODO supply a title</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width">
+        
+        <link rel="stylesheet" href="../stylesheets/extension.css">
+        <link rel="stylesheet" href="../stylesheets/webfonts.css">
+        <link rel="stylesheet" href="../stylesheets/simpletextrotator.css">
+        
+        <script src="../scripts/vendor/port/port.js"></script>
+        <script src="../scripts/md5.js"></script>
+
+        <script src="../scripts/config.js"></script>
+        <script src="../scripts/common.js"></script>
+        
+        <script src="../scripts/jquery-1.10.1.min.js"></script>
+        <script src="../scripts/jquery.simple-text-rotator.min.js"></script>
+
+        <script src="../scripts/popup.js"></script>
+
+    </head>
+    <style>
+    .authenticated{
+        display:none;
+    }
+    .anonymous{
+        display:inherit;
+    }
+    </style>
+    <body>
+        <div id="container">
+
+            <header id="header">
+
+                <div id="login" style="display:none">
+                    <div id="container">
+                        <!-- <header id="header">
+                            <div class="clearfix">
+                                <img src="../images/logo-login.png"/><h1>TheGoodData</h1>
+                            </div>
+                        </header> -->
+                        <div id="body">
+                            <section>
+                                <div>
+                                    Sign into your account
+                                </div>
+                                <form name="login-form" id="login-form">
+                                    <input type="text" placeholder="Username" name="txtUsername" id="txtUsername"/>                           
+                                    <input type="password" placeholder="Password" name="txtPassword" id="txtPassword"/>
+
+                                    <div><p id="pError" style="color:red; font-size:0.85em"></p></div>
+                                    <button id="btnSignIn" type="button" name="submit" class="green">SIGN IN</button>
+                                </form>
+                            </section>
+                            <section>
+                                <div class="hr"></div>
+                                <div>
+                                    Don't have an account?
+                                </div>
+                                <button name="sign-up" class="red">BECOME A MEMBER</button>
+                            </section>
+                        </div>
+                        <br>
+                    </div>
+                </div>
+                
+                <div class="welcome anonymous">
+                    <div>
+                      <div class="logo"></div>
+                      TheGoodData
+                    </div>
+
+                    <div id="btnLogin" class="button become-owner" style="height: 10px; width: 25px; ">Login</div>
+                    <!-- <br>
+                    <div id="btnLogin" class="button"></div> -->
+                </div>
+
+                <div class="welcome authenticated">
+                    <div><div class="logo"></div>Welcome <span class="username"></span>!</div><div class="button button_switch"></div>
+                </div>
+               
+               
+
+                <div class="message">
+                    <div style="padding-top:0px">
+                      <ul id="layer_achievement_value" style="list-style-type: none; vertical-align: middle; padding-top:5px; margin:0; vertical-align:">
+                      </ul>
+                    </div>
+                    <div id="layer_achievement_id" class="button"></div>
+                </div>
+            </header>
+
+            <div id="body">
+                <section id="evil-data">
+                    <div class="title-more">
+                        <div class="title">EVIL DATA</div>
+                        <div class="more">MORE STATS</div>
+                    </div>
+                    <div class="content"><img src="../images/evil-data.png"/><span id="layer_adtracks_count" class="red">0</span> threats found in this page 
+
+                    <div id="btnExpandAdtracks" class="button add">&nbsp;</div><br><br> 
+                      <div id="layer_adtracks_expand" style="display:none">
+                        <table id="layer_adtracks" cellspacing="0">
+                            <tbody>
+                                <tr>
+                                    <th>NAME</th>
+                                    <th>TYPE</th>
+                                    <th>ACTION</th>
+                                </tr>
+                            </tbody>
+                        </table>
+                      </div>
+                      
+                    </div>
+                </section>
+                <section id="good-data">
+                    <div class="title-more">
+                        <div class="title">GOOD DATA</div>
+                        <div class="more">MORE ACHIEVEMENTS</div>
+                    </div>
+                    <div class="content"><img src="../images/logo-big.png"/><span id="layer_loans_value" class="green">0</span> projects funded so far<br/>with your help<div class="button share">&nbsp;</div><!--<div class="button add">&nbsp;</div><br><br>
+  
+                    
+                    <div id="layer_loans_expand"> 
+                      <table id="layer_loans_more" cellspacing="0">
+                        <tbody>
+                          <tr>
+                              <th>PROJECTS</th>
+                              <th>COUNTRIES</th>
+                              <th>INVESTED</th>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  -->
+
+                </section>
+                <section id="level">
+                    <div class="title-more">
+                        <div class="title" id="layer_achievement_title">APPRENTICE</div>
+                        <div class="more">MORE ABOUT YOU</div>
+                    </div>
+                    <div class="content"><img src="../images/level-drop.png"/>You've contributed with <span class="green" id="layer_achievement_contributions">10</span><span class="green"> pieces</span> of data this month</div>            
+                    <div class="sub"><div id="layer_config_store_navigation" class="btnStoreNavigation button"></div>Store navigation and non-sensitive queries</div>
+                    <div class="sub"><div id="layer_config_share_search" class="btnShareSearch button"></div>Share non-sensitive queries anonymously</div>
+                </section>
+            </div>
+            <footer id="footer" class="clearfix">
+                <div id="not-working">
+                    <div class="title">Not working properly?</div>
+                    <div class="option"><div id="layer_config_deactivate_current" class="button btnDeactivateCurrent">OFF</div>Deactivate blocking of current website</div>
+                    <div class="option"><div id="layer_config_allow_social" class="button btnAllowSocial on">ON</div>Allow social networks tracking</div>
+
+                </div>
+                <div id="in-love">
+                    <div class="title">In love with us?</div>
+                    <div class="button donate">DONATE</div><div class="button facebook">&nbsp;</div><div class="button twitter">&nbsp;</div><div class="button google-plus">&nbsp;</div><div class="button become-owner">COLLABORATE</div><div class="button email-us">EMAIL US</div>
+
+                </div>
+            </footer>
+        </div>
+    </body>
+</html>
+
+
+
 <!--
   The markup for a popup that displays and drives the blocking of requests.
 
@@ -19,13 +192,7 @@
 
     Brian Kennish <byoogle@gmail.com>
 -->
-<link rel="stylesheet" href="../stylesheets/popup.css">
-<script src="../scripts/vendor/port/port.js"></script>
-<script src="../scripts/md5.js"></script>
-
-<script src="../scripts/config.js"></script>
-<script src="../scripts/common.js"></script>
-<script src="../scripts/popup.js"></script>
+<!--
 
 <p>AQUI VIENE EL INTERFAZ</p>
 
@@ -90,3 +257,5 @@
     href="https://chrome.google.com/webstore/detail/jeoacafpbcihiomhlakheieifhpjdfeo/reviews"
   >Props</a>
 </div>
+-->
+

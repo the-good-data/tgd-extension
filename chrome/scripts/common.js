@@ -1,3 +1,85 @@
+/* Generate a Hashtable  */
+function Hash()
+{
+    this.length = 0;
+    this.items = new Array();
+    for (var i = 0; i < arguments.length; i += 2) {
+        if (typeof(arguments[i + 1]) != 'undefined') {
+            this.items[arguments[i]] = arguments[i + 1];
+            this.length++;
+        }
+    }
+
+    this.removeItem = function(in_key)
+    {
+        var tmp_value;
+        if (typeof(this.items[in_key]) != 'undefined') {
+            this.length--;
+            var tmp_value = this.items[in_key];
+            delete this.items[in_key];
+        }
+        return tmp_value;
+    }
+
+    this.getItem = function(in_key) {
+        return this.items[in_key];
+    }
+
+    this.setItem = function(in_key, in_value)
+    {
+        if (typeof(in_value) != 'undefined') {
+            if (typeof(this.items[in_key]) == 'undefined') {
+                this.length++;
+            }
+
+            this.items[in_key] = in_value;
+        }
+        return in_value;
+    }
+
+    this.hasItem = function(in_key)
+    {
+        return typeof(this.items[in_key]) != 'undefined';
+    }
+}
+
+//Cast string to boolean values
+function castBool(str) {
+    if (str != undefined && str.toLowerCase() === 'true') {
+        return true;
+    } else if (str != undefined && str.toLowerCase() === 'false') {
+        return false;
+    }
+    return false;
+}
+
+//Get value if actual tab is deactivate 
+function isDeactivateCurrent(DOMAIN,ID){
+
+  var status=false;
+  //return true;
+  const WHITELIST = deserialize(localStorage.whitelist) || {};
+  const SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
+
+  //Render Adtracks in GUI
+  try
+  {
+    for (i in SITE_WHITELIST) 
+    {
+      if (i == '*')
+      {
+        status = SITE_WHITELIST[i];
+      }
+    }
+  }
+  catch(err)
+  {
+    console.log(err);
+  }
+
+  return status;
+}
+
 /* Generate a user_id for anSaveHistoryonymous user. */
 function createUUID() {
     // http://www.ietf.org/rfc/rfc4122.txt
@@ -141,6 +223,243 @@ function reduceCookies(url, service, name) {
   });
 }
 
+function CheckQuery(query,callback){
+
+  var xhr = new XMLHttpRequest();
+
+  query = encodeURI(query);
+  console.log('----->'+query);
+
+  //query = query.replace("%","");
+  xhr.open('GET', TGD_API+"api/queriesblacklist/"+query, false);
+  xhr.onload = function () {
+      if (xhr.readyState == 4) {
+        
+        var resp = JSON.parse(xhr.responseText);
+
+        if (DEBUG && DEBUG_QUERY_CHECK){
+          console.log('QUERY CHECK RECUPERADAS EN EL API');
+          console.log('===========================');
+          console.log(resp);
+          console.log('===========================');
+          console.log('');
+        }
+
+        if ( xhr.status == 200)  {
+          if (DEBUG && DEBUG_QUERY_CHECK)
+            console.log(xhr.responseText);
+        }
+        else  {
+          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
+        }
+
+        var resp = JSON.parse(xhr.responseText);
+        callback(resp);
+      }
+  };
+
+  if (DEBUG && DEBUG_QUERY_CHECK){
+    console.log('QUERY CHECK DE LOANS ENVIADA AL API');
+    console.log('===========================');
+    console.log(query);
+    console.log('===========================');
+    console.log('');
+  }
+
+  xhr.send();
+}
+
+function LoadContributed(callback){
+
+  var value='';
+
+  if (localStorage.member_id != 0){
+    value=localStorage.member_id;
+  }
+  else
+  {
+    value=localStorage.user_id;
+  }
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', TGD_API+"api/queries/percentile/"+value, false);
+  xhr.onload = function () {
+      if (xhr.readyState == 4) {
+        
+        if (DEBUG && DEBUG_QUERIES_PERCENTILE){
+          var resp = xhr.responseText;
+          console.log('QUERIES PERCENTILE RECUPERADAS EN EL API');
+          console.log('===========================');
+          console.log(resp);
+          console.log('===========================');
+          console.log('');
+        }
+
+        if ( xhr.status == 200)  {
+          if (DEBUG && DEBUG_QUERIES_PERCENTILE)
+            console.log(xhr.responseText);
+        }
+        else  {
+          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
+        }
+
+        var resp = 0;
+        try
+        {
+          resp=JSON.parse(xhr.responseText);
+        }
+        catch(e){}
+
+        callback(resp);
+      }
+  };
+
+  if (DEBUG && DEBUG_QUERIES_PERCENTILE){
+    console.log('LISTADO DE QUERIES PERCENTILE ENVIADA AL API');
+    console.log('===========================');
+    console.log('===========================');
+    console.log('');
+  }
+
+  xhr.send();
+}
+
+function LoadQueries(callback){
+
+  var value='';
+
+  if (localStorage.member_id != 0){
+    value=localStorage.member_id;
+  }
+  else
+  {
+    value=localStorage.user_id;
+  }
+
+  var xhr = new XMLHttpRequest();
+  
+  xhr.open('GET', TGD_API+"api/queries/count/"+value, false);
+  xhr.onload = function () {
+      if (xhr.readyState == 4) {
+
+        if (DEBUG && DEBUG_QUERIES_COUNT){
+          var resp = xhr.responseText;
+          console.log('QUERIES COUNT RECUPERADAS EN EL API');
+          console.log('===========================');
+          console.log(resp);
+          console.log('===========================');
+          console.log('');
+        }
+
+        if ( xhr.status == 200)  {
+          if (DEBUG && DEBUG_QUERIES_COUNT)
+            console.log(xhr.responseText);
+        }
+        else  {
+          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
+        }
+
+        var resp=0;
+        try
+        {
+          resp = JSON.parse(xhr.responseText);
+        }
+        catch(e){}
+        
+        callback(resp);
+      }
+  };
+
+  if (DEBUG && DEBUG_QUERIES_COUNT){
+    console.log('LISTADO DE QUERIES COUNT ENVIADA AL API');
+    console.log('===========================');
+    console.log('===========================');
+    console.log('');
+  }
+
+  xhr.send();
+}
+
+function LoadLoans(callback){
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', TGD_API+"api/loans/count", false);
+  xhr.onload = function () {
+      if (xhr.readyState == 4) {
+        // WARNING! Might be evaluating an evil script!
+        
+        if (DEBUG && DEBUG_LOANS){
+          var resp = JSON.parse(xhr.responseText);
+          console.log('LOANS RECUPERADAS EN EL API');
+          console.log('===========================');
+          console.log(resp);
+          console.log('===========================');
+          console.log('');
+        }
+
+        if ( xhr.status == 200)  {
+          if (DEBUG && DEBUG_LOANS)
+            console.log(xhr.responseText);
+        }
+        else  {
+          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
+        }
+
+        var resp = JSON.parse(xhr.responseText);
+        callback(resp);
+      }
+  };
+
+  if (DEBUG && DEBUG_LOANS){
+    console.log('LISTADO DE LOANS ENVIADA AL API');
+    console.log('===========================');
+    console.log('===========================');
+    console.log('');
+  }
+
+  xhr.send();
+}
+
+function LoadAchievements(callback){
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', TGD_API+"api/achievements", false);
+  xhr.onload = function () {
+      if (xhr.readyState == 4) {
+        // WARNING! Might be evaluating an evil script!
+        
+        if (DEBUG && DEBUG_ARCHIVEMENTS){
+          var resp = JSON.parse(xhr.responseText);
+          console.log('ACHIVEMENTS RECUPERADAS EN EL API');
+          console.log('===========================');
+          console.log(resp);
+          console.log('===========================');
+          console.log('');
+        }
+
+        if ( xhr.status == 200)  {
+          if (DEBUG && DEBUG_ARCHIVEMENTS)
+            console.log(xhr.responseText);
+        }
+        else  {
+          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
+        }
+
+        var resp = JSON.parse(xhr.responseText);
+        callback(resp);
+      }
+  };
+
+  if (DEBUG && DEBUG_ARCHIVEMENTS){
+    console.log('LISTADO DE ACHIVEMENTS ENVIADA AL API');
+    console.log('===========================');
+    console.log('===========================');
+    console.log('');
+  }
+
+  xhr.send();
+}
+
 
 function SaveBrowsing(browsing){
 
@@ -199,6 +518,7 @@ function SaveThreat(threat){
   data.append('url', threat.url);
   data.append('domain', threat.domain);
   data.append('usertime', threat.usertime);
+  data.append('status', threat.status);
   
   var xhr = new XMLHttpRequest();
   xhr.open('POST', TGD_API+"api/adtracks", true);
@@ -249,7 +569,7 @@ function SaveQuery(query){
   data.append('query', query.query);
   data.append('lang', query.lang);
   data.append('usertime', query.usertime);
-  
+  data.append('share', query.share);
   
   var xhr = new XMLHttpRequest();
   xhr.open('POST', TGD_API+"api/queries", true);
@@ -388,7 +708,11 @@ function syncWhitelist(){
 
 } 
 
-function loginUser(username,password){
+
+
+
+
+function loginUser(username,password, callback_success,callback_fail){
 
   password = hex_md5(SALT + password);
   
@@ -406,16 +730,22 @@ function loginUser(username,password){
           console.log('');
       }
 
-      if ( xhr.status == 200)  {
-
-          localStorage.whitelist = xhr.responseText;
-
-          if (DEBUG && DEBUG_CREDENTIAL)
-            console.log(xhr.responseText);
-        }
-        else  {
-          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
-        }
+      if ( xhr.status == 200)  
+      {
+        var members = JSON.parse(xhr.responseText);
+        var member_id=members[0].id;
+        var member_username = members[0].username;
+        
+        localStorage.member_username = member_username;
+        localStorage.member_id = member_id;
+        console.log('Almacenado member_id : '+localStorage.member_id);
+        callback_success();
+      }
+      else  
+      {
+        console.log( "Error: " + xhr.status + ": " + xhr.statusText);
+        callback_fail(xhr.statusText);
+      } 
     }
   }
   xhr.open( 'GET', url, true);

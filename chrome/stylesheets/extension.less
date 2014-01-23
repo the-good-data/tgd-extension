@@ -1,0 +1,423 @@
+/* 
+    Created on : Dec 16, 2013, 4:41:40 PM
+    Author     : juan
+*/
+@brown-text: #82734B;
+@navy-blue : #095779;
+@navy-blue-dark : #06445F;
+@light-blue : #ECF4F8;
+@light-yellow : #FAFAF3;
+@light-gray : #EFEFEF;
+@light-gray-off : #BFBFBF;
+@light-yellow: #F6F6E9;
+@gray-social-icons : #6E828D;
+@gray-text : #7D7D7D;
+@gray-text-header : #99ABB5;
+@gray-lines: #CCC;
+@purple : #8E64BF;
+@block-button : #6E828D;
+@allow-button : #EA6654;
+
+@input-border-color: #DDDECB;
+
+@tgd-blue : #8AC6EA;
+@tgd-yellow : #FCC34A;
+@tgd-red : #EA6654;
+@tgd-green : #72BC81;
+
+@h1-font-size: 20px;
+@button-font-size: 10px;
+@small-font-size: @button-font-size;
+
+@font-regular : ProximaNovaSoft-Regular;
+@font-medium : ProximaNovaSoft-Medium;
+@font-semi-bold: ProximaNovaSoft-Semibold;
+
+@import "elements.less";
+
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video{
+    font-family: @font-regular;
+}
+
+.clearfix:after {
+    content:".";
+    display:block;
+    height:0;
+    clear:both;
+    visibility:hidden;
+}
+.clearfix {display:inline-block;}
+/* Hide from IE Mac \*/
+.clearfix {display:block;}
+/* End hide from IE Mac */
+
+#container{
+    width : 320px;
+}
+
+#login{
+    header{
+        > div{            
+            text-align: center;
+            padding-bottom:10px;
+            padding-right: 0;
+
+            > h1{
+                color: @navy-blue;
+                display: inline;
+                position: relative;
+                font-size: @h1-font-size;
+                top: -17px;
+                padding:0px 0 20px 10px;
+                /*
+                background-image: url("../img/logo-login.png");
+                background-position: left center;
+                background-repeat: no-repeat;*/
+            }
+        }
+    }
+    
+    #body{
+        background-color: @light-yellow;
+        text-align: center;
+        .inner-shadow(0, 1px, 1px, 0.1);
+        padding:10px;
+        
+        .hr{
+            width: 40px;
+            border-top: 1px solid #D8D4C1;
+            border-right: none;
+            border-bottom: none;
+            border-right: none;
+            margin: 20px auto;
+        }
+        div {
+            color: @brown-text;
+            font-family: @font-semi-bold;
+        }
+        div:nth-child(1){
+            margin:10px auto 15px;
+        }
+        
+        
+        input, button{
+            display: block;
+            margin: 10px auto;
+        }
+        
+        input{
+            .rounded(3px);
+            .inner-shadow(0, 1px, 1px, 0.1);
+            padding:10px;
+            width: 90%;
+            border: 1px solid @input-border-color;
+            color: @brown-text;
+            font-family: @font-regular;    
+            
+        }
+        button{
+            .rounded(30px);
+            .inner-shadow(0, -2px, 0, 0.2);
+            margin: 15px auto;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            color: white;
+            border: none;
+            width: 220px;         
+            font-family: @font-semi-bold;
+            &.green{
+                background-color: @tgd-green;
+            }
+            &.red{
+                background-color: @tgd-red;
+            }
+        }
+    }
+}
+
+
+header{
+    
+    
+    > div{
+        position: relative;
+        padding-right: 40px;
+    }
+    
+    .welcome{
+        font-family: @font-medium;
+        font-weight: bold;
+        font-size: 16px;
+        color : @gray-text;
+        background-color : white;
+        height : 40px;
+        
+        > div {
+            padding: 8px;
+        }
+        
+        .logo{
+            float: left;
+            width: 28px;
+            height: 28px;
+            background-image: url("../img/logo.png");
+            margin-top: -3px;
+            margin-right: 5px;
+        }
+        
+        .button{
+            background-image: url("../img/switch.png");
+            background-position: center center;
+            background-repeat: no-repeat;
+            padding: 0;
+        }
+    }
+    
+    .message{
+        color : white;
+        background-color: @navy-blue;
+        margin-bottom : 10px;
+        height : 40px;
+        font-size: 11px;
+        
+        > div {
+            padding: 15px 10px 10px 10px;
+        }
+        
+        .button{
+            padding: 0;
+            background-color: @navy-blue-dark;
+            background-image: url("../img/share.png");
+            background-position: center center;
+            background-repeat: no-repeat;
+            padding: 0;
+        }
+    }
+    
+    .button {
+        position: absolute;
+        top: 0px;
+        right: 0px;
+        width: 40px;
+        height: 40px;
+    }
+}
+section{
+    position : relative;
+    
+    .title-more{
+        
+        position: relative;
+        font-family: @font-medium;
+        font-weight: bold;
+        font-size: 12px;
+        
+        .title,.more{
+            position: absolute;
+            background-repeat: repeat-x;
+            z-index: 100;
+            padding-left: 3px;
+            padding-right: 3px;
+        }
+        .title{
+            background-position: 0px -5px;
+            top: -7px;
+            left: 5px;
+            color : @tgd-blue;
+        }
+        .more{
+            background-position: 0px -7px;
+            font-size:@small-font-size;
+            top: -5px;
+            right: 5px;
+            color : @gray-text;
+        }
+    }
+    
+    &#good-data{
+        background-color : @light-yellow;
+        .title, .more{
+            background-image: url("../img/good-background.png");
+        }
+    }
+    &#evil-data{
+        background-color : @light-blue;
+        th{
+            text-align: left;
+            font-size: @small-font-size;
+            color: #99ABB5;
+        }
+        
+        table{
+            width: 100%;
+        }
+        td{
+            padding: 4px 0 2px 0;
+            border-top:  1px solid @gray-lines;
+            .button{
+                padding-top: 4px;
+                padding-bottom:3px;
+            }
+        }
+        td:nth-child(3){
+            padding-top:0px;
+        }
+        .title, .more{
+            background-image: url("../img/evil-background.png");
+        }
+    }
+    &#apprentice{
+        .content{
+            padding-bottom: 5px;
+            img{
+                top: 15px;
+            }
+        }
+        .title, .more{
+            background-image: url("../img/apprentice-background.png");
+        }
+    }
+    .content{
+        border-top: 1px solid @gray-lines;
+        position: relative;
+        padding: 25px 10px 25px 60px;
+        font-size:14px;
+        font-family: @font-medium;
+        font-weight:bold;
+        color: @gray-text;
+        
+        img{
+            position: absolute;
+            left: 5px;
+            top: 20px;
+        }
+        
+        .green{
+            color: @tgd-green;
+        }
+        
+        .red{
+            color: @tgd-red;
+        }
+    }
+    .sub{
+        font-size: 12px;
+        color: @gray-text;
+        margin: 5px auto 7px auto;
+        .button{
+            margin-right: 5px;
+            padding-top: 3px;
+            padding-bottom:2px;
+            &.share,&.store{
+                background-image: none;
+                background-color: @tgd-green;
+            }
+        }
+    }
+}
+
+footer{
+    background-color : @light-gray;
+    border-top : 1px solid @gray-lines;
+    color: @gray-text;
+    padding-top: 10px;
+    
+    &>div{
+        float:left;
+        margin-bottom: 10px;
+        &>div{
+            margin-left:5px;
+            &.option{
+                position: relative;
+                margin-top: 3px;
+                padding-left:35px;
+                font-size:12px;
+                .button{
+                    position:absolute;
+                    left:0px;
+                    top: 2px;
+                    padding-bottom: 2px;
+                }
+            }
+        }
+    }
+    
+    .title{
+        font-family: @font-medium;
+        font-weight: bold;
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+    #not-working{
+        width: 59%;
+        
+        
+    }
+    #in-love{
+        width: 41%;
+        .button{
+            float: left;
+            margin-top: 3px;
+        }
+    }
+}
+
+ .button{
+        .rounded(5px);
+        color: white;
+        padding: 3px 6px;
+        font-size: @button-font-size;
+        display: inline;
+        
+        &.on{
+            background-color: @tgd-green;
+        }
+
+        &.off{
+            background-color: @light-gray-off;
+            padding: 3px 4px;
+        }
+
+        &.allow{
+            background-color: @allow-button;
+        }
+
+        &.block{
+            background-color: @block-button;
+        }
+        &.share,&.add,&.store,&.facebook,&.twitter,&.google-plus{
+            display: inline;
+            background-position: center center;
+            background-repeat: no-repeat;
+            margin-left: 5px;
+        }
+        &.facebook,&.twitter,&.google-plus{
+            padding-left:8px;
+            margin-left: 2px;
+            background-color: @block-button;
+        }
+        &.share{
+            background-color: @tgd-yellow;
+            background-image: url("../img/share-mini.png");
+        }
+        &.add{
+            background-color: @tgd-red;
+            background-image: url("../img/plus-mini.png");
+        }
+        &.facebook{
+            background-image: url("../img/facebook.png");
+        }
+        &.twitter{
+            background-image: url("../img/twitter.png");
+        }
+        &.google-plus{
+            background-image: url("../img/google-plus.png");
+        }
+        &.donate,&.become-owner{
+            background-color: @purple;
+        }
+    }
+    
+    #login{
+        
+    }

@@ -1,0 +1,495 @@
+/* 
+    Created on : Dec 16, 2013, 4:41:40 PM
+    Author     : juan
+*/
+/*---------------------------------------------------
+    LESS Elements 0.9
+  ---------------------------------------------------
+    A set of useful LESS mixins
+    More info at: http://lesselements.com
+  ---------------------------------------------------*/
+html,
+body,
+div,
+span,
+applet,
+object,
+iframe,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+acronym,
+address,
+big,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+ins,
+kbd,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+b,
+u,
+i,
+center,
+dl,
+dt,
+dd,
+ol,
+ul,
+li,
+fieldset,
+form,
+label,
+legend,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+article,
+aside,
+canvas,
+details,
+embed,
+figure,
+figcaption,
+footer,
+header,
+hgroup,
+menu,
+nav,
+output,
+ruby,
+section,
+summary,
+time,
+mark,
+audio,
+video {
+  font-family: ProximaNovaSoft-Regular;
+}
+.clearfix:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+.clearfix {
+  display: inline-block;
+}
+/* Hide from IE Mac \*/
+.clearfix {
+  display: block;
+}
+/* End hide from IE Mac */
+#container {
+  width: 320px;
+}
+#login header > div {
+  text-align: center;
+  padding-bottom: 10px;
+  padding-right: 0;
+}
+#login header > div > h1 {
+  color: #095779;
+  display: inline;
+  position: relative;
+  font-size: 20px;
+  top: -17px;
+  padding: 0px 0 20px 10px;
+  /*
+                background-image: url("../images/logo-login.png");
+                background-position: left center;
+                background-repeat: no-repeat;*/
+
+}
+#login #body {
+  background-color: #f6f6e9;
+  text-align: center;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+}
+#login #body .hr {
+  width: 40px;
+  border-top: 1px solid #D8D4C1;
+  border-bottom: none;
+  border-right: none;
+  margin: 20px auto;
+}
+#login #body div {
+  color: #82734b;
+  font-family: ProximaNovaSoft-Semibold;
+}
+#login #body div:nth-child(1) {
+  margin: 10px auto 15px;
+}
+#login #body input,
+#login #body button {
+  display: block;
+  margin: 10px auto;
+  cursor:pointer;
+}
+#login #body input {
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.1);
+  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.1);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  width: 90%;
+  border: 1px solid #dddecb;
+  color: #82734b;
+  font-family: ProximaNovaSoft-Regular;
+}
+#login #body button {
+  -webkit-border-radius: 30px;
+  -moz-border-radius: 30px;
+  border-radius: 30px;
+  -webkit-box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.2);
+  margin: 15px auto;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  color: white;
+  border: none;
+  width: 220px;
+  font-family: ProximaNovaSoft-Semibold;
+}
+#login #body button.green {
+  background-color: #72bc81;
+}
+#login #body button.red {
+  background-color: #ea6654;
+}
+header > div {
+  position: relative;
+  padding-right: 40px;
+}
+header .welcome {
+  font-family: ProximaNovaSoft-Medium;
+  font-weight: bold;
+  font-size: 16px;
+  color: #7d7d7d;
+  background-color: white;
+  height: 40px;
+}
+header .welcome > div {
+  padding: 8px;
+}
+header .welcome .logo {
+  float: left;
+  width: 28px;
+  height: 28px;
+  background-image: url("../images/logo.png");
+  margin-top: -3px;
+  margin-right: 5px;
+}
+header .welcome .button_login {
+  padding: 0;
+}
+header .welcome .button_switch {
+  background-image: url("../images/switch.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  padding: 0;
+}
+header .message {
+  color: white;
+  background-color: #095779;
+  margin-bottom: 10px;
+  height: 40px;
+  font-size: 12px;
+}
+header .message > div {
+  /adding: 5px 10px 10px 10px;
+}
+header .message .button {
+  background-color: #06445f;
+  background-image: url("../images/share.png");
+  background-position: center center;
+  background-repeat: no-repeat;
+  padding: 0;
+}
+header .button {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  width: 40px;
+  height: 40px;
+}
+section {
+  position: relative;
+}
+section .title-more {
+  position: relative;
+  font-family: ProximaNovaSoft-Medium;
+  font-weight: bold;
+  font-size: 12px;
+}
+section .title-more .title,
+section .title-more .more {
+  position: absolute;
+  background-repeat: repeat-x;
+  z-index: 100;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+section .title-more .title {
+  background-position: 0px -5px;
+  top: -7px;
+  left: 5px;
+  color: #8ac6ea;
+}
+section .title-more .more {
+  background-position: 0px -7px;
+  font-size: 10px;
+  top: -5px;
+  right: 5px;
+  color: #7d7d7d;
+}
+section#good-data {
+  background-color: #f6f6e9;
+}
+section#good-data .title,
+section#good-data .more {
+  background-image: url("../images/good-background.png");
+}
+section#evil-data {
+  background-color: #ecf4f8;
+}
+section#evil-data th{
+  text-align: left;
+  font-size: 10px;
+  color: #99ABB5;
+  width:25px;
+}
+section#evil-data table {
+  width: 100%;
+  font-size:0.85em;
+}
+section#evil-data td {
+  padding: 4px 0 2px 0;
+  border-top: 1px solid #cccccc;
+  width:25px;
+}
+section#evil-data td .button {
+  padding-top: 4px;
+  padding-bottom: 3px;
+}
+section#evil-data td:nth-child(3) {
+  padding-top: 0px;
+}
+
+section#good-data th{
+  text-align: left;
+  font-size: 10px;
+  color: #99ABB5;
+  width:25px;
+}
+section#good-data table {
+  width: 100%;
+}
+section#good-data td {
+  padding: 4px 0 2px 0;
+  border-top: 1px solid #cccccc;
+  width:25px;
+}
+section#good-data td .button {
+  padding-top: 4px;
+  padding-bottom: 3px;
+}
+section#good-data td:nth-child(3) {
+  padding-top: 0px;
+}
+
+section#evil-data .title,
+section#evil-data .more {
+  background-image: url("../images/evil-background.png");
+}
+section#level .content {
+  padding-bottom: 5px;
+}
+section#level .content img {
+  top: 15px;
+}
+section#level .title,
+section#level .more {
+  background-image: url("../images/level-background.png");
+}
+section .content {
+  border-top: 1px solid #cccccc;
+  position: relative;
+  padding: 25px 10px 25px 60px;
+  font-size: 14px;
+  font-family: ProximaNovaSoft-Medium;
+  font-weight: bold;
+  color: #7d7d7d;
+}
+section .content img {
+  position: absolute;
+  left: 5px;
+  top: 20px;
+}
+section .content .green {
+  color: #72bc81;
+}
+section .content .red {
+  color: #ea6654;
+}
+section .sub {
+  font-size: 12px;
+  color: #7d7d7d;
+  margin: 5px auto 7px auto;
+}
+section .sub .button {
+  margin-right: 5px;
+  padding-top: 3px;
+  padding-bottom: 2px;
+}
+section .sub .button.share,
+section .sub .button.store {
+  background-image: none;
+  background-color: #72bc81;
+}
+footer {
+  background-color: #efefef;
+  border-top: 1px solid #cccccc;
+  color: #7d7d7d;
+  padding-top: 10px;
+}
+footer > div {
+  float: left;
+  margin-bottom: 10px;
+}
+footer > div > div {
+  margin-left: 5px;
+}
+footer > div > div.option {
+  position: relative;
+  margin-top: 3px;
+  padding-left: 35px;
+  font-size: 12px;
+}
+footer > div > div.option .button {
+  position: absolute;
+  left: 0px;
+  top: 2px;
+  padding-bottom: 2px;
+}
+footer .title {
+  font-family: ProximaNovaSoft-Medium;
+  font-weight: bold;
+  font-size: 14px;
+  margin-bottom: 5px;
+}
+footer #not-working {
+  width: 59%;
+}
+footer #in-love {
+  width: 41%;
+}
+footer #in-love .button {
+  float: left;
+  margin-top: 3px;
+}
+.button {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  color: white;
+  padding: 3px 6px;
+  font-size: 10px;
+  display: inline;
+  cursor: pointer
+}
+.button.on {
+  background-color: #72bc81;
+}
+.button.off {
+  background-color: #bfbfbf;
+  padding: 3px 4px;
+}
+.button.allow {
+  background-color: #ea6654;
+}
+.button.block {
+  background-color: #6e828d;
+}
+.button.share,
+.button.minus,
+.button.add,
+.button.store,
+.button.facebook,
+.button.twitter,
+.button.google-plus {
+  display: inline;
+  background-position: center center;
+  background-repeat: no-repeat;
+  margin-left: 5px;
+}
+.button.facebook,
+.button.twitter,
+.button.google-plus {
+  padding-left: 8px;
+  margin-left: 2px;
+  background-color: #6e828d;
+}
+.button.share {
+  background-color: #fcc34a;
+  background-image: url("../images/share-mini.png");
+}
+.button.add {
+  background-color: #ea6654;
+  background-image: url("../images/plus-mini.png");
+}
+.button.minus {
+  background-color: #ea6654;
+  background-image: url("../images/minus-mini.png");
+}
+.button.facebook {
+  background-image: url("../images/facebook.png");
+}
+.button.twitter {
+  background-image: url("../images/twitter.png");
+}
+.button.google-plus {
+  background-image: url("../images/google-plus.png");
+}
+.button.donate,
+.button.email-us,
+.button.become-owner {
+  background-color: #8e64bf;
+}
+.button.login {
+  background-color: #8e64bf;
+}
+
+
