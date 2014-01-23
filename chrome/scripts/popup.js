@@ -321,16 +321,16 @@ function renderHeader(){
         //Render adtracks in table
         renderAdtracks(TAB);
 
-        //Render achievement
+        // //Render achievement
         renderAchievement();
 
-        //Render loans counter
+        // //Render loans counter
         renderLoans();
 
-        //Render Queries counter
+        // //Render Queries counter
         renderQueries();
 
-        //Render Contributed counter
+        // //Render Contributed counter
         renderContributed();
 
         //Render Options

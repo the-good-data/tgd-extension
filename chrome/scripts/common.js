@@ -43,6 +43,40 @@ function Hash()
     }
 }
 
+//Add services to whitelist
+function addWhitelist(DOMAIN,service_name,status){
+  const WHITELIST = deserialize(localStorage.whitelist) || {};
+  const SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
+
+  WHITELIST[DOMAIN][service_name]=!status;
+  localStorage.whitelist = JSON.stringify(WHITELIST);
+}
+
+//Get status whitelisted service
+function getWhitelistStatus(DOMAIN,tab,service_name){
+  const WHITELIST = deserialize(localStorage.whitelist) || {};
+  const SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
+  
+  if (SITE_WHITELIST[service_name]==undefined)
+  {
+    return false;
+  }
+  else
+  {
+    return SITE_WHITELIST[service_name];
+  }
+}
+
+//Set status whitelisted service
+function setWhitelistStatus(DOMAIN,tab,service_name,status){
+  const WHITELIST = deserialize(localStorage.whitelist) || {};
+  const SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
+  
+  SITE_WHITELIST[service_name]=status;
+  localStorage.whitelist = JSON.stringify(WHITELIST);
+
+}
+
 //Cast string to boolean values
 function castBool(str) {
     if (str != undefined && str.toLowerCase() === 'true') {
@@ -282,7 +316,7 @@ function LoadContributed(callback){
   }
 
   var xhr = new XMLHttpRequest();
-  xhr.open('GET', TGD_API+"api/queries/percentile/"+value, false);
+  xhr.open('GET', TGD_API+"api/queries/percentile/"+value, true);
   xhr.onload = function () {
       if (xhr.readyState == 4) {
         
@@ -338,7 +372,7 @@ function LoadQueries(callback){
 
   var xhr = new XMLHttpRequest();
   
-  xhr.open('GET', TGD_API+"api/queries/count/"+value, false);
+  xhr.open('GET', TGD_API+"api/queries/count/"+value, true);
   xhr.onload = function () {
       if (xhr.readyState == 4) {
 
@@ -383,7 +417,7 @@ function LoadQueries(callback){
 function LoadLoans(callback){
 
   var xhr = new XMLHttpRequest();
-  xhr.open('GET', TGD_API+"api/loans/count", false);
+  xhr.open('GET', TGD_API+"api/loans/count", true);
   xhr.onload = function () {
       if (xhr.readyState == 4) {
         // WARNING! Might be evaluating an evil script!
@@ -423,7 +457,7 @@ function LoadLoans(callback){
 function LoadAchievements(callback){
 
   var xhr = new XMLHttpRequest();
-  xhr.open('GET', TGD_API+"api/achievements", false);
+  xhr.open('GET', TGD_API+"api/achievements", true);
   xhr.onload = function () {
       if (xhr.readyState == 4) {
         // WARNING! Might be evaluating an evil script!

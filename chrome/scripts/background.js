@@ -205,8 +205,6 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
   const CHILD_DOMAIN = GET(REQUESTED_URL);
 
   
-  //console.log(REQUESTED_URL);
-
   if (PARENT) DOMAINS[TAB_ID] = CHILD_DOMAIN;
   var childService = getService(CHILD_DOMAIN);
   var hardenedUrl;
@@ -215,6 +213,14 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
   var whitelisted;
 
   if (childService) {
+
+    var allow_social = castBool(localStorage.allow_social);
+    if (allow_social==true)
+    {
+      addWhitelist(CHILD_DOMAIN,'Facebook',true);
+      addWhitelist(CHILD_DOMAIN,'Twitter',true);
+    }
+
     const PARENT_DOMAIN = DOMAINS[TAB_ID];
     const PARENT_SERVICE = getService(PARENT_DOMAIN);
     const CHILD_NAME = childService.name;
@@ -259,6 +265,19 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
         else 
           whitelisted = true; 
       }
+      // else if (childService.name == 'Facebook' || childService.name == 'Twitter')
+      // {
+      //   console.log('--->');
+      //   whitelisted = true; 
+
+      //   hardenedUrl = harden(REQUESTED_URL);
+      //   hardened = hardenedUrl.hardened;
+      //   hardenedUrl = hardenedUrl.url;
+      //   if (hardened) 
+      //     blockingResponse = {redirectUrl: hardenedUrl};
+      //   else 
+      //     whitelisted = true; 
+      // }
       else
       {
 
