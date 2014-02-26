@@ -71,3 +71,11 @@ input, :link, :visited { outline: none }
 }
 
 .shown#search { display: table-row }
+
+
+.close{
+  position: fixed;
+  background: url('../images/close.png');
+  top:0;
+  left:0;
+}

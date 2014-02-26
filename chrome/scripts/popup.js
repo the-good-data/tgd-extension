@@ -86,7 +86,7 @@ function writeAchivement(achivements){
 
   for(i = 0; i < achivements.length; i++){
     var achivement = achivements[i];
-    $("#layer_achievement_value").append('<li>'+achivement['title'+LANG]+'</li>');
+    $("#layer_achievement_value").append('<li>'+achivement['text'+LANG]+'</li>');
   }
 
   var element = $('#layer_achievement_value li'),
@@ -225,39 +225,7 @@ function renderDeactivateCurrent(DOMAIN,tab){
     setButton(deactivate_current,'#layer_config_deactivate_current');
 }
 
-//Add services to whitelist
-function addWhitelist(DOMAIN,service_name,status){
-  const WHITELIST = DESERIALIZE(localStorage.whitelist) || {};
-  const SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
 
-  WHITELIST[DOMAIN][service_name]=!status;
-  localStorage.whitelist = JSON.stringify(WHITELIST);
-}
-
-//Get status whitelisted service
-function getWhitelistStatus(DOMAIN,tab,service_name){
-  const WHITELIST = DESERIALIZE(localStorage.whitelist) || {};
-  const SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
-  
-  if (SITE_WHITELIST[service_name]==undefined)
-  {
-    return false;
-  }
-  else
-  {
-    return SITE_WHITELIST[service_name];
-  }
-}
-
-//Set status whitelisted service
-function setWhitelistStatus(DOMAIN,tab,service_name,status){
-  const WHITELIST = DESERIALIZE(localStorage.whitelist) || {};
-  const SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
-  
-  SITE_WHITELIST[service_name]=status;
-  localStorage.whitelist = JSON.stringify(WHITELIST);
-
-}
 
 function deactivateCurrent(tab){
   const TAB = tab;
@@ -374,14 +342,20 @@ function renderHeader(){
               event.preventDefault();
           });
 
+          $('.close').click(function(){
+            $('#btnLogin').click();
+          })
+
           //Behavior click button signin
           $('#btnSignIn').click(function (event) {
             var username= $('#txtUsername').val();
             var password= $('#txtPassword').val();
             
+            $('#pError').html("");
+
             if (username == "" || password == "")
             {
-              $('#pError').html("Invalid data");
+              $('#pError').html("Invalid username or password. <a href='"+URL+"/user/recovery'>I forgot my password</a>.");
             }
             else
             {
@@ -393,7 +367,7 @@ function renderHeader(){
 
                 },
                 function (error){
-                  $('#pError').html(error);
+                  $('#pError').html("Invalid username or password. <a href='"+URL+"/user/recovery'>I forgot my password</a>.");
                 }
               );
 
@@ -554,6 +528,13 @@ function renderHeader(){
           
 
 
+
+          $('body').on('click','a', function(){
+            TABS.create({url: this.getAttribute('href')});
+            return false;
+          });
+
+
         });
       }
     );
@@ -587,18 +568,6 @@ function renderHeader(){
     //       localStorage.browsingHardened =
     //           !DESERIALIZE(localStorage.browsingHardened);
     // };
-
-
-    // //TRANSFORMAR LOS ENLACES DE LA EXTENSION EN TABS
-    // const LINKS = document.getElementsByTagName('a');
-    // const LINK_COUNT = LINKS.length;
-
-    // for (var i = 0; i < LINK_COUNT; i++) LINKS[i].onclick = function() {
-    //   TABS.create({url: this.getAttribute('href')});
-    //   return false;
-    // };
-
-
 
     // //PARA VER MENSAJES
     // const BOTON_TEST =

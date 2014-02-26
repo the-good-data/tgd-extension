@@ -257,7 +257,49 @@ function reduceCookies(url, service, name) {
   });
 }
 
-function CheckQuery(query,callback){
+function CheckLanguagesSupport(lang,callback){
+
+  var xhr = new XMLHttpRequest();
+
+  xhr.open('GET', TGD_API+"api/languagesSupport/"+lang, false);
+  xhr.onload = function () {
+      if (xhr.readyState == 4) {
+        
+        var resp = JSON.parse(xhr.responseText);
+
+        if (DEBUG && DEBUG_LANGUAGES_SUPPORT_CHECK){
+          console.log('QUERY CHECK RECUPERADAS EN EL API');
+          console.log('===========================');
+          console.log(resp);
+          console.log('===========================');
+          console.log('');
+        }
+
+        if ( xhr.status == 200)  {
+          if (DEBUG && DEBUG_LANGUAGES_SUPPORT_CHECK)
+            console.log(xhr.responseText);
+        }
+        else  {
+          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
+        }
+
+        var resp = JSON.parse(xhr.responseText);
+        callback(resp);
+      }
+  };
+
+  if (DEBUG && DEBUG_LANGUAGES_SUPPORT_CHECK){
+    console.log('QUERY CHECK DE LANGUAGESSUPPORT ENVIADA AL API');
+    console.log('===========================');
+    console.log(lang);
+    console.log('===========================');
+    console.log('');
+  }
+
+  xhr.send();
+}
+
+function CheckQuery(query,alias,callback){
 
   var xhr = new XMLHttpRequest();
 
@@ -265,7 +307,7 @@ function CheckQuery(query,callback){
   console.log('----->'+query);
 
   //query = query.replace("%","");
-  xhr.open('GET', TGD_API+"api/queriesblacklist/"+query, false);
+  xhr.open('GET', TGD_API+"api/queriesblacklist/"+alias+"/"+query, false);
   xhr.onload = function () {
       if (xhr.readyState == 4) {
         
@@ -553,7 +595,8 @@ function SaveThreat(threat){
   data.append('domain', threat.domain);
   data.append('usertime', threat.usertime);
   data.append('status', threat.status);
-  
+  data.append('language_support',threat.language_support)
+
   var xhr = new XMLHttpRequest();
   xhr.open('POST', TGD_API+"api/adtracks", true);
   xhr.onload = function () {
@@ -604,6 +647,7 @@ function SaveQuery(query){
   data.append('lang', query.lang);
   data.append('usertime', query.usertime);
   data.append('share', query.share);
+  data.append('language_support', query.language_support);
   
   var xhr = new XMLHttpRequest();
   xhr.open('POST', TGD_API+"api/queries", true);

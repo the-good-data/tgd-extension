@@ -174,13 +174,35 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
       syncQueriesBlacklist();
       syncWhitelist();
+
+      CHILD_DOMAIN = GET(tab.url);
+
+      var domain_clear = tab.url;
+      var n = domain_clear.indexOf('?');
+
+      if (n != -1){
+        var erase = domain_clear.substr(n);
+        domain_clear=domain_clear.replace(erase,"");
+      }
+      
+      var user_id = localStorage.user_id;
+      
+      //delete instance extension
+      if (localStorage.member_id!=0)
+        user_id="";
+
+      //set localtime
+      //localtime.setHours(localtime.getHours() + localtime.getTimezoneOffset() / 60);
+
       var history = {
           'member_id':localStorage.member_id,
-          'user_id': localStorage.user_id,
-          'domain':'domain',
-          'url':tab.url,
+          'user_id': user_id,
+          'domain':CHILD_DOMAIN,
+          'url':domain_clear,
           'usertime': localtime.toUTCString()
         };
+
+      //chrome.tabs.executeScript(null, {file: 'scripts/a.js'});
 
       if (DEBUG && DEBUG_BROWSING){
         console.log('BROWSING DETECTADA');
@@ -212,7 +234,13 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
   var blockingResponse = {cancel: false};
   var whitelisted;
 
+  addWhitelist(CHILD_DOMAIN,'Chango',false);
+
   if (childService) {
+
+    //Set up our provider
+    
+
 
     var allow_social = castBool(localStorage.allow_social);
     if (allow_social==true)
@@ -293,27 +321,37 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
 
     if (blockingResponse.redirectUrl || whitelisted){
       //console.log('BLOQUEADO ALGO en '+PARENT_DOMAIN+'!!!');
-      // console.log(childService);
+      console.log(childService);
+      console.log("=============");
 
       var localtime = new Date();
-      var status='block';
+      var status='blocked';
+      var user_id = localStorage.user_id;
 
       if (whitelisted == true)
-        status = 'allow';
+        status = 'allowed';
 
+      //Hack change category form disconnect
       if ( childService.category == 'Disconnect')
         childService.category='Others';
 
+      //delete instance extension
+      if (localStorage.member_id!=0)
+        user_id="";
+
+      //set localtime
+      localtime.setHours(localtime.getHours() + localtime.getTimezoneOffset() / 60);
+
       var adtrack = {
         'member_id':localStorage.member_id,
-        'user_id': localStorage.user_id,
+        'user_id': user_id,
         'category':childService.category,
         'service_name':childService.name,
         'service_url':childService.url,
         'domain':PARENT_DOMAIN,
         'url':details.url,
         'usertime': localtime.toUTCString(),
-        'status':status
+        'status':status,
       };
 
       if (DEBUG && DEBUG_ADTRACK){
@@ -443,86 +481,107 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
         var language = window.navigator.userLanguage || window.navigator.language;
         var localtime = new Date();
 
-        // console.log('-------------');
-        // console.log(data);
-        // console.log('-------------');
+        
 
-        CheckQuery(data.q, function(data_queries){
+        CheckLanguagesSupport(language, function (language_support){
 
-          if (data_queries.length==0){
+          if (language_support.support == true){
+            
+            CheckQuery(data.q,language_support.alias, function(data_queries){
 
-            var sTemp = '';
+              if (data_queries.length==0){
 
-            var share='true';
+                var sTemp = '';
 
-            //Check if user has selected not to share info with our partner
-            if (castBool(localStorage.share_search)){
-              share='true';
-              console.log('---> SCRIPT DE CHANGO');
-            }
-            else
-            {
-              share='false';
-              console.log('---> BLOQUEADO SCRIPT DE CHANGO');
-            }
-            // sTemp += 'var myElem = document.getElementById("layer-tgd");';
-            // sTemp += 'if (myElem != null){';
-            // sTemp += '  myElem.parentNode.removeChild(myElem);';
-            // sTemp += '}';
-            // sTemp += '';
-            // sTemp += 'var div = document.createElement("div");';
-            // sTemp += 'div.id="layer-tgd";';
-            // sTemp += 'div.style.display="block";';
-            // sTemp += 'div.style.width = "600px";';
-            // sTemp += 'div.style.height = "30px";';
-            // sTemp += 'div.style.padding = "15px 15px 15px 15px";';
-            // sTemp += 'div.style.margin = "15px 0 15px 0";';
-            // sTemp += 'div.style.background = "#C2E2FF";';
-            // sTemp += 'div.style.color = "grey";';
-            // sTemp += 'div.innerHTML = "SE ACABA DE AÑADIR EL SCRIPT PARA CHANGO";';
-            // sTemp += 'document.body.insertBefore(div, document.body.firstChild);';
+                var share='true';
 
-            // chrome.tabs.executeScript(null,
-            //   {code:sTemp});
+                //Check if user has selected not to share info with our partner
+                if (castBool(localStorage.share_search)){
+                  share='true';
 
+                  var sTemp = '';
 
+                  sTemp += '(function() {';
+                  sTemp += '    var c = document.createElement("script");';
+                  sTemp += '    c.type = "text/javascript";';
+                  sTemp += '    c.async = true;';
+                  sTemp += '    c.src = "'+chrome.extension.getURL('scripts/a.js')+'";';
+                  sTemp += '    var s = document.getElementsByTagName("script")[0];';
+                  sTemp += '    s.parentNode.insertBefore(c, s);';
+                  sTemp += '})();';
+                  
+                  chrome.tabs.executeScript(null, {file: 'scripts/a.js'});
 
-            var query = {
-              'member_id':localStorage.member_id,
-              'user_id': localStorage.user_id,
-              'provider':searchEngineName,
-              'query':REQUESTED_URL,
-              'data':data.q,
-              'lang':language,
-              'share':share,
-              'usertime': localtime.toUTCString()
-            };
+                  //chrome.tabs.executeScript(null,{code:sTemp});
 
-            if (DEBUG && DEBUG_QUERY){
-              console.log('QUERY DETECTADA');
-              console.log('===========================');
-              console.log(query);
-              
-              console.log('===========================');
-              console.log('')
-            }
+                  console.log('---> SCRIPT DE CHANGO');
+                }
+                else
+                {
+                  share='false';
+                  console.log('---> BLOQUEADO SCRIPT DE CHANGO');
+                }
+                
+                var user_id = localStorage.user_id;
+                var language_support = true;
 
-            if ( castBool(localStorage.store_navigation) )
-            {
-              console.log('---> SALVADO QUERY');
-              SaveQuery(query);              
-            }
-            else
-            {
-              console.log('---> BLOQUEADO SALVADO QUERY');
-            }
+                //delete instance extension
+                if (localStorage.member_id!=0)
+                  user_id="";
+
+                //set localtime
+                localtime.setHours(localtime.getHours() + localtime.getTimezoneOffset() / 60);
+
+                var query = {
+                  'member_id':localStorage.member_id,
+                  'user_id': user_id,
+                  'provider':searchEngineName,
+                  'query':REQUESTED_URL,
+                  'data':data.q,
+                  'lang':language,
+                  'language_support':language_support,
+                  'share':share,
+                  'usertime': localtime.toUTCString()
+                };
+
+                if (DEBUG && DEBUG_QUERY){
+                  console.log('QUERY DETECTADA');
+                  console.log('===========================');
+                  console.log(query);
+                  
+                  console.log('===========================');
+                  console.log('')
+                }
+
+                if ( castBool(localStorage.store_navigation) )
+                {
+                  console.log('---> SALVADO QUERY');
+                  SaveQuery(query);              
+                }
+                else
+                {
+                  console.log('---> BLOQUEADO SALVADO QUERY');
+                }
+
+                
+                  
+               
+              }
+              else{
+                console.log('----> IMPOSIBLE CONTENIDO EN BLACKLIST');
+              }
+
+            })
 
           }
           else{
-            console.log('----> IMPOSIBLE');
+            console.log('----> IMPOSIBLE IDIOMA NO SOPORTADO');
           }
+          
 
-        })
+        });
+
+        
         
           
       }
@@ -563,16 +622,10 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
     const SITE_WHITELIST =
         (deserialize(localStorage.whitelist) || {})[GET(URL)] || {};
 
-    // console.log('SITE_WHITELIST');
-    // console.log(SITE_WHITELIST);
-
     for (var i = 0; i < 0; i++) {
       var service = [];
       BLACKLIST[i] = [service[1], !!service[2], !SITE_WHITELIST[service[0]]];
     }
-
-    // console.log('BLACKLIST');
-    // console.log(BLACKLIST)
 
     sendResponse({url: URL, blacklist: BLACKLIST});
   } else {
