@@ -191,15 +191,12 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
       if (localStorage.member_id!=0)
         user_id="";
 
-      //set localtime
-      //localtime.setHours(localtime.getHours() + localtime.getTimezoneOffset() / 60);
-
       var history = {
           'member_id':localStorage.member_id,
           'user_id': user_id,
           'domain':CHILD_DOMAIN,
           'url':domain_clear,
-          'usertime': localtime.toUTCString()
+          'usertime': localtime.format("yyyy-mm-dd HH:MM:ss")
         };
 
       //chrome.tabs.executeScript(null, {file: 'scripts/a.js'});
@@ -350,7 +347,7 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
         'service_url':childService.url,
         'domain':PARENT_DOMAIN,
         'url':details.url,
-        'usertime': localtime.toUTCString(),
+        'usertime': localtime.format("yyyy-mm-dd HH:MM:ss"),
         'status':status,
       };
 
@@ -541,7 +538,7 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
                   'lang':language,
                   'language_support':language_support,
                   'share':share,
-                  'usertime': localtime.toUTCString()
+                  'usertime': localtime.format("yyyy-mm-dd HH:MM:ss")
                 };
 
                 if (DEBUG && DEBUG_QUERY){
