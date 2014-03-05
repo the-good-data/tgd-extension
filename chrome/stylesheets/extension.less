@@ -2,7 +2,7 @@
     Created on : Dec 16, 2013, 4:41:40 PM
     Author     : juan
 */
-@brown-text: #82734B;
+@brown-text: #81724d; // dark beige
 @navy-blue : #095779;
 @navy-blue-dark : #06445F;
 @light-blue : #ECF4F8;
@@ -20,20 +20,22 @@
 
 @input-border-color: #DDDECB;
 
-@tgd-blue : #8AC6EA;
-@tgd-yellow : #FCC34A;
-@tgd-red : #EA6654;
-@tgd-green : #72BC81;
+@tgd-blue: #8cc6e8;
+@tgd-green: #74bb83;
+@tgd-red: #e76758;
+@tgd-yellow: #fac255;
 
 @h1-font-size: 20px;
 @button-font-size: 10px;
 @small-font-size: @button-font-size;
+@xsmall-font-size: 9px;
 
 @font-regular : ProximaNovaSoft-Regular;
 @font-medium : ProximaNovaSoft-Medium;
 @font-semi-bold: ProximaNovaSoft-Semibold;
 
 @import "elements.less";
+@import "variables.less";
 
 html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, caption, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video{
     font-family: @font-regular;
@@ -46,16 +48,33 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
     clear:both;
     visibility:hidden;
 }
+
 .clearfix {display:inline-block;}
 /* Hide from IE Mac \*/
 .clearfix {display:block;}
 /* End hide from IE Mac */
 
+
 #container{
     width : 320px;
 }
 
+body{
+    margin:0;
+    padding: 0;
+    border-width: 0;
+}
+
+// login section
 #login{
+    .close{
+        cursor: pointer;
+        position: absolute;
+        top: -10px;
+        right: 0px;
+        font-size: 20px;
+    }
+
     header{
         > div{            
             text-align: center;
@@ -77,12 +96,27 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
         }
     }
     
-    #body{
+    #login-body{
         background-color: @light-yellow;
         text-align: center;
         .inner-shadow(0, 1px, 1px, 0.1);
         padding:10px;
         
+        label{
+            text-align: left;
+            margin: 0;
+            display: block;
+            font-size: 13px;
+            color: #81724d;
+            input{
+                float: left;
+                display: inline-block;
+                width: auto;
+                margin: 5px;
+                margin-top: 1px;
+            }
+        }
+
         .hr{
             width: 40px;
             border-top: 1px solid #D8D4C1;
@@ -91,14 +125,15 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
             border-right: none;
             margin: 20px auto;
         }
+
         div {
             color: @brown-text;
             font-family: @font-semi-bold;
         }
+
         div:nth-child(1){
             margin:10px auto 15px;
         }
-        
         
         input, button{
             display: block;
@@ -115,6 +150,7 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
             font-family: @font-regular;    
             
         }
+
         button{
             .rounded(30px);
             .inner-shadow(0, -2px, 0, 0.2);
@@ -124,12 +160,27 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
             color: white;
             border: none;
             width: 220px;         
-            font-family: @font-semi-bold;
+            font-family: @font-regular;
+            font-weight: bold;
+            letter-spacing: 1px;
+            cursor: pointer;
+            font-size: 1em;
             &.green{
                 background-color: @tgd-green;
+                &:hover{
+                    background-color: lighten(@tgd-green, 10%);
+                }
             }
             &.red{
                 background-color: @tgd-red;
+                &:hover{
+                    background-color: lighten(@tgd-red, 10%);
+                }
+            }
+            &:active{
+                position: relative;
+                top: 2px;
+                .inner-shadow(0,0,0);           
             }
         }
     }
@@ -138,10 +189,16 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
 
 header{
     
-    
     > div{
         position: relative;
         padding-right: 40px;
+    }
+    
+
+    .button{
+        .rounded(0);
+        .inner-shadow(0, 0, 0);
+        cursor: pointer;
     }
     
     .welcome{
@@ -153,23 +210,49 @@ header{
         height : 40px;
         
         > div {
-            padding: 8px;
+            padding: 6px 8px;
+            color: @darkgrey;
+            line-height: 28px;
+            height: 28px;
+            vertical-align: middle;
         }
         
         .logo{
-            float: left;
+            display: inline-block;
             width: 28px;
             height: 28px;
-            background-image: url("../img/logo.png");
-            margin-top: -3px;
+            background-image: url("../images/logo.png");
             margin-right: 5px;
+            vertical-align: middle;
         }
         
-        .button{
-            background-image: url("../img/switch.png");
-            background-position: center center;
-            background-repeat: no-repeat;
-            padding: 0;
+
+        // &.anonymous, &.authenticated{
+        //     .button{
+        //         margin: 4px 0;
+        //         color: white;
+        //         text-align: center;
+        //         padding: 0;
+        //     }
+        // }
+        &.anonymous, &.authenticated{
+            .button{
+                .transition();
+                padding: 0;
+                text-align: center;
+                line-height: 40px;
+                vertical-align: middle;
+                color:@darkgrey;
+                font-size: 1.25em;
+                &:hover{
+                    background-color: @light-gray-off;
+                    color: white;
+                }
+                &:active{
+                    position: absolute;
+                    top:0px;
+                }
+            }    
         }
     }
     
@@ -185,9 +268,9 @@ header{
         }
         
         .button{
-            padding: 0;
+            .rounded(0);
             background-color: @navy-blue-dark;
-            background-image: url("../img/share.png");
+            background-image: url("../images/share.png");
             background-position: center center;
             background-repeat: no-repeat;
             padding: 0;
@@ -202,6 +285,7 @@ header{
         height: 40px;
     }
 }
+
 section{
     position : relative;
     
@@ -220,8 +304,8 @@ section{
             padding-right: 3px;
         }
         .title{
-            background-position: 0px -5px;
-            top: -7px;
+            background-position: 0px -6px;
+            top: -6px;
             left: 5px;
             color : @tgd-blue;
         }
@@ -237,7 +321,7 @@ section{
     &#good-data{
         background-color : @light-yellow;
         .title, .more{
-            background-image: url("../img/good-background.png");
+            background-image: url("../images/good-background.png");
         }
     }
     &#evil-data{
@@ -246,6 +330,9 @@ section{
             text-align: left;
             font-size: @small-font-size;
             color: #99ABB5;
+            &:last-child{
+                text-align: center;
+            }
         }
         
         table{
@@ -261,12 +348,14 @@ section{
         }
         td:nth-child(3){
             padding-top:0px;
+            padding-left: 5px;
         }
         .title, .more{
-            background-image: url("../img/evil-background.png");
+            background-image: url("../images/evil-background.png");
         }
     }
-    &#apprentice{
+    &#level{
+        padding-bottom: 10px;
         .content{
             padding-bottom: 5px;
             img{
@@ -274,7 +363,7 @@ section{
             }
         }
         .title, .more{
-            background-image: url("../img/apprentice-background.png");
+            background-image: url("../images/apprentice-background.png");
         }
     }
     .content{
@@ -303,15 +392,14 @@ section{
     .sub{
         font-size: 12px;
         color: @gray-text;
-        margin: 5px auto 7px auto;
+        margin: 0px 0px 0px 5px;
         .button{
             margin-right: 5px;
             padding-top: 3px;
             padding-bottom:2px;
-            &.share,&.store{
-                background-image: none;
-                background-color: @tgd-green;
-            }
+            line-height: 1em;
+            margin: 2px;
+            
         }
     }
 }
@@ -328,15 +416,12 @@ footer{
         &>div{
             margin-left:5px;
             &.option{
-                position: relative;
-                margin-top: 3px;
-                padding-left:35px;
+                margin-top: 0px;
+                margin-bottom: 0px;
                 font-size:12px;
                 .button{
-                    position:absolute;
-                    left:0px;
-                    top: 2px;
-                    padding-bottom: 2px;
+                    line-height: 1em;
+                    margin: 2px;
                 }
             }
         }
@@ -361,62 +446,121 @@ footer{
         }
     }
 }
-
- .button{
-        .rounded(5px);
-        color: white;
-        padding: 3px 6px;
-        font-size: @button-font-size;
-        display: inline;
-        
-        &.on{
-            background-color: @tgd-green;
-        }
-
-        &.off{
-            background-color: @light-gray-off;
-            padding: 3px 4px;
-        }
-
-        &.allow{
-            background-color: @allow-button;
-        }
-
-        &.block{
-            background-color: @block-button;
-        }
-        &.share,&.add,&.store,&.facebook,&.twitter,&.google-plus{
-            display: inline;
-            background-position: center center;
-            background-repeat: no-repeat;
-            margin-left: 5px;
-        }
-        &.facebook,&.twitter,&.google-plus{
-            padding-left:8px;
-            margin-left: 2px;
-            background-color: @block-button;
-        }
-        &.share{
-            background-color: @tgd-yellow;
-            background-image: url("../img/share-mini.png");
-        }
-        &.add{
-            background-color: @tgd-red;
-            background-image: url("../img/plus-mini.png");
-        }
-        &.facebook{
-            background-image: url("../img/facebook.png");
-        }
-        &.twitter{
-            background-image: url("../img/twitter.png");
-        }
-        &.google-plus{
-            background-image: url("../img/google-plus.png");
-        }
-        &.donate,&.become-owner{
-            background-color: @purple;
+.pressed(){
+    position: relative;
+    top: 1px;
+    .inner-shadow(0, 0, 0);
+}
+.button{
+    // inner shadow for 3D effect
+    .inner-shadow(0, -1px, 0px); 
+    // rounded corners  
+    .rounded(5px);
+    .transition();
+    border: none; 
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    line-height: 1em;
+    color: white;
+    padding: 3px 6px;
+    font-size: @button-font-size;
+    display: inline-block;
+    &:hover{
+        text-decoration: none;
+    }
+    // remove inner shadow and move 1px down for a pressed-down effect
+    &:active,&.pressed{
+        .pressed();
+    }    
+    &.on{
+        background-color: @tgd-green;
+        &:hover{
+            background-color: lighten(@tgd-green,10%);
         }
     }
+
+    &.off{
+        background-color: @light-gray-off;
+        &:hover{
+            background-color: lighten(@light-gray-off,10%);
+        }
+    }
+
+    &.on,&.off{
+        width: 20px;
+    }
+
+    &.allowed{
+        font-size: @xsmall-font-size;
+        background-color: @tgd-green;
+        width: 54px;
+        &:hover{
+            background-color: lighten(@tgd-green,10%);
+        }
+    }
+
+    &.blocked{
+        font-size: @xsmall-font-size;
+        width: 54px;
+        background-color: @tgd-red;
+        &:hover{
+            background-color: lighten(@tgd-red,10%);
+        }
+    }
+
+    &.block{
+        background-color: @block-button;
+    }
+    &.share,&.add,&.store/*,&.facebook,&.twitter,&.google-plus*/{
+         display: inline-block;
+         margin-left: 5px;
+    }
+    &.fa-facebook,&.fa-twitter,&.fa-google-plus{
+        padding:3px;
+        width: 15px;
+        text-align: center;
+        margin-left: 2px;
+        background-color: @block-button;
+    }
+    &.share{
+        background-color: @tgd-yellow;
+        &:hover{
+            background-color: lighten(@tgd-yellow,10%);
+        }
+    }
+    &.expanded{
+        background-color: @light-gray-off;
+        &:hover{
+            background-color: lighten(@light-gray-off,10%);
+        }
+    }
+    &.collapsed{
+        background-color: @tgd-red;
+        &:hover{
+            background-color: lighten(@tgd-red,10%);
+        }
+    }
+    &.donate,&.become-owner{
+        background-color: @purple;
+        &:hover{
+            background-color: lighten(@purple, 10%);
+        }
+    }
+
+    &.email-us{
+        .inner-shadow(0,0,0);
+        background-color: transparent;
+        color: @gray-text;
+        &:hover{
+            background-color: transparent;
+        }
+    }
+
+    &.become-owner{
+        width: 84%;
+    }
+}
     
     #login{
         

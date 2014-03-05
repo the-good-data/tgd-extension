@@ -30,7 +30,7 @@ function renderAdtracks(tab){
   $("#layer_adtracks > tbody").html("");
 
   //Render header table
-  $('#layer_adtracks').append('<tr><th>NAME</th><th>TYPE</th><th>ACTION</th></tr>');
+  $('#layer_adtracks').append('<tr><th>NAME</th><th>TYPE</th><th>STATUS</th></tr>');
 
   var i = 0;
 
@@ -39,18 +39,18 @@ function renderAdtracks(tab){
   {
     var adtrack = BACKGROUND.ADTRACKS[ID][i];
     var data_status = false;
-    var data_status_value = 'DENIED';
+    var data_status_value = 'BLOCKED';
 
     if (SITE_WHITELIST[adtrack.service_name] != undefined)
        data_status=SITE_WHITELIST[adtrack.service_name];
 
     if (data_status)
-       data_status_value = 'DENIED';
+       data_status_value = 'BLOCKED';
      else
-       data_status_value = 'ALLOW';
+       data_status_value = 'ALLOWED';
     
     var selector='#layer_adtracks tr:last';
-    $(selector).after('<tr><td>'+adtrack.service_name+'</td><td>'+adtrack.category+'</td><td><div class="btnAdtrack button allow" data-service_name="'+adtrack.service_name+'" data-status="'+data_status+'">'+data_status_value+'</div></td></tr>');
+    $(selector).after('<tr><td>'+adtrack.service_name+'</td><td>'+adtrack.category+'</td><td><div class="btnAdtrack button '+data_status_value.toLowerCase()+'" data-service_name="'+adtrack.service_name+'" data-status="'+data_status+'">'+data_status_value+'</div></td></tr>');
   
     i++;
   }
@@ -309,34 +309,41 @@ function renderHeader(){
 
         $( document ).ready(function() {
           
+          // Remove focus from links
+          $('a').blur();
+          
           //Event click button expand adtracks
           $('#btnExpandAdtracks').click(function () {
               if ( $( "#layer_adtracks_expand" ).is( ":hidden" ) ) 
               {
                   $( "#layer_adtracks_expand" ).slideDown( "slow" );
-                  $('#btnExpandAdtracks').removeClass("add");
-                  $('#btnExpandAdtracks').addClass("minus");
+                  $('#btnExpandAdtracks').removeClass("fa-plus collapsed");
+                  $('#btnExpandAdtracks').addClass("fa-minus pressed expanded");
 
               } 
               else 
               {
                   $( "#layer_adtracks_expand" ).slideUp( "slow" );
-                  $('#btnExpandAdtracks').removeClass("minus");
-                  $('#btnExpandAdtracks').addClass("add");
+                  $('#btnExpandAdtracks').removeClass("fa-minus pressed expanded");
+                  $('#btnExpandAdtracks').addClass("fa-plus collapsed");
               }
 
               event.preventDefault();
           });
 
           //Event click button login
-          $('#btnLogin').click(function () {
+          $('#btnLogin').click(function (event) {
+              
               if ( $( "#login" ).is( ":hidden" ) ) 
               {
-                  $( "#login" ).slideDown( "slow" );
+                  $("header, #body, footer").hide();
+                  $( "#login" ).fadeIn( "slow" );
               } 
               else 
               {
-                  $( "#login" ).slideUp( "slow" );
+                  $( "#login" ).fadeOut("slow", function(){
+                    $("header, #body, footer").show();
+                  });
               }
 
               event.preventDefault();

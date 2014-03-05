@@ -1,9 +1,4 @@
 <!DOCTYPE html>
-<!--
-To change this license header, choose License Headers in Project Properties.
-To change this template file, choose Tools | Templates
-and open the template in the editor.
--->
 <html>
     <head>
         <title>TODO supply a title</title>
@@ -12,6 +7,7 @@ and open the template in the editor.
         
         <link rel="stylesheet" href="../stylesheets/extension.css">
         <link rel="stylesheet" href="../stylesheets/webfonts.css">
+        <link rel="stylesheet" href="../stylesheets/font-awesome.min.css">
         <link rel="stylesheet" href="../stylesheets/simpletextrotator.css">
         
         <script src="../scripts/vendor/port/port.js"></script>
@@ -31,61 +27,58 @@ and open the template in the editor.
         display:none;
     }
     .anonymous{
-        display:inherit;
+        display:block;
     }
     </style>
-    <body>
+    <body tabindex="1">
         <div id="container">
+            <div id="login" style="display:none">
+                <div id="container">
+                    <!-- <header id="header">
+                        <div class="clearfix">
+                            <img src="../images/logo-login.png"/><h1>TheGoodData</h1>
+                        </div>
+                    </header> -->
+                    <div id="login-body">
+
+                        <section>
+
+                            <div>
+                                Sign into your account<i class="close fa fa-times-circle"></i>
+                            </div>
+                            <form name="login-form" id="login-form">
+                                <input type="text" placeholder="Username" name="txtUsername" id="txtUsername"/>                           
+                                <input type="password" placeholder="Password" name="txtPassword" id="txtPassword"/>
+                                <label for="rememberMe"><input type="checkbox" name="rememberMe" id="rememberMe" style="float: left;"> remember me</label>
+                                <div><p id="pError" style="color:red; font-size:0.75em"></p></div>
+                                <button id="btnSignIn" type="button" name="submit" class="green">SIGN IN</button>
+                            </form>
+                        </section>
+                        <section>
+                            <div class="hr"></div>
+                            <div>
+                                Don't have an account?
+                            </div>
+                            <button name="sign-up" class="red">BECOME A MEMBER</button>
+                        </section>
+                    </div>
+                    <br>
+                </div>
+            </div>
 
             <header id="header">
-
-                <div id="login" style="display:none">
-                    <div id="container">
-                        <!-- <header id="header">
-                            <div class="clearfix">
-                                <img src="../images/logo-login.png"/><h1>TheGoodData</h1>
-                            </div>
-                        </header> -->
-                        <div id="body">
-
-                            <section>
-
-                                <div>
-                                    Sign into your account<img class="close" style="cursor: pointer; position:absolute; top:-10px; right:0px" width="20px" src="../images/close.png" />
-                                </div>
-                                <form name="login-form" id="login-form">
-                                    <input type="text" placeholder="Username" name="txtUsername" id="txtUsername"/>                           
-                                    <input type="password" placeholder="Password" name="txtPassword" id="txtPassword"/>
-
-                                    <div><p id="pError" style="color:red; font-size:0.75em"></p></div>
-                                    <button id="btnSignIn" type="button" name="submit" class="green">SIGN IN</button>
-                                </form>
-                            </section>
-                            <section>
-                                <div class="hr"></div>
-                                <div>
-                                    Don't have an account?
-                                </div>
-                                <button name="sign-up" class="red">BECOME A MEMBER</button>
-                            </section>
-                        </div>
-                        <br>
-                    </div>
-                </div>
-                
-                <div class="welcome anonymous">
+                <div  class="welcome anonymous">
                     <div>
-                      <div class="logo"></div>
-                      TheGoodData
+                      <div class="logo"></div>TheGoodData
                     </div>
 
-                    <div id="btnLogin" class="button become-owner" style="height: 10px; width: 25px; ">Login</div>
+                    <i id="btnLogin" class="button fa fa-power-off" title="login"></i>
                     <!-- <br>
                     <div id="btnLogin" class="button"></div> -->
                 </div>
 
                 <div class="welcome authenticated">
-                    <div><div class="logo"></div>Welcome <span class="username"></span>!</div><div class="button button_switch"></div>
+                    <div><div class="logo"></div>Welcome <span class="username">Juan</span>!</div><a href="#" class="fa fa-power-off button "></a>
                 </div>
                
                
@@ -107,7 +100,7 @@ and open the template in the editor.
                     </div>
                     <div class="content"><img src="../images/evil-data.png"/><span id="layer_adtracks_count" class="red">0</span> threats found on this page 
 
-                    <div id="btnExpandAdtracks" class="button add">&nbsp;</div><br><br> 
+                    <i id="btnExpandAdtracks" class="button collapsed fa fa-plus"></i><br><br> 
                       <div id="layer_adtracks_expand" style="display:none">
                         <table id="layer_adtracks" cellspacing="0">
                             <tbody>
@@ -127,7 +120,7 @@ and open the template in the editor.
                         <div class="title">GOOD DATA</div>
                         <div class="more">MORE ACHIEVEMENTS</div>
                     </div>
-                    <div class="content"><img src="../images/logo-big.png"/><span id="layer_loans_value" class="green">0</span> projects funded with your help<div class="button share">&nbsp;</div><!--<div class="button add">&nbsp;</div><br><br>
+                    <div class="content"><img src="../images/logo-big.png"/><span id="layer_loans_value" class="green">0</span> projects funded with your help<a href="http://www.thegooddata.org" target="_blank" class="button share fa fa-plus"></a><!--<div class="button add">&nbsp;</div><br><br>
   
                     
                     <div id="layer_loans_expand"> 
@@ -151,19 +144,21 @@ and open the template in the editor.
                     </div>
                     <div class="content"><img src="../images/level-drop.png"/>You've contributed with <span class="green" id="layer_achievement_contributions">0</span><span class="green"> pieces</span> of data this month</div>            
                     <div class="sub"><div id="layer_config_store_navigation" class="btnStoreNavigation button"></div>Store navigation and non-sensitive queries</div>
-                    <div class="sub"><div id="layer_config_share_search" class="btnShareSearch button"></div>Share non-sensitive queries anonymously</div>
+                    <div class="sub"><div id="layer_config_share_search" class="btnShareSearch button"></div>Trade non-sensitive queries anonymously</div>
                 </section>
             </div>
+
             <footer id="footer" class="clearfix">
                 <div id="not-working">
                     <div class="title">Not working properly?</div>
-                    <div class="option"><div id="layer_config_deactivate_current" class="button btnDeactivateCurrent">OFF</div>Deactivate in this site</div>
+                    <div class="option"><div id="layer_config_deactivate_current" class="button btnDeactivateCurrent off">OFF</div>Deactivate in this site</div>
                     <div class="option"><div id="layer_config_allow_social" class="button btnAllowSocial on">ON</div>Allow social networks</div>
+                    <div class="option"><a href="mailto:info@thegooddata.org" class="button fa fa-email email-us"><i class="fa fa-envelope-o"></i> EMAIL US</a></div>
 
                 </div>
                 <div id="in-love">
                     <div class="title">In love with us?</div>
-                    <div class="button donate">DONATE</div><div class="button facebook">&nbsp;</div><div class="button twitter">&nbsp;</div><div class="button google-plus">&nbsp;</div><div class="button become-owner">COLLABORATE</div><div class="button email-us">EMAIL US</div>
+                    <a href="#" class="button donate">DONATE</a><a href="https://www.facebook.com/sharer/sharer.php?u=http://www.thegooddata.org" class="button fa fa-facebook"></a><a href="https://twitter.com/home?status=http://www.thegooddata.org%20lets%20you%20enjoy%20your%20data" class="button fa fa-twitter"></a><a href="https://plus.google.com/share?url=http://www.thegooddata.org" class="button fa fa-google-plus"></a><a href="#" class="button become-owner">COLLABORATE</a>
 
                 </div>
             </footer>
