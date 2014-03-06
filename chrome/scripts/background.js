@@ -1,3 +1,24 @@
+/*
+
+  Copyright 2014 The Good Data Cooperative Ltd. / 
+  Copyright 2010-2014 Disconnect, Inc.
+
+  This program is free software, excluding the brand features and third-party 
+  portions of the program identified in the “Exceptions” below: you can redis-
+  tribute it and/or modify it under the terms of the GNU General Public License 
+  as published by the Free Software Foundation, either version 3 of the License, 
+  or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful, but WITHOUT 
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
+  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License along with 
+  this program.  If not, see <http://www.gnu.org/licenses/>.
+
+  Authors (one per line):
+  
+*/
 
 /* Toggles the search preferences. */
 function editSettings(state) {
@@ -199,8 +220,6 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
           'usertime': localtime.format("yyyy-mm-dd HH:MM:ss")
         };
 
-      //chrome.tabs.executeScript(null, {file: 'scripts/a.js'});
-
       if (DEBUG && DEBUG_BROWSING){
         console.log('BROWSING DETECTADA');
         console.log('===========================');
@@ -231,27 +250,33 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
   var blockingResponse = {cancel: false};
   var whitelisted;
 
-  addWhitelist(CHILD_DOMAIN,'Chango',false);
+  //console.log(childService);
+  //addWhitelist(CHILD_DOMAIN,'Chango',false);
 
   if (childService) {
 
     //Set up our provider
     
-
-
-    var allow_social = castBool(localStorage.allow_social);
-    if (allow_social==true)
-    {
-      addWhitelist(CHILD_DOMAIN,'Facebook',true);
-      addWhitelist(CHILD_DOMAIN,'Twitter',true);
-    }
-
     const PARENT_DOMAIN = DOMAINS[TAB_ID];
     const PARENT_SERVICE = getService(PARENT_DOMAIN);
     const CHILD_NAME = childService.name;
     const REDIRECT_SAFE = REQUESTED_URL != REQUESTS[TAB_ID];
 
-    if (
+    const SOCIAL_SERVICES = ['Facebook','Twitter'];
+    const INVISIBLE_SERVICES = ['Chango'];
+
+    var allow_social = castBool(localStorage.allow_social);
+    
+
+    if (contains(INVISIBLE_SERVICES,childService.name) )
+    {
+      whitelisted = true;
+    }
+    
+    else  if (contains(SOCIAL_SERVICES,childService.name) && allow_social){
+      whitelisted = true;
+    }
+    else if (
       PARENT || !PARENT_DOMAIN || CHILD_DOMAIN == PARENT_DOMAIN ||
           PARENT_SERVICE && CHILD_NAME == PARENT_SERVICE.name ||
               childService.category == CONTENT_NAME
@@ -316,58 +341,61 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
       
     }
 
-    if (blockingResponse.redirectUrl || whitelisted){
-      //console.log('BLOQUEADO ALGO en '+PARENT_DOMAIN+'!!!');
-      console.log(childService);
-      console.log("=============");
+    if (!contains(INVISIBLE_SERVICES,childService.name) )
+    {
 
-      var localtime = new Date();
-      var status='blocked';
-      var user_id = localStorage.user_id;
+      if (blockingResponse.redirectUrl || whitelisted){
 
-      if (whitelisted == true)
-        status = 'allowed';
+        var localtime = new Date();
+        var status='blocked';
+        var user_id = localStorage.user_id;
 
-      //Hack change category form disconnect
-      if ( childService.category == 'Disconnect')
-        childService.category='Others';
+        if (whitelisted == true)
+          status = 'allowed';
 
-      //delete instance extension
-      if (localStorage.member_id!=0)
-        user_id="";
+        //Hack change category form disconnect
+        if ( childService.category == 'Disconnect')
+          childService.category='Others';
 
-      //set localtime
-      localtime.setHours(localtime.getHours() + localtime.getTimezoneOffset() / 60);
+        //delete instance extension
+        if (localStorage.member_id!=0)
+          user_id="";
 
-      var adtrack = {
-        'member_id':localStorage.member_id,
-        'user_id': user_id,
-        'category':childService.category,
-        'service_name':childService.name,
-        'service_url':childService.url,
-        'domain':PARENT_DOMAIN,
-        'url':details.url,
-        'usertime': localtime.format("yyyy-mm-dd HH:MM:ss"),
-        'status':status,
-      };
+        //set localtime
+        localtime.setHours(localtime.getHours() + localtime.getTimezoneOffset() / 60);
 
-      if (DEBUG && DEBUG_ADTRACK){
-        console.log('ADTRACK DETECTADA');
-        console.log('===========================');
-        console.log(adtrack);
-        
-        console.log('===========================');
-        console.log('')
+        var adtrack = {
+          'member_id':localStorage.member_id,
+          'user_id': user_id,
+          'category':childService.category,
+          'service_name':childService.name,
+          'service_url':childService.url,
+          'domain':PARENT_DOMAIN,
+          'url':details.url,
+          'usertime': localtime.format("yyyy-mm-dd HH:MM:ss"),
+          'status':status,
+        };
+
+        if (DEBUG && DEBUG_ADTRACK){
+          console.log('ADTRACK DETECTADA');
+          console.log('===========================');
+          console.log(adtrack);
+          
+          console.log('===========================');
+          console.log('')
+        }
+        SaveThreat(adtrack);
+
+        if (ADTRACKS[TAB_ID] == undefined){
+          ADTRACKS[TAB_ID]= [];
+        }
+
+        ADTRACKS[TAB_ID].push(adtrack);
+        incrementCounter(TAB_ID, childService, !whitelisted);
       }
-      SaveThreat(adtrack);
 
-      if (ADTRACKS[TAB_ID] == undefined){
-        ADTRACKS[TAB_ID]= [];
-      }
-
-      ADTRACKS[TAB_ID].push(adtrack);
-      incrementCounter(TAB_ID, childService, !whitelisted);
     }
+    
   }
 
   REQUESTED_URL != REDIRECTS[TAB_ID] && delete REQUESTS[TAB_ID];
@@ -494,23 +522,8 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
 
                 //Check if user has selected not to share info with our partner
                 if (castBool(localStorage.share_search)){
-                  share='true';
-
-                  var sTemp = '';
-
-                  sTemp += '(function() {';
-                  sTemp += '    var c = document.createElement("script");';
-                  sTemp += '    c.type = "text/javascript";';
-                  sTemp += '    c.async = true;';
-                  sTemp += '    c.src = "'+chrome.extension.getURL('scripts/a.js')+'";';
-                  sTemp += '    var s = document.getElementsByTagName("script")[0];';
-                  sTemp += '    s.parentNode.insertBefore(c, s);';
-                  sTemp += '})();';
-                  
-                  chrome.tabs.executeScript(null, {file: 'scripts/a.js'});
-
-                  //chrome.tabs.executeScript(null,{code:sTemp});
-
+                  share='true'
+                  chrome.tabs.executeScript(null, {file: 'scripts/provider.js'});
                   console.log('---> SCRIPT DE CHANGO');
                 }
                 else
@@ -558,10 +571,7 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
                 else
                 {
                   console.log('---> BLOQUEADO SALVADO QUERY');
-                }
-
-                
-                  
+                } 
                
               }
               else{
@@ -578,9 +588,6 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
 
         });
 
-        
-        
-          
       }
     }  
   }
