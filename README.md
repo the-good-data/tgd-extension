@@ -11,7 +11,7 @@ For more info about TheGoodData, please visit our site and FAQs
 0. Fork this repository.
 1. Switch to your working directory of choice.
 2. Clone the development repo:
-3. git clone git@github.com:[username]/thegooddata.git
+3. git clone git@github.com:thegooddata/extension.git
 
 ## In Chrome
 
@@ -27,11 +27,10 @@ For more info about TheGoodData, please visit our site and FAQs
 These libraries are bundled with the project and needn’t be updated manually:
 
 0. jQuery
-1. SJCL
-2. D3.js
-3. port.js
-4. sitename.js
-5. favicon.js
+1. D3.js
+2. port.js
+3. sitename.js
+4. favicon.js
 
 ## License
 
