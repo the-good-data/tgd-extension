@@ -1,24 +1,26 @@
 /*
-  A script that determines whether a domain name belongs to a third party.
 
-  Copyright 2012, 2013 Disconnect, Inc.
+  Copyright 2014 The Good Data Cooperative Ltd. / 
+  Copyright 2010-2014 Disconnect, Inc.
 
-  This program is free software: you can redistribute it and/or modify it under
-  the terms of the GNU General Public License as published by the Free Software
-  Foundation, either version 3 of the License, or (at your option) any later
-  version.
+  This program is free software, excluding the brand features and third-party 
+  portions of the program identified in the “Exceptions” below: you can redis-
+  tribute it and/or modify it under the terms of the GNU General Public License 
+  as published by the Free Software Foundation, either version 3 of the License, 
+  or (at your option) any later version.
 
-  This program is distributed in the hope that it will be useful, but WITHOUT
-  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  This program is distributed in the hope that it will be useful, but WITHOUT 
+  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
   FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License along with
-  this program. If not, see <http://www.gnu.org/licenses/>.
+  You should have received a copy of the GNU General Public License along with 
+  this program.  If not, see <http://www.gnu.org/licenses/>.
 
   Authors (one per line):
 
     Brian Kennish <byoogle@gmail.com>
     Issac Trotts <issac.trotts@gmail.com>
+  
 */
 
 /* Destringifies an object. */
@@ -28,9 +30,8 @@ function deserialize(object) {
 
 /* Formats the blacklist. */
 function processServices(data) {
-  data = deserialize(sjcl.decrypt(
-    'be1ba0b3-ccd4-45b1-ac47-6760849ac1d4', JSON.stringify(data)
-  ));
+  data = deserialize(data);
+
   var categories = data.categories;
 
   for (var categoryName in categories) {
@@ -173,6 +174,12 @@ var moreRules = [];
 /* The active categories et al. */
 var servicePointer = moreServices;
 
-processServices(data);
+//chrome.extension.getURL('/data/services.json')
+
+$.get(chrome.extension.getURL('/data/services.json'), function(data) {
+  processServices(data);
+});
+
+//processServices(data);
 // fetchServices();
 // setInterval(fetchServices, hourMilliseconds);
