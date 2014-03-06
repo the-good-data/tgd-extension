@@ -3,7 +3,7 @@
   "name": "TheGoodData",
   "version": "1.0.0",
   "description":
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean vehicula, magna eu condimentum gravida, nulla erat ultrices tortor, pretium suscipit urna eros sodales felis.",
+      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean vehicula, magna eu condimentum gravida.",
   "icons": {"48": "images/48.png", "128": "images/128.png"},
   "permissions": [
     "management",
