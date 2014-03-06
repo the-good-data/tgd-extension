@@ -51,7 +51,7 @@
         display:block;
     }
     </style>
-    <body tabindex="1">
+    <body tabindex="1" class="regular">
         <div id="container">
             <div id="login" style="display:none">
                 <div id="container">
@@ -70,7 +70,13 @@
                             <form name="login-form" id="login-form">
                                 <input type="text" placeholder="Username" name="txtUsername" id="txtUsername"/>                           
                                 <input type="password" placeholder="Password" name="txtPassword" id="txtPassword"/>
-                                <label for="rememberMe"><input type="checkbox" name="rememberMe" id="rememberMe" style="float: left;"> remember me</label>
+                                <div class="clearfix">
+                                  <div class="remember-forget">
+                                    <label for="rememberMe"><input type="checkbox" name="rememberMe" id="rememberMe" style="float: left;"> remember me</label>
+                                  </div>
+                                  <div class="remember-forget">
+                                    <a href="#">forgot your password?</a>
+                                  </div>
                                 <div><p id="pError" style="color:red; font-size:0.75em"></p></div>
                                 <button id="btnSignIn" type="button" name="submit" class="green">SIGN IN</button>
                             </form>
@@ -83,7 +89,6 @@
                             <button name="sign-up" class="red">BECOME A MEMBER</button>
                         </section>
                     </div>
-                    <br>
                 </div>
             </div>
 
@@ -119,9 +124,9 @@
                         <div class="title">EVIL DATA</div>
                         <div class="more">MORE STATS</div>
                     </div>
-                    <div class="content"><img src="../images/evil-data.png"/><span id="layer_adtracks_count" class="red">0</span> threats found on this page 
+                    <div class="content"><span id="layer_adtracks_count" class="red">0</span> threats found on this page 
 
-                    <i id="btnExpandAdtracks" class="button collapsed fa fa-plus"></i><br><br> 
+                    <i id="btnExpandAdtracks" class="button collapsed fa fa-plus"></i><br> 
                       <div id="layer_adtracks_expand" style="display:none">
                         <table id="layer_adtracks" cellspacing="0">
                             <tbody>
@@ -141,7 +146,7 @@
                         <div class="title">GOOD DATA</div>
                         <div class="more">MORE ACHIEVEMENTS</div>
                     </div>
-                    <div class="content"><img src="../images/logo-big.png"/><span id="layer_loans_value" class="green">0</span> projects funded with your help<a href="http://www.thegooddata.org" target="_blank" class="button share fa fa-plus"></a><!--<div class="button add">&nbsp;</div><br><br>
+                    <div class="content"><span id="layer_loans_value" class="green">0</span> projects funded with your help<a href="http://www.thegooddata.org" target="_blank" class="button share fa fa-plus"></a><!--<div class="button add">&nbsp;</div><br><br>
   
                     
                     <div id="layer_loans_expand"> 
