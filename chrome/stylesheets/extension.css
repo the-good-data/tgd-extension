@@ -2,11 +2,13 @@ html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abb
 .clearfix:after{content:".";display:block;height:0;clear:both;visibility:hidden}
 .clearfix{display:inline-block}
 .clearfix{display:block}
-#container{width:320px}
-body{margin:0;padding:0;border-width:0}
+#container{width:320px;background-color:#fff}
+body{margin:0;padding:0;border-width:0;background-color:#efefef}
 #login .close{cursor:pointer;position:absolute;top:-10px;right:0;font-size:20px}
 #login header>div{text-align:center;padding-bottom:10px;padding-right:0}#login header>div>h1{color:#095779;display:inline;position:relative;font-size:20px;top:-17px;padding:0 0 20px 10px;}
-#login #login-body{background-color:#f6f6e9;text-align:center;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.1);-moz-box-shadow:inset 0 1px 1px rgba(0,0,0,0.1);box-shadow:inset 0 1px 1px rgba(0,0,0,0.1);padding:10px}#login #login-body label{text-align:left;margin:0;display:block;font-size:13px;color:#81724d}#login #login-body label input{float:left;display:inline-block;width:auto;margin:5px;margin-top:1px}
+#login #login-body{background-color:#f6f6e9;text-align:center;-webkit-box-shadow:inset 0 1px 1px rgba(0,0,0,0.1);-moz-box-shadow:inset 0 1px 1px rgba(0,0,0,0.1);box-shadow:inset 0 1px 1px rgba(0,0,0,0.1);padding:10px}#login #login-body label{text-align:left;margin:0;display:block;font-size:13px;color:#81724d;line-height:1}#login #login-body label input{float:left;display:inline-block;width:auto;margin:5px;margin-top:1px}
+#login #login-body a{font-size:13px;color:#81724d;text-decoration:none;line-height:1;display:block}
+#login #login-body .remember-forget{width:50%;float:left;margin:0 auto 15px !important}
 #login #login-body .hr{width:40px;border-top:1px solid #d8d4c1;border-bottom:none;border-right:none;margin:20px auto}
 #login #login-body div{color:#81724d;font-family:ProximaNovaSoft-Semibold}
 #login #login-body div:nth-child(1){margin:10px auto 15px}
@@ -28,18 +30,22 @@ section{position:relative}section .title-more{position:relative;font-family:Prox
 section .title-more .title{background-position:0 -6px;top:-6px;left:5px;color:#8cc6e8}
 section .title-more .more{background-position:0 -7px;font-size:10px;top:-5px;right:5px;color:#7d7d7d}
 section#good-data{background-color:#f6f6e9}section#good-data .title,section#good-data .more{background-image:url("../images/good-background.png")}
+section#good-data .content{padding-left:25px}
+section#good-data .button{padding:4px 5px}
 section#evil-data{background-color:#ecf4f8}section#evil-data th{text-align:left;font-size:10px;color:#99abb5}section#evil-data th:last-child{text-align:center}
 section#evil-data table{width:100%}
 section#evil-data td{padding:4px 0 2px 0;border-top:1px solid #ccc}section#evil-data td .button{padding-top:4px;padding-bottom:3px}
-section#evil-data td:nth-child(3){padding-top:0;padding-left:5px}
+section#evil-data td:nth-child(3){padding-top:0;padding-left:5px;text-align:center}
+section#evil-data .content{padding-left:25px}
 section#evil-data .title,section#evil-data .more{background-image:url("../images/evil-background.png")}
+section#evil-data .button{padding:4px 5px}
 section#level{padding-bottom:10px}section#level .content{padding-bottom:5px}section#level .content img{top:15px}
 section#level .title,section#level .more{background-image:url("../images/apprentice-background.png")}
 section .content{border-top:1px solid #ccc;position:relative;padding:25px 10px 25px 60px;font-size:14px;font-family:ProximaNovaSoft-Medium;font-weight:bold;color:#7d7d7d}section .content img{position:absolute;left:5px;top:20px}
 section .content .green{color:#74bb83}
 section .content .red{color:#e76758}
-section .sub{font-size:12px;color:#7d7d7d;margin:0 0 0 5px}section .sub .button{margin-right:5px;padding-top:3px;padding-bottom:2px;line-height:1em;margin:2px}
-footer{background-color:#efefef;border-top:1px solid #ccc;color:#7d7d7d;padding-top:10px}footer>div{float:left;margin-bottom:10px}footer>div>div{margin-left:5px}footer>div>div.option{margin-top:0;margin-bottom:0;font-size:12px}footer>div>div.option .button{line-height:1em;margin:2px}
+section .sub{font-size:12px;color:#7d7d7d;margin:0 0 0 5px}section .sub .button{padding-top:3px;padding-bottom:2px;line-height:1em;margin:2px;margin-right:5px}
+footer{background-color:#efefef;border-top:1px solid #ccc;color:#7d7d7d;padding-top:10px}footer>div{float:left;margin-bottom:10px}footer>div>div{margin-left:5px}footer>div>div.option{margin-top:0;margin-bottom:0;font-size:12px}footer>div>div.option .button{line-height:1em;margin:2px;margin-right:5px}
 footer .title{font-family:ProximaNovaSoft-Medium;font-weight:bold;font-size:14px;margin-bottom:5px}
 footer #not-working{width:59%}
 footer #in-love{width:41%}footer #in-love .button{float:left;margin-top:3px}
@@ -52,9 +58,9 @@ footer #in-love{width:41%}footer #in-love .button{float:left;margin-top:3px}
 .button.blocked{font-size:9px;width:54px;background-color:#e76758}.button.blocked:hover{background-color:#ed9085}
 .button.block{background-color:#6e828d}
 .button.share,.button.add,.button.store{display:inline-block;margin-left:5px}
-.button.fa-facebook,.button.fa-twitter,.button.fa-google-plus{padding:3px;width:15px;text-align:center;margin-left:2px;background-color:#6e828d}
+.button.fa-facebook,.button.fa-twitter,.button.fa-google-plus{padding:3px;width:15px;text-align:center;margin-left:2px;background-color:#6e828d}.button.fa-facebook:hover,.button.fa-twitter:hover,.button.fa-google-plus:hover{background-color:#8a9ba4}
 .button.share{background-color:#fac255}.button.share:hover{background-color:#fbd487}
-.button.expanded{background-color:#bfbfbf}.button.expanded:hover{background-color:#d9d9d9}
+.button.expanded{background-color:#7d7d7d}.button.expanded:hover{background-color:#979797}
 .button.collapsed{background-color:#e76758}.button.collapsed:hover{background-color:#ed9085}
 .button.donate,.button.become-owner{background-color:#8e64bf}.button.donate:hover,.button.become-owner:hover{background-color:#a888ce}
 .button.email-us{-webkit-box-shadow:inset 0 0 0 rgba(0,0,0,0.4);-moz-box-shadow:inset 0 0 0 rgba(0,0,0,0.4);box-shadow:inset 0 0 0 rgba(0,0,0,0.4);background-color:transparent;color:#7d7d7d}.button.email-us:hover{background-color:transparent}
