@@ -2,28 +2,61 @@
     Created on : Dec 16, 2013, 4:41:40 PM
     Author     : juan
 */
-@brown-text: #81724d; // dark beige
-@navy-blue : #095779;
-@navy-blue-dark : #06445F;
-@light-blue : #ECF4F8;
-@light-yellow : #FAFAF3;
-@light-gray : #EFEFEF;
-@light-gray-off : #BFBFBF;
-@light-yellow: #F6F6E9;
-@gray-social-icons : #6E828D;
-@gray-text : #7D7D7D;
-@gray-text-header : #99ABB5;
-@gray-lines: #CCC;
-@purple : #8E64BF;
-@block-button : #6E828D;
-@allow-button : #EA6654;
 
-@input-border-color: #DDDECB;
+// blues
+@navy : #095779; 
+@navyDark : #06445F; 
+@lightBlue : #ECF4F8;
+@skyBlue : #41a4df;
 
+// browns
+@darkBeige: #81724d; 
+@blueishGray : #6E828D; 
+@darkBeige: #81724d; 
+@grayBeige: #DDDECB; 
+
+// grays
+@xxLightGray : #EFEFEF;
+@lightGray: #CCC; 
+@xLightGray : #D9D9D9; 
+@gray-social-icons : #6E828D; 
+@gray : #7D7D7D; 
+@blueishLightGray: #99ABB5;
+
+// yellow
+@lightYellow : #FAFAF3; 
+@darkYellow : #FBD487;
+
+// purple
+@purple : #8E64BF; 
+
+// corporate
 @tgd-blue: #8cc6e8;
 @tgd-green: #74bb83;
 @tgd-red: #e76758;
 @tgd-yellow: #fac255;
+
+@color-text-title: @gray;
+@color-background-message-bar: @navy;
+@color-background-message-bar-dark: @navyDark;
+@color-background-evil-data: @lightBlue;
+@color-background-good-data: @lightYellow;
+@color-background-level: white;
+@color-background-body: @xxLightGray;
+@color-background-button-on: @tgd-green;
+@color-background-button-off: @xLightGray;
+@color-background-button-social: @blueishGray;
+@color-background-button-love: @purple;
+@color-text: @gray;
+@color-text-options: @gray;
+@color-text-buttons: white;
+@color-table-header: @blueishLightGray;
+@color-section-title: @skyBlue;
+@color-section-more: @gray;
+@color-background-button-plus: @darkYellow;
+@color-background-button-plus-pressed: @gray;
+@color-background-button-signing-hover: @gray;
+@color-table-border: @lightGray;
 
 @h1-font-size: 20px;
 @button-font-size: 10px;
@@ -57,12 +90,14 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
 
 #container{
     width : 320px;
+    background-color: white;
 }
 
 body{
     margin:0;
     padding: 0;
     border-width: 0;
+    background-color: @color-background-body;
 }
 
 // login section
@@ -82,7 +117,7 @@ body{
             padding-right: 0;
 
             > h1{
-                color: @navy-blue;
+                color: @color-background-message-bar;
                 display: inline;
                 position: relative;
                 font-size: @h1-font-size;
@@ -97,7 +132,7 @@ body{
     }
     
     #login-body{
-        background-color: @light-yellow;
+        background-color: @lightYellow;
         text-align: center;
         .inner-shadow(0, 1px, 1px, 0.1);
         padding:10px;
@@ -107,7 +142,8 @@ body{
             margin: 0;
             display: block;
             font-size: 13px;
-            color: #81724d;
+            color: @darkBeige;
+            line-height: 1;
             input{
                 float: left;
                 display: inline-block;
@@ -115,6 +151,20 @@ body{
                 margin: 5px;
                 margin-top: 1px;
             }
+        }
+
+        a{
+            font-size: 13px;
+            color: @darkBeige;
+            text-decoration: none;
+            line-height: 1;
+            display: block;
+        }
+
+        .remember-forget{
+            width: 50%;
+            float: left;
+            margin:0px auto 15px !important;
         }
 
         .hr{
@@ -127,7 +177,7 @@ body{
         }
 
         div {
-            color: @brown-text;
+            color: @darkBeige;
             font-family: @font-semi-bold;
         }
 
@@ -145,8 +195,8 @@ body{
             .inner-shadow(0, 1px, 1px, 0.1);
             padding:10px;
             width: 90%;
-            border: 1px solid @input-border-color;
-            color: @brown-text;
+            border: 1px solid @grayBeige;
+            color: @darkBeige;
             font-family: @font-regular;    
             
         }
@@ -205,13 +255,13 @@ header{
         font-family: @font-medium;
         font-weight: bold;
         font-size: 16px;
-        color : @gray-text;
+        color : @color-text;
         background-color : white;
         height : 40px;
         
         > div {
             padding: 6px 8px;
-            color: @darkgrey;
+            color: @color-text;
             line-height: 28px;
             height: 28px;
             vertical-align: middle;
@@ -242,10 +292,10 @@ header{
                 text-align: center;
                 line-height: 40px;
                 vertical-align: middle;
-                color:@darkgrey;
+                color: @color-text;
                 font-size: 1.25em;
                 &:hover{
-                    background-color: @light-gray-off;
+                    background-color: @color-background-button-signing-hover;
                     color: white;
                 }
                 &:active{
@@ -258,7 +308,7 @@ header{
     
     .message{
         color : white;
-        background-color: @navy-blue;
+        background-color: @color-background-message-bar;
         margin-bottom : 10px;
         height : 40px;
         font-size: 11px;
@@ -269,11 +319,25 @@ header{
         
         .button{
             .rounded(0);
-            background-color: @navy-blue-dark;
+            background-color: @color-background-message-bar-dark;
             background-image: url("../images/share.png");
             background-position: center center;
             background-repeat: no-repeat;
             padding: 0;
+        }
+
+        ul{
+            padding-top: 0;
+            height: 40px;
+            margin: 0;
+        }
+
+        li{
+            display: table-cell;
+            list-style-type: none;
+            vertical-align: middle;
+            margin:0;
+            height: 40px;
         }
     }
     
@@ -307,25 +371,31 @@ section{
             background-position: 0px -6px;
             top: -6px;
             left: 5px;
-            color : @tgd-blue;
+            color : @color-section-title;
         }
         .more{
             background-position: 0px -7px;
             font-size:@small-font-size;
             top: -5px;
             right: 5px;
-            color : @gray-text;
+            color : @color-section-more;
         }
     }
     
     &#good-data{
-        background-color : @light-yellow;
+        background-color : @color-background-good-data;
         .title, .more{
             background-image: url("../images/good-background.png");
         }
+        .content{
+            padding-left: 25px;
+        }
+        .button{
+            padding: 4px 5px;
+        }
     }
     &#evil-data{
-        background-color : @light-blue;
+        background-color : @color-background-evil-data;
         th{
             text-align: left;
             font-size: @small-font-size;
@@ -340,7 +410,7 @@ section{
         }
         td{
             padding: 4px 0 2px 0;
-            border-top:  1px solid @gray-lines;
+            border-top:  1px solid @color-table-border;
             .button{
                 padding-top: 4px;
                 padding-bottom:3px;
@@ -349,9 +419,16 @@ section{
         td:nth-child(3){
             padding-top:0px;
             padding-left: 5px;
+            text-align: center;
+        }
+        .content{
+            padding-left: 25px;
         }
         .title, .more{
             background-image: url("../images/evil-background.png");
+        }
+        .button{
+            padding: 4px 5px;
         }
     }
     &#level{
@@ -367,13 +444,13 @@ section{
         }
     }
     .content{
-        border-top: 1px solid @gray-lines;
+        border-top: 1px solid @lightGray;
         position: relative;
         padding: 25px 10px 25px 60px;
         font-size:14px;
         font-family: @font-medium;
         font-weight:bold;
-        color: @gray-text;
+        color: @color-text;
         
         img{
             position: absolute;
@@ -391,23 +468,22 @@ section{
     }
     .sub{
         font-size: 12px;
-        color: @gray-text;
+        color: @color-text;
         margin: 0px 0px 0px 5px;
         .button{
-            margin-right: 5px;
             padding-top: 3px;
             padding-bottom:2px;
             line-height: 1em;
             margin: 2px;
-            
+            margin-right: 5px;
         }
     }
 }
 
 footer{
-    background-color : @light-gray;
-    border-top : 1px solid @gray-lines;
-    color: @gray-text;
+    background-color : @xxLightGray;
+    border-top : 1px solid @lightGray;
+    color: @gray;
     padding-top: 10px;
     
     &>div{
@@ -422,6 +498,7 @@ footer{
                 .button{
                     line-height: 1em;
                     margin: 2px;
+                    margin-right: 5px;
                 }
             }
         }
@@ -481,9 +558,9 @@ footer{
     }
 
     &.off{
-        background-color: @light-gray-off;
+        background-color: @xLightGray;
         &:hover{
-            background-color: lighten(@light-gray-off,10%);
+            background-color: lighten(@xLightGray,10%);
         }
     }
 
@@ -510,7 +587,7 @@ footer{
     }
 
     &.block{
-        background-color: @block-button;
+        background-color: @blueishGray;
     }
     &.share,&.add,&.store/*,&.facebook,&.twitter,&.google-plus*/{
          display: inline-block;
@@ -521,7 +598,10 @@ footer{
         width: 15px;
         text-align: center;
         margin-left: 2px;
-        background-color: @block-button;
+        background-color: @blueishGray;
+        &:hover{
+            background-color: lighten(@blueishGray, 10%);
+        }
     }
     &.share{
         background-color: @tgd-yellow;
@@ -530,9 +610,9 @@ footer{
         }
     }
     &.expanded{
-        background-color: @light-gray-off;
+        background-color: @gray;
         &:hover{
-            background-color: lighten(@light-gray-off,10%);
+            background-color: lighten(@gray,10%);
         }
     }
     &.collapsed{
@@ -551,7 +631,7 @@ footer{
     &.email-us{
         .inner-shadow(0,0,0);
         background-color: transparent;
-        color: @gray-text;
+        color: @gray;
         &:hover{
             background-color: transparent;
         }
