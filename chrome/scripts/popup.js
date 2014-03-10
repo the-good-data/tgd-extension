@@ -81,12 +81,12 @@ function renderAdtracks(tab){
 
   //Sort adtracks
 
-  var rows = $('#layer_adtracks tbody  tr').get();
+  var rows = $('#layer_adtracks tbody  tr').get().splice(1);
 
   rows.sort(function(a, b) {
 
-    var A = $(a).children('td').eq(1).text().toUpperCase();
-    var B = $(b).children('td').eq(1).text().toUpperCase();
+    var A = $(a).children().eq(0).text().toUpperCase();
+    var B = $(b).children().eq(0).text().toUpperCase();
 
     if(A < B) {
       return -1;
@@ -104,6 +104,9 @@ function renderAdtracks(tab){
     $('#layer_adtracks').children('tbody').append(row);
   });
   
+  sortAndGroupTable('layer_adtracks');
+
+
   //Control viewport, hide element unuseful
   if (i>0){
     $('#btnExpandAdtracks').show();
@@ -307,6 +310,62 @@ function renderHeader(){
     $('.anonymous').show();
   }
 
+
+}
+
+function sortAndGroupTable(id){
+          var $rows = $('#' + id + ' tr'), // get the table rows
+          size = $rows.length, // cache the length
+          current = null,
+          previous = null,
+          bufferLength = 0,
+          $buffer = $();
+
+        
+        for(var i = 1; i < size; i+=1 ){
+          // get current text
+          current = $rows.eq(i).find('td').eq(0).html();
+          
+          if(current != previous ){ 
+            // if current text is different from previous text
+            // we're changing blocks so te previous block must be 
+            // wrapped in a tbody (if it has more than 1 element)
+            if(bufferLength > 1){ 
+              $buffer.eq(0).prev('.summary').find('td').eq(0).append('&nbsp;(<span>' + bufferLength + '</span>)');
+              $buffer
+                .wrapAll('<tr/>')
+                .wrapAll('<td colspan="3"/>')
+                .wrapAll('<table cellspacing="0" />');            
+            }
+            // empty buffer
+            $buffer = $();  
+          }else if(bufferLength === 1){
+            $('<tr class="summary"><td colspan="2"><div class="caret right"></div>' + current + '</td><td></td></tr>')
+              .insertBefore($rows.eq(i-1))
+              .click(function(){
+                $(this).find('.caret').toggleClass('right bottom');
+                $(this).next('tr').slideToggle();
+              });
+          }
+
+          // add tr to buffer
+          $buffer = $buffer.add($rows.eq(i));
+          bufferLength = $buffer.length;
+
+          //handle last row scenario
+          if(i === (size - 1)){
+            if(bufferLength > 1){ 
+              $buffer.eq(0).prev('.summary').find('td').eq(0).append('<span>' + bufferLength + '</span>');
+              $buffer
+              .wrapAll('<tr/>')
+              .wrapAll('<td colspan="3"/>')
+              .wrapAll('<table cellspacing="0"/>');
+            }
+          }
+          
+          // set previous text as current text
+          previous = current; 
+        }
 
 }
 
@@ -590,7 +649,31 @@ function renderHeader(){
             return false;
           });
 
+          // 
+          // tooltip behavior 
+          //
+          $('#layer_achievement_id').tooltip({
+            "html": true, 
+            "placement": "left", 
+            "trigger": "manual",
+            "title": "<i class='fa fa-facebook'></i><i class='fa fa-twitter'></i><i class='fa fa-google-plus'></i>"
+          }).mouseenter(function(){
+            // cache $(this) for later use inside event handlers
+            var $that = $(this);
 
+            // show tooltip
+            $that.tooltip('show');
+
+            // hides tootip on mouseleave
+            $('.tooltip').mouseleave(function(){
+              $that.tooltip('hide');
+            });
+
+            // hides tooltip on mouseclick on any of the social icons
+            $('.tooltip .fa').click(function(){
+              $that.tooltip('hide');
+            })
+          });
         });
       }
     );

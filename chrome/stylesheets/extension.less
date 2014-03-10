@@ -44,7 +44,7 @@
 @color-background-level: white;
 @color-background-body: @xxLightGray;
 @color-background-button-on: @tgd-green;
-@color-background-button-off: @xLightGray;
+@color-background-button-off: @lightGray;
 @color-background-button-social: @blueishGray;
 @color-background-button-love: @purple;
 @color-text: @gray;
@@ -87,6 +87,19 @@ html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockq
 .clearfix {display:block;}
 /* End hide from IE Mac */
 
+.caret{
+    border: 4px solid transparent;
+    display: inline-block;
+    &.right{
+        border-left-color: @color-text;
+        margin-left: 4px
+    }
+    &.bottom{
+        border-top-color: @color-text;
+        margin-top: 4px;
+        margin-right: 4px;
+    }
+}
 
 #container{
     width : 320px;
@@ -327,7 +340,7 @@ header{
         }
 
         ul{
-            padding-top: 0;
+            padding: 0 10px;
             height: 40px;
             margin: 0;
         }
@@ -391,7 +404,7 @@ section{
             padding-left: 25px;
         }
         .button{
-            padding: 4px 5px;
+            padding: 5px 5px 3px 5px;
         }
     }
     &#evil-data{
@@ -405,22 +418,66 @@ section{
             }
         }
         
+        #layer_adtracks_expand{
+            padding-top: 5px;
+        }
         table{
             width: 100%;
+            tbody{
+                tbody{
+                    tr{
+                        &:first-child{
+                            td{
+                                border-top: none;
+                            }
+                        }
+                        td{
+                            &:first-child{
+                                padding-left: 12px;
+                            }
+                        }
+                    }
+
+                }
+            }
+            .summary {
+                + tr{
+                    display: none;
+                }
+                cursor: pointer;
+            }
+
         }
         td{
             padding: 4px 0 2px 0;
             border-top:  1px solid @color-table-border;
+            span{
+                color: @tgd-red;
+            }
             .button{
                 padding-top: 4px;
                 padding-bottom:3px;
             }
-        }
-        td:nth-child(3){
+            table{
+                width: 100%
+            }
+            &[colspan=3]{
+                padding:0;
+            }
+            &:nth-child(1){
+                width: 48%;
+            }
+            &:nth-child(2){
+                width: 28%;
+            }
+            &:nth-child(3){
+            width: 26%;
             padding-top:0px;
             padding-left: 5px;
             text-align: center;
+            }
         }
+        
         .content{
             padding-left: 25px;
         }
@@ -428,7 +485,7 @@ section{
             background-image: url("../images/evil-background.png");
         }
         .button{
-            padding: 4px 5px;
+            padding: 5px 5px 3px 5px;
         }
     }
     &#level{
@@ -558,14 +615,14 @@ footer{
     }
 
     &.off{
-        background-color: @xLightGray;
+        background-color: @lightGray;
         &:hover{
-            background-color: lighten(@xLightGray,10%);
+            background-color: lighten(@lightGray,10%);
         }
     }
 
     &.on,&.off{
-        width: 20px;
+        width: 32px;
     }
 
     &.allowed{
@@ -595,7 +652,7 @@ footer{
     }
     &.fa-facebook,&.fa-twitter,&.fa-google-plus{
         padding:3px;
-        width: 15px;
+        width: 20px;
         text-align: center;
         margin-left: 2px;
         background-color: @blueishGray;
@@ -604,9 +661,9 @@ footer{
         }
     }
     &.share{
-        background-color: @tgd-yellow;
+        background-color: @tgd-red;
         &:hover{
-            background-color: lighten(@tgd-yellow,10%);
+            background-color: lighten(@tgd-red,10%);
         }
     }
     &.expanded{
@@ -638,10 +695,30 @@ footer{
     }
 
     &.become-owner{
-        width: 84%;
+        width: 91%;
     }
 }
     
-    #login{
-        
+.tooltip{
+    .fa{
+        .transition();
+        font-size: 14px;
+        padding:5px;
+        margin:2px 1px;
+        .rounded(2px);
+        &.fa-facebook{
+            padding-left: 7px;
+            padding-right: 7px;
+            &:hover{
+                background-color: #3B5998;
+            }
+        }
+        &.fa-twitter:hover{
+            color: #55ACEE;
+            background-color: #000;
+        }
+        &.fa-google-plus:hover{
+            background-color: #CB4437;
+        }
     }
+}
