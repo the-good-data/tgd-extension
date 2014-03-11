@@ -157,12 +157,13 @@ body{
             font-size: 13px;
             color: @darkBeige;
             line-height: 1;
+            cursor: pointer;
             input{
                 float: left;
                 display: inline-block;
                 width: auto;
                 margin: 5px;
-                margin-top: 1px;
+                margin-top: 0px;
             }
         }
 
@@ -172,6 +173,8 @@ body{
             text-decoration: none;
             line-height: 1;
             display: block;
+            padding-right: 5px;
+            text-align: right;
         }
 
         .remember-forget{
@@ -272,6 +275,17 @@ header{
         background-color : white;
         height : 40px;
         
+        .tooltip{
+            &.left{
+                .tooltip-inner{
+                    padding: 0 8px;
+                    background-color: transparent;
+                    color: @color-text;
+                }
+            }
+        }
+        
+
         > div {
             padding: 6px 8px;
             color: @color-text;
@@ -324,10 +338,10 @@ header{
         background-color: @color-background-message-bar;
         margin-bottom : 10px;
         height : 40px;
-        font-size: 11px;
+        font-size: 13px;
         
         > div {
-            padding: 15px 10px 10px 10px;
+            padding: 15px 10px 0px 25px;
         }
         
         .button{
@@ -406,6 +420,7 @@ section{
         .button{
             padding: 5px 5px 3px 5px;
         }
+
     }
     &#evil-data{
         background-color : @color-background-evil-data;
@@ -491,13 +506,19 @@ section{
     &#level{
         padding-bottom: 10px;
         .content{
-            padding-bottom: 5px;
-            img{
-                top: 15px;
-            }
+            padding-bottom: 20px;
+            padding-left: 55px;
         }
         .title, .more{
             background-image: url("../images/apprentice-background.png");
+        }
+        .icon{
+            position: absolute;
+            &.apprentice{
+                width: 36px;
+                top: 13px;
+                left: 8px;
+            }
         }
     }
     .content{
@@ -508,12 +529,6 @@ section{
         font-family: @font-medium;
         font-weight:bold;
         color: @color-text;
-        
-        img{
-            position: absolute;
-            left: 5px;
-            top: 20px;
-        }
         
         .green{
             color: @tgd-green;
@@ -622,7 +637,7 @@ footer{
     }
 
     &.on,&.off{
-        width: 32px;
+        width: 20px;
     }
 
     &.allowed{
@@ -652,36 +667,41 @@ footer{
     }
     &.fa-facebook,&.fa-twitter,&.fa-google-plus{
         padding:3px;
-        width: 20px;
+        width: 15px;
         text-align: center;
         margin-left: 2px;
         background-color: @blueishGray;
         &:hover{
             background-color: lighten(@blueishGray, 10%);
+            color: white;
         }
     }
     &.share{
         background-color: @tgd-red;
         &:hover{
             background-color: lighten(@tgd-red,10%);
+            color: white;
         }
     }
     &.expanded{
         background-color: @gray;
         &:hover{
             background-color: lighten(@gray,10%);
+            color: white;
         }
     }
     &.collapsed{
         background-color: @tgd-red;
         &:hover{
             background-color: lighten(@tgd-red,10%);
+            color: white;
         }
     }
     &.donate,&.become-owner{
         background-color: @purple;
         &:hover{
             background-color: lighten(@purple, 10%);
+            color: white;
         }
     }
 
@@ -691,15 +711,19 @@ footer{
         color: @gray;
         &:hover{
             background-color: transparent;
+            color: white;
         }
     }
 
     &.become-owner{
-        width: 91%;
+        width: 84%;
     }
 }
     
 .tooltip{
+    .tooltip-inner{
+        padding: 7px;
+    }
     .fa{
         .transition();
         font-size: 14px;
@@ -707,17 +731,20 @@ footer{
         margin:2px 1px;
         .rounded(2px);
         &.fa-facebook{
-            padding-left: 7px;
-            padding-right: 7px;
+            cursor: pointer;
+            padding-left: 8px;
+            padding-right: 9px;
             &:hover{
                 background-color: #3B5998;
             }
         }
         &.fa-twitter:hover{
+            cursor: pointer;
             color: #55ACEE;
             background-color: #000;
         }
         &.fa-google-plus:hover{
+            cursor: pointer;
             background-color: #CB4437;
         }
     }

@@ -39,6 +39,10 @@ const SERVICE_COUNT = SERVICES.length;
 /* The "tabs" API. */
 const TABS = BACKGROUND.TABS;
 
+/* global vars in TGD namespace to avoid conflicts */
+TGD = {
+  killTooltip: true
+}
 //Render adtracks in table
 function renderAdtracks(tab){
   const TAB = tab;
@@ -663,13 +667,17 @@ function sortAndGroupTable(id){
           });
 
           // 
-          // tooltip behavior 
+          // Behavior tooltips
           //
+          
+          $('#btnLogin, #btnLogout').tooltip();
+
           $('#layer_achievement_id').tooltip({
+            "animation": true,
             "html": true, 
-            "placement": "left", 
+            "placement": "bottom", 
             "trigger": "manual",
-            "title": "<i class='fa fa-facebook'></i><i class='fa fa-twitter'></i><i class='fa fa-google-plus'></i>"
+            "title": "<i class='fa fa-facebook'></i><br/><i class='fa fa-twitter'></i><br/><i class='fa fa-google-plus'></i>"
           }).mouseenter(function(){
             // cache $(this) for later use inside event handlers
             var $that = $(this);
@@ -680,12 +688,21 @@ function sortAndGroupTable(id){
             // hides tootip on mouseleave
             $('.tooltip').mouseleave(function(){
               $that.tooltip('hide');
+              TGD.killTooltip = true;
+            }).mouseenter(function(){
+              TGD.killTooltip = false;
             });
 
             // hides tooltip on mouseclick on any of the social icons
             $('.tooltip .fa').click(function(){
               $that.tooltip('hide');
             })
+          }).mouseleave(function(){
+            setTimeout(function(){
+              if(TGD.killTooltip){
+                $('#layer_achievement_id').tooltip('hide');
+              }
+            },500);
           });
         });
       }

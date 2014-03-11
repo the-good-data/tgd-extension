@@ -26,7 +26,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width">
         
-        <link rel="stylesheet" href="../stylesheets/bootstrap.min.css">
+        <link rel="stylesheet" href="../stylesheets/bootstrap.css">
         <link rel="stylesheet" href="../stylesheets/extension.css">
         <link rel="stylesheet" href="../stylesheets/webfonts.css">
         <link rel="stylesheet" href="../stylesheets/font-awesome.min.css">
@@ -74,10 +74,10 @@
                                 <input type="password" placeholder="Password" name="txtPassword" id="txtPassword"/>
                                 <div class="clearfix">
                                   <div class="remember-forget">
-                                    <label for="rememberMe"><input type="checkbox" name="rememberMe" id="rememberMe" style="float: left;"> remember me</label>
+                                    <label for="rememberMe"><input type="checkbox" name="rememberMe" id="rememberMe" style="float: left;"> Remember me</label>
                                   </div>
                                   <div class="remember-forget">
-                                    <a href="#">forgot your password?</a>
+                                    <a href="#">Forgot password?</a>
                                   </div>
                                 <div><p id="pError" style="color:red; font-size:0.75em"></p></div>
                                 <button id="btnSignIn" type="button" name="submit" class="green">SIGN IN</button>
@@ -100,13 +100,13 @@
                       <div class="logo"></div>TheGoodData
                     </div>
 
-                    <i id="btnLogin" class="button fa fa-sign-in" title="login"></i>
+                    <i id="btnLogin" class="button fa fa-power-off" data-toggle="tooltip" data-placement="left"title="sign in"></i>
                     <!-- <br>
                     <div id="btnLogin" class="button"></div> -->
                 </div>
 
                 <div class="welcome authenticated">
-                    <div><div class="logo"></div>Welcome <span class="username">Juan</span>!</div><i id="btnLogout" class="fa fa-sign-out button "></i>
+                    <div><div class="logo"></div>Welcome <span class="username">Juan</span>!</div><i id="btnLogout" class="fa fa-power-off button " data-toggle="tooltip" data-placement="left" title="sign out"></i>
                 </div>
                
                
@@ -170,7 +170,7 @@
                         <div class="title" id="layer_usertype_title">APPRENTICE</div>
                         <div class="more">MORE ABOUT YOU</div>
                     </div>
-                    <div class="content"><img id="layer_usertype_image" src="../images/apprentice.png" width="40px"/>You've contributed with <span class="green" id="layer_achievement_contributions">0</span><span class="green"> pieces</span> of data this month</div>            
+                    <div class="content"><img id="layer_usertype_image" src="../images/apprentice.png" class="icon apprentice" />You've contributed with <br/><span class="green" id="layer_achievement_contributions">0</span><span class="green"> pieces</span> of data this month</div>            
                     <div class="sub"><div id="layer_config_store_navigation" class="btnStoreNavigation button"></div>Store navigation and non-sensitive queries</div>
                     <div class="sub"><div id="layer_config_share_search" class="btnShareSearch button"></div>Trade non-sensitive queries anonymously</div>
                 </section>
