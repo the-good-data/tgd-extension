@@ -203,18 +203,31 @@ function writeContributed(percentil){
     is_member=true;
   }
   
-  var text='';
+  var text='',img='';
 
   if (is_member && value < 20)
+  {
+    img="owner.png";
     text='OWNER';
+  }
   else if (is_member && value >= 20)
+  {
+    img="expert.png";
     text='EXPERT';
+  }
   else if (is_member == false && value < 5)
+  {
+    img="apprentice.png";
     text='APPRENTICE';
+  }
   else
+  {
+    img="journeyman.png";
     text='JOURNEYMAN';
+  }
 
-  $('#layer_achievement_title').html(text);
+  $('#layer_usertype_title').html(text);
+  $('#layer_usertype_image').attr("src","../images/"+img);
 }
 
 //Render Contributed pieces counter in extension
