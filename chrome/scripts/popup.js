@@ -231,7 +231,8 @@ function writeContributed(percentil){
   }
 
   $('#layer_usertype_title').html(text);
-  $('#layer_usertype_image').attr("src","../images/"+img);
+  $('#layer_usertype_image').attr("src","../images/"+img)
+    .addClass('icon '+text.toLowerCase());// not every icon is te same so some css styling must be applied.
 }
 
 //Render Contributed pieces counter in extension
@@ -649,7 +650,7 @@ function sortAndGroupTable(id){
           $('#in-love').on('click','.twitter', function(){
           });
 
-          $('#header').on('click','.button_switch', function(){
+          $('#header').on('click','#btnLogout', function(){
 
             localStorage.member_id = 0;
             localStorage.member_username='';
