@@ -27,10 +27,9 @@ For more info about TheGoodData, please visit our site and FAQs
 These libraries are bundled with the project and needn’t be updated manually:
 
 0. jQuery
-1. D3.js
-2. port.js
-3. sitename.js
-4. favicon.js
+1. port.js
+2. sitename.js
+3. favicon.js
 
 ## License
 
@@ -48,5 +47,4 @@ TheGoodData logos, trademarks, domain names and other brand features or design e
 Further, the following third-party portions of the program and any use thereof are subject to their own license terms as set forth below:
 
 0. Proxima Nova Soft replaces system fonts and is the valuable copyrighted property of MyFonts, and/or their suppliers. You may not attempt to copy, install, redistribute, convert, modify, or reverse engineer this font software. Please contact MyFonts with any questions. Proxima Nova Soft can be removed and will be replaced with a system font.
-1. Tipped provides tooltips and is subject to the terms and conditions of the Tipped License. Tipped can be replaced with a library such as jQuery UI.
 
