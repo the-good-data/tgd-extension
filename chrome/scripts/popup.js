@@ -108,7 +108,7 @@ function renderAdtracks(tab){
     $('#layer_adtracks').children('tbody').append(row);
   });
   
-  sortAndGroupTable('layer_adtracks');
+  //sortAndGroupTable('layer_adtracks');
 
 
   //Control viewport, hide element unuseful

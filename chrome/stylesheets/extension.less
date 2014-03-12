@@ -11,11 +11,11 @@
 
 // browns
 @darkBeige: #81724d; 
-@blueishGray : #6E828D; 
 @darkBeige: #81724d; 
 @grayBeige: #DDDECB; 
 
 // grays
+@blueishGray : #6E828D; 
 @xxLightGray : #EFEFEF;
 @lightGray: #CCC; 
 @xLightGray : #D9D9D9; 
@@ -175,6 +175,9 @@ body{
             display: block;
             padding-right: 5px;
             text-align: right;
+            &:hover{
+                text-decoration: underline;
+            }
         }
 
         .remember-forget{
@@ -247,6 +250,9 @@ body{
                 position: relative;
                 top: 2px;
                 .inner-shadow(0,0,0);           
+            }
+            &:hover{
+                text-decoration: underline;
             }
         }
     }
@@ -627,6 +633,15 @@ footer{
         &:hover{
             background-color: lighten(@tgd-green,10%);
         }
+    }
+    &.delete{
+        border: 2px solid @blueishGray;
+        color: @blueishGray;
+        text-transform: uppercase;
+        display: block;
+        margin-top: 10px;
+        margin-left: 30px;
+        width: 50%;
     }
 
     &.off{
