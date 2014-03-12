@@ -108,7 +108,6 @@ function renderAdtracks(tab){
     $('#layer_adtracks').children('tbody').append(row);
   });
   
-  //sortAndGroupTable('layer_adtracks');
 
 
   //Control viewport, hide element unuseful
@@ -162,9 +161,10 @@ function writeAchivement(achivements){
       setTimeout(changeSlide, timeout);
   }
 
-  element.slice(1).hide();
-  setTimeout(changeSlide, timeout);
-
+  if(element.length > 1){
+    element.slice(1).hide();
+    setTimeout(changeSlide, timeout); 
+  }
 }
 
 //Render Achievement in extension
@@ -331,61 +331,6 @@ function renderHeader(){
 
 }
 
-function sortAndGroupTable(id){
-          var $rows = $('#' + id + ' tr'), // get the table rows
-          size = $rows.length, // cache the length
-          current = null,
-          previous = null,
-          bufferLength = 0,
-          $buffer = $();
-
-        
-        for(var i = 1; i < size; i+=1 ){
-          // get current text
-          current = $rows.eq(i).find('td').eq(0).html();
-          
-          if(current != previous ){ 
-            // if current text is different from previous text
-            // we're changing blocks so te previous block must be 
-            // wrapped in a tbody (if it has more than 1 element)
-            if(bufferLength > 1){ 
-              $buffer.eq(0).prev('.summary').find('td').eq(0).append('&nbsp;(<span>' + bufferLength + '</span>)');
-              $buffer
-                .wrapAll('<tr/>')
-                .wrapAll('<td colspan="3"/>')
-                .wrapAll('<table cellspacing="0" />');            
-            }
-            // empty buffer
-            $buffer = $();  
-          }else if(bufferLength === 1){
-            $('<tr class="summary"><td colspan="2"><div class="caret right"></div>' + current + '</td><td></td></tr>')
-              .insertBefore($rows.eq(i-1))
-              .click(function(){
-                $(this).find('.caret').toggleClass('right bottom');
-                $(this).next('tr').slideToggle();
-              });
-          }
-
-          // add tr to buffer
-          $buffer = $buffer.add($rows.eq(i));
-          bufferLength = $buffer.length;
-
-          //handle last row scenario
-          if(i === (size - 1)){
-            if(bufferLength > 1){ 
-              $buffer.eq(0).prev('.summary').find('td').eq(0).append('<span>' + bufferLength + '</span>');
-              $buffer
-              .wrapAll('<tr/>')
-              .wrapAll('<td colspan="3"/>')
-              .wrapAll('<table cellspacing="0"/>');
-            }
-          }
-          
-          // set previous text as current text
-          previous = current; 
-        }
-
-}
 
 /* Paints the UI. */
 (window).addEventListener(
