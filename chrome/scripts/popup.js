@@ -58,14 +58,34 @@ function renderAdtracks(tab){
   $("#layer_adtracks > tbody").html("");
 
   //Render header table
-  $('#layer_adtracks').append('<tr><th>NAME</th><th>TYPE</th><th>STATUS</th></tr>');
+  $('#layer_adtracks').append('<tr><th>#</th><th>NAME</th><th>TYPE</th><th>STATUS</th></tr>');
 
   var i = 0;
 
-  //Render Adtracks in GUI
+  var hAdtracks = new Hash();
+  var hAdtracksCount = new Hash();
+
   for (i in BACKGROUND.ADTRACKS[ID]) 
   {
     var adtrack = BACKGROUND.ADTRACKS[ID][i];
+    hAdtracks.setItem(adtrack.service_name, adtrack);
+
+    if (!hAdtracksCount.hasItem(adtrack.service_name))
+    {
+      hAdtracksCount.setItem(adtrack.service_name,1);
+    }
+    else
+    {
+      var count = hAdtracksCount.getItem(adtrack.service_name);
+      count++;
+      hAdtracksCount.setItem(adtrack.service_name,count);
+    }
+  }
+
+  //Render Adtracks in GUI
+  for (service in hAdtracks.items) 
+  {
+    var adtrack = hAdtracks.items[service];
     var data_status = false;
     var data_status_value = 'BLOCKED';
 
@@ -77,9 +97,11 @@ function renderAdtracks(tab){
      else
        data_status_value = 'ALLOWED';
     
+    var count =hAdtracksCount.getItem(adtrack.service_name);
+
     var selector='#layer_adtracks tr:last';
-    $(selector).after('<tr><td>'+adtrack.service_name+'</td><td>'+adtrack.category+'</td><td><div class="btnAdtrack button '+data_status_value.toLowerCase()+'" data-service_name="'+adtrack.service_name+'" data-status="'+data_status+'">'+data_status_value+'</div></td></tr>');
-  
+    $(selector).after('<tr><td>'+count+'</td><td>'+adtrack.service_name+'</td><td>'+adtrack.category+'</td><td><div class="btnAdtrack button '+data_status_value.toLowerCase()+'" data-service_name="'+adtrack.service_name+'" data-status="'+data_status+'">'+data_status_value+'</div></td></tr>');
+    
     i++;
   }
 
@@ -108,7 +130,6 @@ function renderAdtracks(tab){
     $('#layer_adtracks').children('tbody').append(row);
   });
   
-
 
   //Control viewport, hide element unuseful
   if (i>0){
