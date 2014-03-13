@@ -5,7 +5,15 @@ crx="$name.crx"
 pub="$name.pub"
 sig="$name.sig"
 zip="$name.zip"
-trap 'rm -f "$pub" "$sig" "$zip"' EXIT
+
+ 
+## Store to a shell variable ##
+year=`date +'%Y'`
+month=`date +'%m'`
+day=`date +'%d'`
+
+#trap 'rm -f "$pub" "$sig" "$zip"' EXIT
+trap 'rm -f "$pub" "$sig"; mv tgd.crx tgd_'$year$month$day'.crx; mv tgd.zip tgd_'$year$month$day'.zip' EXIT
 
 # zip up the crx dir
 cwd=$(pwd -P)
@@ -30,3 +38,4 @@ sig_len_hex=$(byte_swap $(printf '%08x\n' $(ls -l "$sig" | awk '{print $5}')))
   echo "$crmagic_hex $version_hex $pub_len_hex $sig_len_hex" | xxd -r -p
   cat "$pub" "$sig" "$zip"
 ) > "$crx"
+
