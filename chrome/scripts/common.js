@@ -944,7 +944,54 @@ function syncWhitelist(){
 
 
 
+function deleteQueries(callback_success,callback_fail){
 
+  var value=0;
+  if (localStorage.member_id != 0){
+    value=localStorage.member_id;
+  }
+  else
+  {
+    value=localStorage.user_id;
+  }
+
+  var xhr = new XMLHttpRequest();
+  var url = TGD_API+"api/queries/delete/"+value;
+  xhr.onreadystatechange = function()  {
+    if ( xhr.readyState == 4)  {
+
+      if (DEBUG && DEBUG_DELETE_QUERIES){
+          var resp = xhr.responseText;
+          console.log('DELETE QUERIES DESDE API');
+          console.log('===========================');
+          console.log(resp);
+          console.log('===========================');
+          console.log('');
+      }
+
+      if ( xhr.status == 200)  
+      {
+        callback_success();
+      }
+      else  
+      {
+        console.log( "Error: " + xhr.status + ": " + xhr.statusText);
+        callback_fail(xhr.statusText);
+      } 
+    }
+  }
+  xhr.open( 'GET', url, true);
+
+  if (DEBUG && DEBUG_DELETE_QUERIES){
+    console.log('DELETE QUERIES ENVIADA AL API');
+    console.log('===========================');
+    console.log('===========================');
+    console.log('');
+  }
+
+  xhr.send();
+
+} 
 
 function loginUser(username,password, callback_success,callback_fail){
 

@@ -45,3 +45,4 @@ const DEBUG_QUERY_CHECK = false;
 const DEBUG_QUERIES_COUNT = false;
 const DEBUG_QUERIES_PERCENTILE = false;
 const DEBUG_LANGUAGES_SUPPORT_CHECK = false;
+const DEBUG_DELETE_QUERIES = true;

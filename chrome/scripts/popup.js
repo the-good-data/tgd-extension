@@ -39,6 +39,9 @@ const SERVICE_COUNT = SERVICES.length;
 /* The "tabs" API. */
 const TABS = BACKGROUND.TABS;
 
+/* The "tabs" API. */
+var TAB_CURRENT;
+
 /* global vars in TGD namespace to avoid conflicts */
 TGD = {
   killTooltip: true
@@ -352,6 +355,339 @@ function renderHeader(){
 
 }
 
+function onLoad(){
+  
+  const TAB = TAB_CURRENT;
+  const ID = TAB.id;
+  const CATEGORY_REQUESTS = (BACKGROUND.REQUEST_COUNTS[ID] || {}).Disconnect || {};
+  const DOMAIN = GET(TAB.url);
+  const WHITELIST = DESERIALIZE(localStorage.whitelist) || {};
+  const SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
+  
+  //Render Correct Header
+  renderHeader();
+
+  //Render adtracks in table
+  renderAdtracks(TAB);
+
+  // //Render achievement
+  renderAchievement();
+
+  // //Render loans counter
+  renderLoans();
+
+  // //Render Queries counter
+  renderQueries();
+
+  // //Render Contributed counter
+  renderContributed();
+
+  //Render Options
+  renderOptions(TAB);
+
+  //Render deactivate current
+  renderDeactivateCurrent(DOMAIN,TAB);
+
+  onEvents();
+}
+
+function onEvents()
+{
+  $( document ).ready(function() {
+          
+      // Remove focus from links
+      $('a').blur();
+      
+      //Event click button expand adtracks
+      $('#btnExpandAdtracks').click(function () {
+          if ( $( "#layer_adtracks_expand" ).is( ":hidden" ) ) 
+          {
+              $( "#layer_adtracks_expand" ).slideDown( "slow" );
+              $('#btnExpandAdtracks').removeClass("fa-plus collapsed");
+              $('#btnExpandAdtracks').addClass("fa-minus pressed expanded");
+
+          } 
+          else 
+          {
+              $( "#layer_adtracks_expand" ).slideUp( "slow" );
+              $('#btnExpandAdtracks').removeClass("fa-minus pressed expanded");
+              $('#btnExpandAdtracks').addClass("fa-plus collapsed");
+          }
+
+          event.preventDefault();
+      });
+
+      //Event click button login
+      $('#btnLogin').click(function (event) {
+          
+          if ( $( "#login" ).is( ":hidden" ) ) 
+          {
+              $("header, #body, footer").hide();
+              $( "#login" ).fadeIn( "slow" );
+          } 
+          else 
+          {
+              $( "#login" ).fadeOut("slow", function(){
+                $("header, #body, footer").show();
+              });
+          }
+
+          event.preventDefault();
+      });
+
+      $('.close').click(function(){
+        $('#btnLogin').click();
+      })
+
+      $('.deleteQueries').click(function(){
+
+        deleteQueries(
+          function(data){
+            
+            chrome.tabs.getCurrent(function (tab){
+
+              localStorage.user_id = createUUID();
+              onLoad(tab);
+            })
+          },
+          function (error){
+          }
+        );
+
+      });
+
+      //Behavior click button signin
+      $('#btnSignIn').click(function (event) {
+        var username= $('#txtUsername').val();
+        var password= $('#txtPassword').val();
+        
+        $('#pError').html("");
+
+        if (username == "" || password == "")
+        {
+          $('#pError').html("Invalid username or password. <a href='"+URL+"/user/recovery'>I forgot my password</a>.");
+        }
+        else
+        {
+          loginUser(username,password, 
+            function (){
+              
+             $('#btnLogin').click();
+
+             $('#txtUsername').val('');
+              $('#txtUsername').val('');
+              onLoad();
+              
+
+            },
+            function (error){
+              $('#pError').html("Invalid username or password. <a href='"+URL+"/user/recovery'>I forgot my password</a>.");
+            }
+          );
+
+        }
+        event.preventDefault();
+      });
+
+
+      //Behavior click Desactivate Current
+      $('#not-working').on('click', '.btnDeactivateCurrent', function() { 
+
+        const ID = TAB.id;
+        
+        var sStatus=$(this).html();
+        var status=false;
+
+        if (sStatus == 'ON')
+        {
+          status=false;
+        }
+        else if (sStatus == 'OFF')
+        {
+          status=true
+
+        }
+
+        try
+        {
+          // for (i in BACKGROUND.ADTRACKS[ID]) 
+          // {
+          // var adtrack = BACKGROUND.ADTRACKS[ID][i];
+          console.log('----> '+'*'+' - '+status);
+          setWhitelistStatus(DOMAIN,TAB,'*',status);
+          // }
+
+        }
+        catch(err)
+        {
+          console.log(err);
+        }
+        
+        syncWhitelist();
+
+        TABS.reload(ID);
+
+        //Render Options
+        renderOptions(TAB);
+
+        //Render deactivate current
+        renderDeactivateCurrent(DOMAIN,TAB);
+
+        //Render adtracks in table
+        renderAdtracks(TAB);
+
+
+
+
+        event.preventDefault();
+      
+      });
+
+      //Behavior click Allow Social
+      $('#not-working').on('click', '.btnAllowSocial', function() { 
+        var allow_social = castBool(localStorage.allow_social);
+
+        allow_social=!allow_social;
+
+        localStorage.allow_social = allow_social;
+
+        //console.log('visualizar '+allow_social);
+        renderOptions(TAB);
+
+        addWhitelist(DOMAIN,'Facebook',!allow_social);
+        addWhitelist(DOMAIN,'Twitter',!allow_social);
+        
+        // syncWhitelist();
+        
+        TABS.reload(ID);
+        
+        //Render adtracks in table
+        renderAdtracks(TAB);
+
+      });
+
+      //Behavior click  StoreNavigation
+      $('#level').on('click', '.btnStoreNavigation', function() { 
+        var store_navigation = castBool(localStorage.store_navigation);
+
+        store_navigation=!store_navigation;
+
+        localStorage.store_navigation = store_navigation;
+
+        //console.log('visualizar '+store_navigation);
+        renderOptions(TAB);
+
+
+      });
+
+      //Behavior click  StoreNavigation
+      $('#level').on('click', '.btnShareSearch', function() { 
+        var share_search = castBool(localStorage.share_search);
+
+        share_search = !share_search;
+
+        localStorage.share_search = share_search;
+
+        //console.log('visualizar '+share_search);
+        renderOptions(TAB);
+
+      });
+
+
+      //Behavior click  adtracks
+      $('#layer_adtracks').on('click', '.btnAdtrack', function() { 
+
+        var service_name=$(this).data("service_name");
+        var status=$(this).data("status");
+
+        addWhitelist(DOMAIN,service_name,status);
+
+        syncWhitelist();
+        
+        TABS.reload(ID);
+        
+        //Render adtracks in table
+        renderAdtracks(TAB);
+
+        event.preventDefault();
+
+      });
+
+      $('#in-love').on('click','.email-us', function(){
+      });
+
+      $('#in-love').on('click','.become-owner', function(){
+      });
+
+      $('#in-love').on('click','.google-plus', function(){
+      });
+
+      $('#in-love').on('click','.donate', function(){
+      });
+
+      $('#in-love').on('click','.facebook', function(){
+      });
+
+      $('#in-love').on('click','.twitter', function(){
+      });
+
+      $('#header').on('click','#btnLogout', function(){
+
+        localStorage.member_id = 0;
+        localStorage.member_username='';
+      
+        onLoad();
+      });
+
+      
+
+
+
+      $('body').on('click','a', function(){
+        TABS.create({url: this.getAttribute('href')});
+        return false;
+      });
+
+      // 
+      // Behavior tooltips
+      //
+      
+      $('#btnLogin, #btnLogout').tooltip();
+
+      $('#layer_achievement_id').tooltip({
+        "animation": true,
+        "html": true, 
+        "placement": "bottom", 
+        "trigger": "manual",
+        "title": "<i class='fa fa-facebook'></i><br/><i class='fa fa-twitter'></i><br/><i class='fa fa-google-plus'></i>"
+      }).mouseenter(function(){
+        // cache $(this) for later use inside event handlers
+        var $that = $(this);
+
+        // show tooltip
+        $that.tooltip('show');
+
+        // hides tootip on mouseleave
+        $('.tooltip').mouseleave(function(){
+          $that.tooltip('hide');
+          TGD.killTooltip = true;
+        }).mouseenter(function(){
+          TGD.killTooltip = false;
+        });
+
+        // hides tooltip on mouseclick on any of the social icons
+        $('.tooltip .fa').click(function(){
+          $that.tooltip('hide');
+        })
+      }).mouseleave(function(){
+        setTimeout(function(){
+          if(TGD.killTooltip){
+            $('#layer_achievement_id').tooltip('hide');
+          }
+        },500);
+      });
+    });
+}
 
 /* Paints the UI. */
 (window).addEventListener(
@@ -368,363 +704,14 @@ function renderHeader(){
       , 
       function(tabs) 
       {        
-        const TAB = tabs[0];
-        const ID = TAB.id;
-        const CATEGORY_REQUESTS = (BACKGROUND.REQUEST_COUNTS[ID] || {}).Disconnect || {};
-        const DOMAIN = GET(TAB.url);
-        const WHITELIST = DESERIALIZE(localStorage.whitelist) || {};
-        const SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
+
+        TAB_CURRENT = tabs[0];
+        onLoad();
+
         
-        //Render Correct Header
-        renderHeader();
-
-        //Render adtracks in table
-        renderAdtracks(TAB);
-
-        // //Render achievement
-        renderAchievement();
-
-        // //Render loans counter
-        renderLoans();
-
-        // //Render Queries counter
-        renderQueries();
-
-        // //Render Contributed counter
-        renderContributed();
-
-        //Render Options
-        renderOptions(TAB);
-
-        //Render deactivate current
-        renderDeactivateCurrent(DOMAIN,TAB);
-
-        $( document ).ready(function() {
-          
-          // Remove focus from links
-          $('a').blur();
-          
-          //Event click button expand adtracks
-          $('#btnExpandAdtracks').click(function () {
-              if ( $( "#layer_adtracks_expand" ).is( ":hidden" ) ) 
-              {
-                  $( "#layer_adtracks_expand" ).slideDown( "slow" );
-                  $('#btnExpandAdtracks').removeClass("fa-plus collapsed");
-                  $('#btnExpandAdtracks').addClass("fa-minus pressed expanded");
-
-              } 
-              else 
-              {
-                  $( "#layer_adtracks_expand" ).slideUp( "slow" );
-                  $('#btnExpandAdtracks').removeClass("fa-minus pressed expanded");
-                  $('#btnExpandAdtracks').addClass("fa-plus collapsed");
-              }
-
-              event.preventDefault();
-          });
-
-          //Event click button login
-          $('#btnLogin').click(function (event) {
-              
-              if ( $( "#login" ).is( ":hidden" ) ) 
-              {
-                  $("header, #body, footer").hide();
-                  $( "#login" ).fadeIn( "slow" );
-              } 
-              else 
-              {
-                  $( "#login" ).fadeOut("slow", function(){
-                    $("header, #body, footer").show();
-                  });
-              }
-
-              event.preventDefault();
-          });
-
-          $('.close').click(function(){
-            $('#btnLogin').click();
-          })
-
-          //Behavior click button signin
-          $('#btnSignIn').click(function (event) {
-            var username= $('#txtUsername').val();
-            var password= $('#txtPassword').val();
-            
-            $('#pError').html("");
-
-            if (username == "" || password == "")
-            {
-              $('#pError').html("Invalid username or password. <a href='"+URL+"/user/recovery'>I forgot my password</a>.");
-            }
-            else
-            {
-              loginUser(username,password, 
-                function (){
-                  
-                 $('#btnLogin').click();
-                 renderHeader();
-
-                },
-                function (error){
-                  $('#pError').html("Invalid username or password. <a href='"+URL+"/user/recovery'>I forgot my password</a>.");
-                }
-              );
-
-            }
-            event.preventDefault();
-          });
-
-
-          //Behavior click Desactivate Current
-          $('#not-working').on('click', '.btnDeactivateCurrent', function() { 
-
-            const ID = TAB.id;
-            
-            var sStatus=$(this).html();
-            var status=false;
-
-            if (sStatus == 'ON')
-            {
-              status=false;
-            }
-            else if (sStatus == 'OFF')
-            {
-              status=true
-
-            }
-
-            try
-            {
-              // for (i in BACKGROUND.ADTRACKS[ID]) 
-              // {
-              // var adtrack = BACKGROUND.ADTRACKS[ID][i];
-              console.log('----> '+'*'+' - '+status);
-              setWhitelistStatus(DOMAIN,TAB,'*',status);
-              // }
-
-            }
-            catch(err)
-            {
-              console.log(err);
-            }
-            
-            syncWhitelist();
-
-            TABS.reload(ID);
-
-            //Render Options
-            renderOptions(TAB);
-
-            //Render deactivate current
-            renderDeactivateCurrent(DOMAIN,TAB);
-
-            //Render adtracks in table
-            renderAdtracks(TAB);
-
-
-
-
-            event.preventDefault();
-          
-          });
-
-          //Behavior click Allow Social
-          $('#not-working').on('click', '.btnAllowSocial', function() { 
-            var allow_social = castBool(localStorage.allow_social);
-
-            allow_social=!allow_social;
-
-            localStorage.allow_social = allow_social;
-
-            //console.log('visualizar '+allow_social);
-            renderOptions(TAB);
-
-            addWhitelist(DOMAIN,'Facebook',!allow_social);
-            addWhitelist(DOMAIN,'Twitter',!allow_social);
-            
-            // syncWhitelist();
-            
-            TABS.reload(ID);
-            
-            //Render adtracks in table
-            renderAdtracks(TAB);
-
-          });
-
-          //Behavior click  StoreNavigation
-          $('#level').on('click', '.btnStoreNavigation', function() { 
-            var store_navigation = castBool(localStorage.store_navigation);
-
-            store_navigation=!store_navigation;
-
-            localStorage.store_navigation = store_navigation;
-
-            //console.log('visualizar '+store_navigation);
-            renderOptions(TAB);
-
-
-          });
-
-          //Behavior click  StoreNavigation
-          $('#level').on('click', '.btnShareSearch', function() { 
-            var share_search = castBool(localStorage.share_search);
-
-            share_search = !share_search;
-
-            localStorage.share_search = share_search;
-
-            //console.log('visualizar '+share_search);
-            renderOptions(TAB);
-
-          });
-
-
-          //Behavior click  adtracks
-          $('#layer_adtracks').on('click', '.btnAdtrack', function() { 
-
-            var service_name=$(this).data("service_name");
-            var status=$(this).data("status");
-
-            addWhitelist(DOMAIN,service_name,status);
-
-            syncWhitelist();
-            
-            TABS.reload(ID);
-            
-            //Render adtracks in table
-            renderAdtracks(TAB);
-
-            event.preventDefault();
-
-          });
-
-          $('#in-love').on('click','.email-us', function(){
-          });
-
-          $('#in-love').on('click','.become-owner', function(){
-          });
-
-          $('#in-love').on('click','.google-plus', function(){
-          });
-
-          $('#in-love').on('click','.donate', function(){
-          });
-
-          $('#in-love').on('click','.facebook', function(){
-          });
-
-          $('#in-love').on('click','.twitter', function(){
-          });
-
-          $('#header').on('click','#btnLogout', function(){
-
-            localStorage.member_id = 0;
-            localStorage.member_username='';
-          
-            renderHeader();
-          });
-
-          
-
-
-
-          $('body').on('click','a', function(){
-            TABS.create({url: this.getAttribute('href')});
-            return false;
-          });
-
-          // 
-          // Behavior tooltips
-          //
-          
-          $('#btnLogin, #btnLogout').tooltip();
-
-          $('#layer_achievement_id').tooltip({
-            "animation": true,
-            "html": true, 
-            "placement": "bottom", 
-            "trigger": "manual",
-            "title": "<i class='fa fa-facebook'></i><br/><i class='fa fa-twitter'></i><br/><i class='fa fa-google-plus'></i>"
-          }).mouseenter(function(){
-            // cache $(this) for later use inside event handlers
-            var $that = $(this);
-
-            // show tooltip
-            $that.tooltip('show');
-
-            // hides tootip on mouseleave
-            $('.tooltip').mouseleave(function(){
-              $that.tooltip('hide');
-              TGD.killTooltip = true;
-            }).mouseenter(function(){
-              TGD.killTooltip = false;
-            });
-
-            // hides tooltip on mouseclick on any of the social icons
-            $('.tooltip .fa').click(function(){
-              $that.tooltip('hide');
-            })
-          }).mouseleave(function(){
-            setTimeout(function(){
-              if(TGD.killTooltip){
-                $('#layer_achievement_id').tooltip('hide');
-              }
-            },500);
-          });
-        });
       }
     );
-
-    // if (DESERIALIZE(localStorage.searchHardenable)) {
-    //   const SEARCH = document.getElementById('search');
-    //   SEARCH.className = 'shown';
-    //   const SEARCHBOX = SEARCH.getElementsByTagName('input')[0];
-    //   SEARCHBOX.checked = DESERIALIZE(localStorage.searchHardened);
-
-    //   SEARCHBOX.onclick = function() {
-    //     SEARCHBOX.checked =
-    //         localStorage.searchHardened =
-    //             !DESERIALIZE(localStorage.searchHardened);
-                
-    //     chrome.extension.sendRequest({
-    //         sendEvent: 'blimp-change-state',
-    //         data: {
-    //           hardenedState: DESERIALIZE(localStorage.searchHardened)
-    //         }
-    //       });
-    //   };
-    // }
-
-    // const WIFIBOX =
-    //     document.getElementById('wifi').getElementsByTagName('input')[0];
-    // WIFIBOX.checked = DESERIALIZE(localStorage.browsingHardened);
-
-    // WIFIBOX.onclick = function() {
-    //   WIFIBOX.checked =
-    //       localStorage.browsingHardened =
-    //           !DESERIALIZE(localStorage.browsingHardened);
-    // };
-
-    // //PARA VER MENSAJES
-    // const BOTON_TEST =
-    //     document.getElementById('btnTest');
-    
-    // BOTON_TEST  .onclick = function() {
-    //   var TXT=document.getElementById('txt');
-    //   TXT.innerHTML=TXT.innerHTML+"<br>"+JSON.stringify(localStorage);
-    // };
-
   }
   ,
   true
 );
-
-
-
-
-
-/*
-
-layer_loans_value
-<div class="content"><img src="img/logo-big.png"/><span id="layer_loans_value" class="green">21</span> projects funded so far<br/>with your help<div class="button share">&nbsp;</div><div class="button add">&nbsp;</div>
-*/
