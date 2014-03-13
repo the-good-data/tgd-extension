@@ -1004,6 +1004,9 @@ function loginUser(username,password, callback_success,callback_fail){
 function getDataFromQuery(requested_url, searchEngineName){
   var paramJSON = {};
 
+  if (searchEngineName == 'google')
+    requested_url=requested_url.replace("#q=","&q=");
+
   try
   {
     var parameters = requested_url.split("?")[1].split("&");

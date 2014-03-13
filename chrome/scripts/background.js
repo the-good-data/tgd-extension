@@ -186,53 +186,7 @@ false && INSTANT_ENABLED.get({}, function(details) {
       });
 });
 
-chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
-    if ( tab.status=="complete" ){
-
-      
-      var localtime = new Date();
-
-      syncQueriesBlacklist();
-      syncWhitelist();
-
-      CHILD_DOMAIN = GET(tab.url);
-
-      var domain_clear = tab.url;
-      var n = domain_clear.indexOf('?');
-
-      if (n != -1){
-        var erase = domain_clear.substr(n);
-        domain_clear=domain_clear.replace(erase,"");
-      }
-      
-      var user_id = localStorage.user_id;
-      
-      //delete instance extension
-      if (localStorage.member_id!=0)
-        user_id="";
-
-      var history = {
-          'member_id':localStorage.member_id,
-          'user_id': user_id,
-          'domain':CHILD_DOMAIN,
-          'url':domain_clear,
-          'usertime': localtime.format("yyyy-mm-dd HH:MM:ss")
-        };
-
-      if (DEBUG && DEBUG_BROWSING){
-        console.log('BROWSING DETECTADA');
-        console.log('===========================');
-        console.log(history);
-        
-        console.log('===========================');
-        console.log('')
-      }
-
-      SaveBrowsing(history);
-
-    }  
-});
 
 /* Traps and selectively cancels or redirects a request. */
 chrome.webRequest.onBeforeRequest.addListener(function(details) {
@@ -406,20 +360,20 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
     REDIRECTS[TAB_ID] = hardenedUrl;
   }
 
+  return blockingResponse;
+}, {urls: ['http://*/*', 'https://*/*']}, ['blocking']);
 
+function lookforQuery(REQUESTED_URL)
+{
 
-  /***********************/
-
-
+  const CHILD_DOMAIN = GET(REQUESTED_URL);
   //const PROXY_REDIRECT_BY_PRESETTING = "https://" + bgPlusOne.C_PROXY_PRESETTING;
   //const PROXY_REDIRECT = "https://" + bgPlusOne.C_PROXY_SEARCH + "/search";
   const REGEX_URL = /[?|&]q=(.+?)(&|$)/;
   const REGEX_URL_YAHOO = /[?|&]p=(.+?)(&|$)/;
   //const TYPE = details.type;
-  const T_MAIN_FRAME = (TYPE == 'main_frame');
-  const T_OTHER = (TYPE == 'other');
-  const T_SCRIPT = (TYPE == 'script');
-  const T_XMLHTTPREQUEST = (TYPE == 'xmlhttprequest');
+  // const T_MAIN_FRAME = (TYPE == 'main_frame');
+  // const T_XMLHTTPREQUEST = (TYPE == 'xmlhttprequest');
   //var REQUESTED_URL = details.url;
   //const CHILD_DOMAIN = getHostname(REQUESTED_URL);
 
@@ -440,17 +394,7 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
   //var isDisconnect = bgPlusOne.isProxySearchUrl(REQUESTED_URL);
   var isDisconnect = false
   var isDisconnectSearchPage = (REQUESTED_URL.search("search.disconnect.me/stylesheets/injected.css") > -1);
-  //if (isDisconnectSearchPage) updatestats();
-
-  // if (isDisconnectSite) {
-  //   var CONTROL = document.getElementById('input-type');
-  //   //console.log(CONTROL);
-  //   var BUCKET = CONTROL && CONTROL.getAttribute('value');
-  //   //console.log("BUCKET: " + BUCKET);
-  //   localStorage.pwyw = JSON.stringify({pwyw: true, bucket: BUCKET});
-  // }
-
-    
+   
 
   // Search proxied
   var modeSettings = deserialize(localStorage['mode_settings']);
@@ -469,19 +413,19 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
   isProxied =true;
 
   // blocking autocomplete by OminiBox or by Site URL
-  var isChromeInstant = ( isGoogle && T_MAIN_FRAME && (REQUESTED_URL.search("chrome-instant") > -1) );
-  var isGoogleOMBSearch = ( isGoogle && T_OTHER && (REQUESTED_URL.search("/complete/") > -1) );
-  var isGoogleSiteSearch = ( (isGoogle || isDisconnect) && T_XMLHTTPREQUEST && !hasGoogleImgApi && ((REQUESTED_URL.search("suggest=") > -1) || (REQUESTED_URL.search("output=search") > -1) || (REQUESTED_URL.search("/s?") > -1)) );
+  var isChromeInstant = ( isGoogle && (REQUESTED_URL.search("chrome-instant") > -1) );
+  var isGoogleOMBSearch = ( isGoogle && (REQUESTED_URL.search("/complete/") > -1) );
+  var isGoogleSiteSearch = ( isGoogle && !hasGoogleImgApi && ((REQUESTED_URL.search("suggest=") > -1) || (REQUESTED_URL.search("output=search") > -1) || (REQUESTED_URL.search("/s?") > -1)) );
   
-  // var isBingOMBSearch = ( isBing && T_OTHER && (REQUESTED_URL.search("osjson.aspx") > -1) );
-  // var isBingSiteSearch = ( (isBing || isDisconnect) && T_SCRIPT && (REQUESTED_URL.search("qsonhs.aspx") > -1) );
+  var isBingOMBSearch = ( isBing && (REQUESTED_URL.search("osjson.aspx") > -1) );
+  var isBingSiteSearch = ( (isBing || isDisconnect) && (REQUESTED_URL.search("qsonhs.aspx") > -1) );
+  
   // var isBlekkoSearch = ( (isBlekko || isDisconnect) && (T_OTHER || T_XMLHTTPREQUEST) && (REQUESTED_URL.search("autocomplete") > -1) );
-  // var isYahooSearch = ( (isYahoo || isDisconnect) && T_SCRIPT && (REQUESTED_URL.search("search.yahoo") > -1) && ((REQUESTED_URL.search("jsonp") > -1) || (REQUESTED_URL.search("gossip") > -1)) );
-  
-  
+  //var isYahooSearch = ( (isYahoo || isDisconnect) && T_SCRIPT && (REQUESTED_URL.search("search.yahoo") > -1) && ((REQUESTED_URL.search("jsonp") > -1) || (REQUESTED_URL.search("gossip") > -1)) );
+  var isYahooSearch = ( isYahoo && (REQUESTED_URL.search("search.yahoo") > -1) );
 
   //if ( (isProxied || isDisconnect || modeSettings==2) && (isChromeInstant || isGoogleOMBSearch || isGoogleSiteSearch || isBingOMBSearch || isBingSiteSearch || isBlekkoSearch || isYahooSearch) ) {
-  if ( (isProxied || isDisconnect || modeSettings==2) && (isChromeInstant || isGoogleOMBSearch || isGoogleSiteSearch) ) {
+  if ( (isProxied || isDisconnect || modeSettings==2) && (isChromeInstant || isGoogleOMBSearch || isGoogleSiteSearch || isBingSiteSearch || isYahooSearch) ) {
     blocking = true;
     if (!isDisconnect) {
       if ( (modeSettings==1) && !isGoogleOMBSearch ) blocking = false;
@@ -490,110 +434,166 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
 
     var isGmail = (CHILD_DOMAIN.search("mail.google.") > -1);
 
-    // if (blocking && isGoogleSiteSearch && !isGmail)  {
-    //    blockingResponse = { cancel: true };
-    // }
-
     if (isGoogleSiteSearch && !isGmail){
-      
-      var searchEngineName = 'google';
+      extractSearch('google',REQUESTED_URL);
+    } 
+    else  if (isYahooSearch){
+      extractSearch('yahoo',REQUESTED_URL);
+    }
+    else  if (isBingSiteSearch){
+      extractSearch('bing',REQUESTED_URL);
+    }
+  }
+}
 
-      var data = getDataFromQuery(REQUESTED_URL, searchEngineName);
-      
-      if (data != undefined && data.q != undefined && data.tok == undefined)
-      {
+function extractSearch(searchEngineName,REQUESTED_URL)
+{
+  var data = getDataFromQuery(REQUESTED_URL, searchEngineName);
+  console.log(data);
+  if (data != undefined)
+  {
+    var seachTerm = '';
+    if (searchEngineName == 'google')
+      seachTerm=data.q; 
+    else if (searchEngineName == 'yahoo')
+      seachTerm=data.q; 
+    else if (searchEngineName == 'bing')
+      seachTerm=data.q; 
 
-        var language = window.navigator.userLanguage || window.navigator.language;
-        var localtime = new Date();
+    var language = window.navigator.userLanguage || window.navigator.language;
+    var localtime = new Date();
 
+    CheckLanguagesSupport(language, function (language_support){
+
+      if (language_support.support == true){
         
+        CheckQuery(seachTerm,language_support.alias, function(data_queries){
 
-        CheckLanguagesSupport(language, function (language_support){
+          if (data_queries.length==0){
 
-          if (language_support.support == true){
+            var sTemp = '';
+
+            var share='true';
+
+            //Check if user has selected not to share info with our partner
+            if (castBool(localStorage.share_search)){
+              share='true'
+              chrome.tabs.executeScript(null, {file: 'scripts/provider.js'});
+              console.log('---> SCRIPT DE CHANGO');
+            }
+            else
+            {
+              share='false';
+              console.log('---> BLOQUEADO SCRIPT DE CHANGO');
+            }
             
-            CheckQuery(data.q,language_support.alias, function(data_queries){
+            var user_id = localStorage.user_id;
+            var language_support = true;
 
-              if (data_queries.length==0){
+            //delete instance extension
+            if (localStorage.member_id!=0)
+              user_id="";
 
-                var sTemp = '';
+            //set localtime
+            localtime.setHours(localtime.getHours() + localtime.getTimezoneOffset() / 60);
 
-                var share='true';
+            var query = {
+              'member_id':localStorage.member_id,
+              'user_id': user_id,
+              'provider':searchEngineName,
+              'query':REQUESTED_URL,
+              'data':seachTerm,
+              'lang':language,
+              'language_support':language_support,
+              'share':share,
+              'usertime': localtime.format("yyyy-mm-dd HH:MM:ss")
+            };
 
-                //Check if user has selected not to share info with our partner
-                if (castBool(localStorage.share_search)){
-                  share='true'
-                  chrome.tabs.executeScript(null, {file: 'scripts/provider.js'});
-                  console.log('---> SCRIPT DE CHANGO');
-                }
-                else
-                {
-                  share='false';
-                  console.log('---> BLOQUEADO SCRIPT DE CHANGO');
-                }
-                
-                var user_id = localStorage.user_id;
-                var language_support = true;
+            if (DEBUG && DEBUG_QUERY){
+              console.log('QUERY DETECTADA');
+              console.log('===========================');
+              console.log(query);
+              
+              console.log('===========================');
+              console.log('')
+            }
 
-                //delete instance extension
-                if (localStorage.member_id!=0)
-                  user_id="";
-
-                //set localtime
-                localtime.setHours(localtime.getHours() + localtime.getTimezoneOffset() / 60);
-
-                var query = {
-                  'member_id':localStorage.member_id,
-                  'user_id': user_id,
-                  'provider':searchEngineName,
-                  'query':REQUESTED_URL,
-                  'data':data.q,
-                  'lang':language,
-                  'language_support':language_support,
-                  'share':share,
-                  'usertime': localtime.format("yyyy-mm-dd HH:MM:ss")
-                };
-
-                if (DEBUG && DEBUG_QUERY){
-                  console.log('QUERY DETECTADA');
-                  console.log('===========================');
-                  console.log(query);
-                  
-                  console.log('===========================');
-                  console.log('')
-                }
-
-                if ( castBool(localStorage.store_navigation) )
-                {
-                  console.log('---> SALVADO QUERY');
-                  SaveQuery(query);              
-                }
-                else
-                {
-                  console.log('---> BLOQUEADO SALVADO QUERY');
-                } 
-               
-              }
-              else{
-                console.log('----> IMPOSIBLE CONTENIDO EN BLACKLIST');
-              }
-
-            })
-
+            if ( castBool(localStorage.store_navigation) )
+            {
+              console.log('---> SALVADO QUERY');
+              SaveQuery(query);              
+            }
+            else
+            {
+              console.log('---> BLOQUEADO SALVADO QUERY');
+            } 
+           
           }
           else{
-            console.log('----> IMPOSIBLE IDIOMA NO SOPORTADO');
+            console.log('----> IMPOSIBLE CONTENIDO EN BLACKLIST');
           }
-          
 
-        });
+        })
 
       }
-    }  
+      else{
+        console.log('----> IMPOSIBLE IDIOMA NO SOPORTADO');
+      }
+      
+
+    });
+
   }
- 
-  return blockingResponse;
-}, {urls: ['http://*/*', 'https://*/*']}, ['blocking']);
+}
+
+chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+
+    if ( tab.status=="complete" ){
+
+      lookforQuery(tab.url);
+
+      var localtime = new Date();
+
+      syncQueriesBlacklist();
+      syncWhitelist();
+
+      CHILD_DOMAIN = GET(tab.url);
+
+      var domain_clear = tab.url;
+      var n = domain_clear.indexOf('?');
+
+      if (n != -1){
+        var erase = domain_clear.substr(n);
+        domain_clear=domain_clear.replace(erase,"");
+      }
+      
+      var user_id = localStorage.user_id;
+      
+      //delete instance extension
+      if (localStorage.member_id!=0)
+        user_id="";
+
+      var history = {
+          'member_id':localStorage.member_id,
+          'user_id': user_id,
+          'domain':CHILD_DOMAIN,
+          'url':domain_clear,
+          'usertime': localtime.format("yyyy-mm-dd HH:MM:ss")
+        };
+
+      if (DEBUG && DEBUG_BROWSING){
+        console.log('BROWSING DETECTADA');
+        console.log('===========================');
+        console.log(history);
+        
+        console.log('===========================');
+        console.log('')
+      }
+
+      SaveBrowsing(history);
+
+    }  
+});
 
 /* Resets the number of tracking requests for a tab. */
 chrome.webNavigation.onCommitted.addListener(function(details) {
