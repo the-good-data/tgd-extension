@@ -64,9 +64,24 @@
                     </header> -->
                     <div id="login-body">
 
-                        <section>
-
+                        <section id="recover-password">
+                            <div class="heading">
+                                Recover password<i class="close fa fa-times-circle"></i>
+                            </div>
                             <div>
+                            Please, fill out the field bellow with the email address you provided 
+                            during you registration and click the 'send' button. We'll then send you
+                            an email with a new password which you'l be able to change in your account settings.
+                            </div>
+                            <form name="login-form" id="login-form">
+                                <input type="email" placeholder="Email" name="txtEmail" id="txtEmail"/>
+                                <div><p id="pError"></p></div>
+                                <button id="btnResetPassword" type="button" name="btnResetPassword" class="green">send</button>
+                            </form>
+                        </section>
+
+                        <section id="sign-in">
+                            <div class="heading">
                                 Sign into your account<i class="close fa fa-times-circle"></i>
                             </div>
                             <form name="login-form" id="login-form">
@@ -77,9 +92,10 @@
                                     <label for="rememberMe"><input type="checkbox" name="rememberMe" id="rememberMe" style="float: left;"> Remember me</label>
                                   </div>
                                   <div class="remember-forget">
-                                    <a href="#">Forgot password?</a>
+                                    <a id="forgotPassword" href="#">Forgot password?</a>
                                   </div>
-                                <div><p id="pError" style="color:red; font-size:0.75em"></p></div>
+                                </div>
+                                <div><p id="pError"></p></div>
                                 <button id="btnSignIn" type="button" name="submit" class="green">SIGN IN</button>
                             </form>
                         </section>

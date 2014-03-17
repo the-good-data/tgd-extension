@@ -351,8 +351,19 @@ function renderHeader(){
     $('.authenticated').hide();
     $('.anonymous').show();
   }
+}
 
+function renderPasswordRecovery(){
+  var height = $('#login').innerHeight();
+  var width = $('#login').innerWidth();
 
+  $('#recover-password')
+    .innerHeight(height)
+    .innerWidth(width)
+    .css({
+      'top':-height+'px',
+      'left': '0px'
+    });
 }
 
 function onLoad(){
@@ -388,305 +399,341 @@ function onLoad(){
   //Render deactivate current
   renderDeactivateCurrent(DOMAIN,TAB);
 
+
   onEvents();
 }
 
 function onEvents()
 {
   $( document ).ready(function() {
+        
+    // Remove focus from links
+    $('a').blur();
+    
+    //Event click button expand adtracks
+    $('#btnExpandAdtracks').click(function () {
+        if ( $( "#layer_adtracks_expand" ).is( ":hidden" ) ) 
+        {
+            $( "#layer_adtracks_expand" ).slideDown( "slow" );
+            $('#btnExpandAdtracks').removeClass("fa-plus collapsed");
+            $('#btnExpandAdtracks').addClass("fa-minus pressed expanded");
+
+        } 
+        else 
+        {
+            $( "#layer_adtracks_expand" ).slideUp( "slow" );
+            $('#btnExpandAdtracks').removeClass("fa-minus pressed expanded");
+            $('#btnExpandAdtracks').addClass("fa-plus collapsed");
+        }
+
+        event.preventDefault();
+    });
+
+    //Event click button login
+    $('#btnLogin').click(function (event) {
+        
+        if ( $( "#login" ).is( ":hidden" ) ) 
+        {
+            $("header, #body, footer").hide();
+            $( "#login" ).fadeIn( "slow" , function(){
+              //Render password recovery form
+              renderPasswordRecovery();
+            });
+        } 
+        else 
+        {
+            $( "#login" ).fadeOut("slow", function(){
+              $("header, #body, footer").show();
+            });
+        }
+
+        event.preventDefault();
+    });
+
+    $('#sign-in .close').click(function(){
+      $('#btnLogin').click();
+    })
+
+    $('.deleteQueries').click(function(){
+
+      deleteQueries(
+        function(data){
           
-      // Remove focus from links
-      $('a').blur();
+          chrome.tabs.getCurrent(function (tab){
+
+            localStorage.user_id = createUUID();
+            onLoad(tab);
+          })
+        },
+        function (error){
+        }
+      );
+
+    });
+
+    //Behavior click button signin
+    $('#btnSignIn').click(function (event) {
+      var username= $('#txtUsername').val();
+      var password= $('#txtPassword').val();
       
-      //Event click button expand adtracks
-      $('#btnExpandAdtracks').click(function () {
-          if ( $( "#layer_adtracks_expand" ).is( ":hidden" ) ) 
-          {
-              $( "#layer_adtracks_expand" ).slideDown( "slow" );
-              $('#btnExpandAdtracks').removeClass("fa-plus collapsed");
-              $('#btnExpandAdtracks').addClass("fa-minus pressed expanded");
+      $('#pError').html("");
 
-          } 
-          else 
-          {
-              $( "#layer_adtracks_expand" ).slideUp( "slow" );
-              $('#btnExpandAdtracks').removeClass("fa-minus pressed expanded");
-              $('#btnExpandAdtracks').addClass("fa-plus collapsed");
-          }
-
-          event.preventDefault();
-      });
-
-      //Event click button login
-      $('#btnLogin').click(function (event) {
-          
-          if ( $( "#login" ).is( ":hidden" ) ) 
-          {
-              $("header, #body, footer").hide();
-              $( "#login" ).fadeIn( "slow" );
-          } 
-          else 
-          {
-              $( "#login" ).fadeOut("slow", function(){
-                $("header, #body, footer").show();
-              });
-          }
-
-          event.preventDefault();
-      });
-
-      $('.close').click(function(){
-        $('#btnLogin').click();
-      })
-
-      $('.deleteQueries').click(function(){
-
-        deleteQueries(
-          function(data){
+      if (username == "" || password == "")
+      {
+        $('#pError').html("Invalid username or password.");
+      }
+      else
+      {
+        loginUser(username,password, 
+          function (){
             
-            chrome.tabs.getCurrent(function (tab){
+           $('#btnLogin').click();
 
-              localStorage.user_id = createUUID();
-              onLoad(tab);
-            })
+           $('#txtUsername').val('');
+            $('#txtUsername').val('');
+            onLoad();
+            
+
           },
           function (error){
+            $('#pError').html("Invalid username or password.");
           }
         );
 
-      });
-
-      //Behavior click button signin
-      $('#btnSignIn').click(function (event) {
-        var username= $('#txtUsername').val();
-        var password= $('#txtPassword').val();
-        
-        $('#pError').html("");
-
-        if (username == "" || password == "")
-        {
-          $('#pError').html("Invalid username or password. <a href='"+URL+"/user/recovery'>I forgot my password</a>.");
-        }
-        else
-        {
-          loginUser(username,password, 
-            function (){
-              
-             $('#btnLogin').click();
-
-             $('#txtUsername').val('');
-              $('#txtUsername').val('');
-              onLoad();
-              
-
-            },
-            function (error){
-              $('#pError').html("Invalid username or password. <a href='"+URL+"/user/recovery'>I forgot my password</a>.");
-            }
-          );
-
-        }
-        event.preventDefault();
-      });
-
-
-      //Behavior click Desactivate Current
-      $('#not-working').on('click', '.btnDeactivateCurrent', function() { 
-
-        const ID = TAB.id;
-        
-        var sStatus=$(this).html();
-        var status=false;
-
-        if (sStatus == 'ON')
-        {
-          status=false;
-        }
-        else if (sStatus == 'OFF')
-        {
-          status=true
-
-        }
-
-        try
-        {
-          // for (i in BACKGROUND.ADTRACKS[ID]) 
-          // {
-          // var adtrack = BACKGROUND.ADTRACKS[ID][i];
-          console.log('----> '+'*'+' - '+status);
-          setWhitelistStatus(DOMAIN,TAB,'*',status);
-          // }
-
-        }
-        catch(err)
-        {
-          console.log(err);
-        }
-        
-        syncWhitelist();
-
-        TABS.reload(ID);
-
-        //Render Options
-        renderOptions(TAB);
-
-        //Render deactivate current
-        renderDeactivateCurrent(DOMAIN,TAB);
-
-        //Render adtracks in table
-        renderAdtracks(TAB);
-
-
-
-
-        event.preventDefault();
-      
-      });
-
-      //Behavior click Allow Social
-      $('#not-working').on('click', '.btnAllowSocial', function() { 
-        var allow_social = castBool(localStorage.allow_social);
-
-        allow_social=!allow_social;
-
-        localStorage.allow_social = allow_social;
-
-        //console.log('visualizar '+allow_social);
-        renderOptions(TAB);
-
-        addWhitelist(DOMAIN,'Facebook',!allow_social);
-        addWhitelist(DOMAIN,'Twitter',!allow_social);
-        
-        // syncWhitelist();
-        
-        TABS.reload(ID);
-        
-        //Render adtracks in table
-        renderAdtracks(TAB);
-
-      });
-
-      //Behavior click  StoreNavigation
-      $('#level').on('click', '.btnStoreNavigation', function() { 
-        var store_navigation = castBool(localStorage.store_navigation);
-
-        store_navigation=!store_navigation;
-
-        localStorage.store_navigation = store_navigation;
-
-        //console.log('visualizar '+store_navigation);
-        renderOptions(TAB);
-
-
-      });
-
-      //Behavior click  StoreNavigation
-      $('#level').on('click', '.btnShareSearch', function() { 
-        var share_search = castBool(localStorage.share_search);
-
-        share_search = !share_search;
-
-        localStorage.share_search = share_search;
-
-        //console.log('visualizar '+share_search);
-        renderOptions(TAB);
-
-      });
-
-
-      //Behavior click  adtracks
-      $('#layer_adtracks').on('click', '.btnAdtrack', function() { 
-
-        var service_name=$(this).data("service_name");
-        var status=$(this).data("status");
-
-        addWhitelist(DOMAIN,service_name,status);
-
-        syncWhitelist();
-        
-        TABS.reload(ID);
-        
-        //Render adtracks in table
-        renderAdtracks(TAB);
-
-        event.preventDefault();
-
-      });
-
-      $('#in-love').on('click','.email-us', function(){
-      });
-
-      $('#in-love').on('click','.become-owner', function(){
-      });
-
-      $('#in-love').on('click','.google-plus', function(){
-      });
-
-      $('#in-love').on('click','.donate', function(){
-      });
-
-      $('#in-love').on('click','.facebook', function(){
-      });
-
-      $('#in-love').on('click','.twitter', function(){
-      });
-
-      $('#header').on('click','#btnLogout', function(){
-
-        localStorage.member_id = 0;
-        localStorage.member_username='';
-      
-        onLoad();
-      });
-
-      
-
-
-
-      $('body').on('click','a', function(){
-        TABS.create({url: this.getAttribute('href')});
-        return false;
-      });
-
-      // 
-      // Behavior tooltips
-      //
-      
-      $('#btnLogin, #btnLogout').tooltip();
-
-      $('#layer_achievement_id').tooltip({
-        "animation": true,
-        "html": true, 
-        "placement": "bottom", 
-        "trigger": "manual",
-        "title": "<i class='fa fa-facebook'></i><br/><i class='fa fa-twitter'></i><br/><i class='fa fa-google-plus'></i>"
-      }).mouseenter(function(){
-        // cache $(this) for later use inside event handlers
-        var $that = $(this);
-
-        // show tooltip
-        $that.tooltip('show');
-
-        // hides tootip on mouseleave
-        $('.tooltip').mouseleave(function(){
-          $that.tooltip('hide');
-          TGD.killTooltip = true;
-        }).mouseenter(function(){
-          TGD.killTooltip = false;
-        });
-
-        // hides tooltip on mouseclick on any of the social icons
-        $('.tooltip .fa').click(function(){
-          $that.tooltip('hide');
-        })
-      }).mouseleave(function(){
-        setTimeout(function(){
-          if(TGD.killTooltip){
-            $('#layer_achievement_id').tooltip('hide');
-          }
-        },500);
-      });
+      }
+      event.preventDefault();
     });
+
+
+    //Behavior click Desactivate Current
+    $('#not-working').on('click', '.btnDeactivateCurrent', function() { 
+
+      const ID = TAB.id;
+      
+      var sStatus=$(this).html();
+      var status=false;
+
+      if (sStatus == 'ON')
+      {
+        status=false;
+      }
+      else if (sStatus == 'OFF')
+      {
+        status=true
+
+      }
+
+      try
+      {
+        // for (i in BACKGROUND.ADTRACKS[ID]) 
+        // {
+        // var adtrack = BACKGROUND.ADTRACKS[ID][i];
+        console.log('----> '+'*'+' - '+status);
+        setWhitelistStatus(DOMAIN,TAB,'*',status);
+        // }
+
+      }
+      catch(err)
+      {
+        console.log(err);
+      }
+      
+      syncWhitelist();
+
+      TABS.reload(ID);
+
+      //Render Options
+      renderOptions(TAB);
+
+      //Render deactivate current
+      renderDeactivateCurrent(DOMAIN,TAB);
+
+      //Render adtracks in table
+      renderAdtracks(TAB);
+
+      event.preventDefault();
+    
+    });
+
+    //Behavior click Allow Social
+    $('#not-working').on('click', '.btnAllowSocial', function() { 
+      var allow_social = castBool(localStorage.allow_social);
+
+      allow_social=!allow_social;
+
+      localStorage.allow_social = allow_social;
+
+      //console.log('visualizar '+allow_social);
+      renderOptions(TAB);
+
+      addWhitelist(DOMAIN,'Facebook',!allow_social);
+      addWhitelist(DOMAIN,'Twitter',!allow_social);
+      
+      // syncWhitelist();
+      
+      TABS.reload(ID);
+      
+      //Render adtracks in table
+      renderAdtracks(TAB);
+
+    });
+
+    //Behavior click  StoreNavigation
+    $('#level').on('click', '.btnStoreNavigation', function() { 
+      var store_navigation = castBool(localStorage.store_navigation);
+
+      store_navigation=!store_navigation;
+
+      localStorage.store_navigation = store_navigation;
+
+      //console.log('visualizar '+store_navigation);
+      renderOptions(TAB);
+
+
+    });
+
+    //Behavior click  StoreNavigation
+    $('#level').on('click', '.btnShareSearch', function() { 
+      var share_search = castBool(localStorage.share_search);
+
+      share_search = !share_search;
+
+      localStorage.share_search = share_search;
+
+      //console.log('visualizar '+share_search);
+      renderOptions(TAB);
+
+    });
+
+
+    //Behavior click  adtracks
+    $('#layer_adtracks').on('click', '.btnAdtrack', function() { 
+
+      var service_name=$(this).data("service_name");
+      var status=$(this).data("status");
+
+      addWhitelist(DOMAIN,service_name,status);
+
+      syncWhitelist();
+      
+      TABS.reload(ID);
+      
+      //Render adtracks in table
+      renderAdtracks(TAB);
+
+      event.preventDefault();
+
+    });
+
+    $('#in-love').on('click','.email-us', function(){
+    });
+
+    $('#in-love').on('click','.become-owner', function(){
+    });
+
+    $('#in-love').on('click','.google-plus', function(){
+    });
+
+    $('#in-love').on('click','.donate', function(){
+    });
+
+    $('#in-love').on('click','.facebook', function(){
+    });
+
+    $('#in-love').on('click','.twitter', function(){
+    });
+
+    $('#header').on('click','#btnLogout', function(){
+
+      localStorage.member_id = 0;
+      localStorage.member_username='';
+    
+      onLoad();
+    });
+
+    
+
+
+
+    $('body').on('click','a', function(){
+      TABS.create({url: this.getAttribute('href')});
+      return false;
+    });
+
+    // 
+    // Behavior tooltips
+    //
+    
+    $('#btnLogin, #btnLogout').tooltip();
+
+    $('#layer_achievement_id').tooltip({
+      "animation": true,
+      "html": true, 
+      "placement": "bottom", 
+      "trigger": "manual",
+      "title": "<i class='fa fa-facebook'></i><br/><i class='fa fa-twitter'></i><br/><i class='fa fa-google-plus'></i>"
+    }).mouseenter(function(){
+      // cache $(this) for later use inside event handlers
+      var $that = $(this);
+
+      // show tooltip
+      $that.tooltip('show');
+
+      // hides tootip on mouseleave
+      $('.tooltip').mouseleave(function(){
+        $that.tooltip('hide');
+        TGD.killTooltip = true;
+      }).mouseenter(function(){
+        TGD.killTooltip = false;
+      });
+
+      // hides tooltip on mouseclick on any of the social icons
+      $('.tooltip .fa').click(function(){
+        $that.tooltip('hide');
+      })
+    }).mouseleave(function(){
+      setTimeout(function(){
+        if(TGD.killTooltip){
+          $('#layer_achievement_id').tooltip('hide');
+        }
+      },500);
+    });
+
+    // Behavior forgot password
+    $('#forgotPassword').click(function (){
+
+      if(!$('#recover-password').is(':visible')){
+        $('#recover-password').show().animate({'top': '0px'});
+      }
+      return false;
+    });
+
+    // Behavior password recovery close button
+    $('#recover-password .close').click(function(e){
+      e.stopPropagation();
+      var height = $('#recover-password').innerHeight();
+
+      if($('#recover-password').is(':visible')){
+        $('#recover-password').show().animate({'top': -height+'px'},400,function(){
+          $(this).hide();
+        });
+      }
+      return false;
+    });
+
+    // Behavior 'send' button in password recovery
+    $('#btnResetPassword').click(function(){
+      $(this).html('<i class="fa fa-spinner fa-spin"/>').attr('disabled','disabled');
+
+      /*
+       * TODO: Implement the passord resetting process
+       *  0 - validate input
+       *  1 - make the call
+       *  2 - handle response
+       *  3 - print output  
+       */
+    });
+  });
 }
 
 /* Paints the UI. */
