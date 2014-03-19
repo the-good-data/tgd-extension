@@ -44,7 +44,10 @@ var TAB_CURRENT;
 
 /* global vars in TGD namespace to avoid conflicts */
 TGD = {
-  killTooltip: true
+  killTooltip: true,
+  stopSlide : false,
+  passwordRecoveryRendered: false,
+  onEventsCalled : false
 }
 //Render adtracks in table
 function renderAdtracks(tab){
@@ -162,6 +165,7 @@ function renderAdtracks(tab){
 function writeAchivement(achivements){
   
   var text = '';
+  $("#layer_achievement_value").empty();
 
   for(i = 0; i < achivements.length; i++){
     var achivement = achivements[i];
@@ -174,6 +178,9 @@ function writeAchivement(achivements){
       timeout = 5000;
 
   function changeSlide() {
+    if(TGD.stopSlide){
+      setTimeout(changeSlide, 1000);
+    }else{
       element.eq(current++).fadeOut(300, function(){
           if(current === length){
               current = 0;
@@ -183,6 +190,7 @@ function writeAchivement(achivements){
       });
       
       setTimeout(changeSlide, timeout);
+    }
   }
 
   if(element.length > 1){
@@ -261,7 +269,12 @@ function writeContributed(percentil){
 
 //Render Contributed pieces counter in extension
 function renderContributed(){
-  LoadContributed(writeContributed)
+  LoadContributed(writeContributed);
+  if (localStorage.member_id != 0){
+    $('#button_delete_stored_data').hide();
+  }else{
+    $('#button_delete_stored_data').show();
+  }
 }
 
 function setButtonOn(id){
@@ -287,8 +300,6 @@ function setButton(status, id){
     setButtonOff(id);
   }
 }
-
-
 
 //Render Contributed pieces counter in extension
 function renderOptions(tab){
@@ -364,6 +375,7 @@ function renderPasswordRecovery(){
       'top':-height+'px',
       'left': '0px'
     });
+  TGD.passwordRecoveryRendered = true;
 }
 
 function onLoad(){
@@ -399,8 +411,13 @@ function onLoad(){
   //Render deactivate current
   renderDeactivateCurrent(DOMAIN,TAB);
 
-
-  onEvents();
+  // onEvents is called multiple times during extension execution.
+  // This causes event handlers being attached more than once to an element
+  // resulting in undesired behaviour.
+  // TODO: This needs to be fixed
+  if(!TGD.onEventsCalled){
+    onEvents();
+  }
 }
 
 function onEvents()
@@ -431,13 +448,16 @@ function onEvents()
 
     //Event click button login
     $('#btnLogin').click(function (event) {
-        
+        console.log('clicked');
+
         if ( $( "#login" ).is( ":hidden" ) ) 
         {
             $("header, #body, footer").hide();
             $( "#login" ).fadeIn( "slow" , function(){
               //Render password recovery form
-              renderPasswordRecovery();
+              if(!TGD.passwordRecoveryRendered){
+                renderPasswordRecovery();
+              }
             });
         } 
         else 
@@ -446,8 +466,8 @@ function onEvents()
               $("header, #body, footer").show();
             });
         }
-
         event.preventDefault();
+        
     });
 
     $('#sign-in .close').click(function(){
@@ -625,19 +645,27 @@ function onEvents()
 
     });
 
+    $('#become-member').on('click', 'button', function(){
+      TABS.create({url: URL + '/user/registration'});
+    });
+
     $('#in-love').on('click','.email-us', function(){
     });
 
     $('#in-love').on('click','.become-owner', function(){
+      TABS.create({url: URL + '/user/registration'});
     });
 
     $('#in-love').on('click','.google-plus', function(){
     });
 
     $('#in-love').on('click','.donate', function(){
+      TABS.create({url: URL + '/site/donate'});
     });
 
-    $('#in-love').on('click','.facebook', function(){
+    $('#in-love').on('click','.fa-facebook', function (event){
+      //event.preventDefault();
+      //TABS.create({url : 'http://www.facebook.com/sharer.php?s=100&p[url]=https://www.thegooddata.org&p[images][0]=https://www.thegooddata.org/img/final-logo-200px.png&p[title]=TheGoodData!&p[summary]=Be in control of your data while doing some good.'});
     });
 
     $('#in-love').on('click','.twitter', function(){
@@ -679,10 +707,14 @@ function onEvents()
       // show tooltip
       $that.tooltip('show');
 
+      // stp slide
+      TGD.stopSlide = true;
+
       // hides tootip on mouseleave
       $('.tooltip').mouseleave(function(){
         $that.tooltip('hide');
         TGD.killTooltip = true;
+        TGD.stopSlide = false;
       }).mouseenter(function(){
         TGD.killTooltip = false;
       });
@@ -695,6 +727,7 @@ function onEvents()
       setTimeout(function(){
         if(TGD.killTooltip){
           $('#layer_achievement_id').tooltip('hide');
+          TGD.stopSlide = false;
         }
       },500);
     });
@@ -733,7 +766,11 @@ function onEvents()
        *  3 - print output  
        */
     });
+    
+    TGD.onEventsCalled = true;
   });
+
+  
 }
 
 /* Paints the UI. */

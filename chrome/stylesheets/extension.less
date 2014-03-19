@@ -59,6 +59,7 @@
 @color-table-border: @lightGray;
 
 @h1-font-size: 20px;
+@evil-data-table-font-size: 12px;
 @button-font-size: 10px;
 @small-font-size: @button-font-size;
 @xsmall-font-size: 9px;
@@ -157,6 +158,10 @@ body{
             background-color: white;
             padding: 10px;
             .box-sizing();
+            div:nth-child(2){
+                text-align: left;
+                padding: 5px;
+            }
         }
 
         label{
@@ -171,6 +176,7 @@ body{
                 float: left;
                 display: inline-block;
                 width: auto;
+                height: auto;
                 margin: 5px;
                 margin-top: 0px;
             }
@@ -228,12 +234,13 @@ body{
         input{
             .rounded(3px);
             .inner-shadow(0, 1px, 1px, 0.1);
-            padding:10px;
+            padding:0 10px;
             width: 90%;
             border: 1px solid @grayBeige;
             color: @darkBeige;
-            font-family: @font-regular;    
-            
+            font-family: @font-regular;   
+            font-size: 14px; 
+            height: 35px;
         }
 
         button{
@@ -472,6 +479,7 @@ section{
             padding: 4px 0 2px 0;
             border-top:  1px solid @color-table-border;
             vertical-align: top;
+            font-size:@evil-data-table-font-size;
             span{
                 color: @tgd-red;
             }
@@ -493,9 +501,10 @@ section{
             }
             &:nth-child(4){
                 width: 26%;
-                padding-top:0px;
+                padding-top:2px;
                 padding-left: 5px;
                 text-align: center;
+                vertical-align: middle;
             }
         }
         
@@ -638,10 +647,12 @@ footer{
         border: 2px solid @blueishGray;
         color: @blueishGray;
         text-transform: uppercase;
-        display: block;
-        margin-top: 10px;
-        margin-left: 30px;
-        width: 50%;
+        display: inline-block;
+        //margin-top: 10px;
+        margin-left: 5px;
+        //width: 50%;
+        font-size: 9px;
+        padding: 2px 3px;
     }
 
     &.off{
@@ -720,18 +731,20 @@ footer{
         }
     }
 
-    &.email-us{
-        .inner-shadow(0,0,0);
-        background-color: transparent;
-        color: @gray;
-        &:hover{
-            background-color: transparent;
-            color: white;
-        }
-    }
+    
 
     &.become-owner{
         width: 84%;
+    }
+}
+
+.email-us{
+    color: @gray;
+    padding-left: 39px;
+    line-height: 20px;
+    text-decoration: none;
+    &:hover{
+        text-decoration: underline;
     }
 }
     
