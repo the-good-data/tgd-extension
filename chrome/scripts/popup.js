@@ -49,6 +49,7 @@ TGD = {
   passwordRecoveryRendered: false,
   onEventsCalled : false
 }
+
 //Render adtracks in table
 function renderAdtracks(tab){
   const TAB = tab;
@@ -113,13 +114,36 @@ function renderAdtracks(tab){
 
   //Sort adtracks
 
+  function partialSort(arr, start, end, index) {
+      var preSorted = arr.slice(0, start), 
+          postSorted = arr.slice(end);
+      var sorted = arr.slice(start, end).sort(function(a,b){
+        var A = $(a).children().eq(index).text().toUpperCase(),
+            B = $(b).children().eq(index).text().toUpperCase();
+        
+        if(A < B) {
+          return -1;
+        }
+
+        if(A > B) {
+          return 1;
+        }
+        
+        return 0;
+      });
+      arr.length = 0;
+      arr.push.apply(arr, preSorted.concat(sorted).concat(postSorted));
+
+      return arr;
+  }
+
   var rows = $('#layer_adtracks tbody  tr').get().splice(1);
 
+  // sort by number of threads
   rows.sort(function(a, b) {
-
-    var A = $(a).children().eq(0).text().toUpperCase();
-    var B = $(b).children().eq(0).text().toUpperCase();
-
+    var A = parseInt($(a).children().eq(0).text(), 10),
+        B = parseInt($(b).children().eq(0).text(), 10);
+    
     if(A < B) {
       return -1;
     }
@@ -127,15 +151,50 @@ function renderAdtracks(tab){
     if(A > B) {
       return 1;
     }
-
     return 0;
-
   });
+
+  // group by amount of threats and sort
+  var amounts = {}
+  $.each(rows, function(index, row){
+    var value = parseInt($(row).children().eq(0).text(), 10);
+    if(amounts[value] == undefined){
+      amounts[value] = 1;
+    }else{
+      amounts[value] += 1;
+    }
+  });
+
+  var offset = 0;
+  for(key in amounts){
+    if(amounts.hasOwnProperty(key)){
+      partialSort(rows, offset, offset + amounts[key], 1);
+      offset += (amounts[key]);
+    }
+  }
+  
+  // group by amount:name
+  var amountName = {};
+  $.each(rows, function(index, row){
+    var value = $(row).children().eq(0).text() + $(row).children().eq(1).text();
+    if(amounts[value] == undefined){
+      amountName[value] = 1;
+    }else{
+      amountName[value] += 1;
+    }
+  });
+
+  var offset = 0;
+  for(key in amounts){
+    if(amounts.hasOwnProperty(key)){
+      partialSort(rows, offset, offset + amounts[key], 2);
+      offset += (amounts[key]);
+    }
+  }
 
   $.each(rows, function(index, row) {
     $('#layer_adtracks').children('tbody').append(row);
   });
-  
 
   //Control viewport, hide element unuseful
   if (i>0){
@@ -203,7 +262,6 @@ function writeAchivement(achivements){
 function renderAchievement(){
   LoadAchievements(writeAchivement);
 }
-
 
 //Write Achivements values
 function writeQueries(queries){
@@ -303,25 +361,29 @@ function setButton(status, id){
 
 //Render Contributed pieces counter in extension
 function renderOptions(tab){
-  
-  if (localStorage.store_navigation == undefined)
+  // store navigation and non-sensitive queries?
+  if (localStorage.store_navigation == undefined) {
     localStorage.store_navigation=true;
+  }
 
   var store_navigation = castBool(localStorage.store_navigation) ;
   setButton(store_navigation,'#layer_config_store_navigation');
 
-  if (localStorage.share_search == undefined)
+  // Trade non-sensitive queries?
+  if (localStorage.share_search == undefined) {
     localStorage.share_search=true;
+  }
 
   var share_search = castBool(localStorage.share_search);
   setButton(share_search,'#layer_config_share_search');
 
-  if (localStorage.allow_social == undefined)
+  // Allow social networks?
+  if (localStorage.allow_social == undefined) {
     localStorage.allow_social=false;
+  }
 
   var allow_social = castBool(localStorage.allow_social);
   setButton(allow_social,'#layer_config_allow_social');
-
 }
 
 //Render Deactivate Current
@@ -330,8 +392,7 @@ function renderDeactivateCurrent(DOMAIN,tab){
     setButton(deactivate_current,'#layer_config_deactivate_current');
 }
 
-
-
+// TODO: is this function used by any one?
 function deactivateCurrent(tab){
   const TAB = tab;
   const ID = TAB.id;
@@ -346,7 +407,6 @@ function deactivateCurrent(tab){
   }
 
   return status;
-
 }
 
 function renderHeader(){
@@ -427,31 +487,26 @@ function onEvents()
     // Remove focus from links
     $('a').blur();
     
-    //Event click button expand adtracks
+    //Event click button "expand adtracks"
     $('#btnExpandAdtracks').click(function () {
-        if ( $( "#layer_adtracks_expand" ).is( ":hidden" ) ) 
-        {
+        if ( $( "#layer_adtracks_expand" ).is( ":hidden" ) ) {
             $( "#layer_adtracks_expand" ).slideDown( "slow" );
             $('#btnExpandAdtracks').removeClass("fa-plus collapsed");
             $('#btnExpandAdtracks').addClass("fa-minus pressed expanded");
 
-        } 
-        else 
-        {
+        } else {
             $( "#layer_adtracks_expand" ).slideUp( "slow" );
             $('#btnExpandAdtracks').removeClass("fa-minus pressed expanded");
             $('#btnExpandAdtracks').addClass("fa-plus collapsed");
         }
-
         event.preventDefault();
     });
 
-    //Event click button login
+    //Event click button "show sign-in form"
     $('#btnLogin').click(function (event) {
         console.log('clicked');
 
-        if ( $( "#login" ).is( ":hidden" ) ) 
-        {
+        if ( $( "#login" ).is( ":hidden" ) ) {
             $("header, #body, footer").hide();
             $( "#login" ).fadeIn( "slow" , function(){
               //Render password recovery form
@@ -459,28 +514,24 @@ function onEvents()
                 renderPasswordRecovery();
               }
             });
-        } 
-        else 
-        {
+        } else {
             $( "#login" ).fadeOut("slow", function(){
               $("header, #body, footer").show();
             });
         }
-        event.preventDefault();
-        
+        event.preventDefault();  
     });
 
+    // Event click button "close sign-in form"
     $('#sign-in .close').click(function(){
       $('#btnLogin').click();
     })
 
+    // Event click button "delete stored data"
     $('.deleteQueries').click(function(){
-
       deleteQueries(
         function(data){
-          
           chrome.tabs.getCurrent(function (tab){
-
             localStorage.user_id = createUUID();
             onLoad(tab);
           })
@@ -488,44 +539,35 @@ function onEvents()
         function (error){
         }
       );
-
     });
 
-    //Behavior click button signin
+    // Event click button "sign in"
     $('#btnSignIn').click(function (event) {
       var username= $('#txtUsername').val();
       var password= $('#txtPassword').val();
       
       $('#pError').html("");
 
-      if (username == "" || password == "")
-      {
+      if (username == "" || password == "") {
         $('#pError').html("Invalid username or password.");
-      }
-      else
-      {
+      } else {
         loginUser(username,password, 
           function (){
-            
-           $('#btnLogin').click();
-
-           $('#txtUsername').val('');
+            $('#btnLogin').click();
+            $('#txtUsername').val('');
             $('#txtUsername').val('');
             onLoad();
-            
-
           },
           function (error){
             $('#pError').html("Invalid username or password.");
           }
         );
-
       }
       event.preventDefault();
     });
 
 
-    //Behavior click Desactivate Current
+    // Event click button "Deactivate Current"
     $('#not-working').on('click', '.btnDeactivateCurrent', function() { 
 
       const ID = TAB.id;
@@ -575,11 +617,11 @@ function onEvents()
     
     });
 
-    //Behavior click Allow Social
+    // Event click button "Allow Social"
     $('#not-working').on('click', '.btnAllowSocial', function() { 
       var allow_social = castBool(localStorage.allow_social);
 
-      allow_social=!allow_social;
+      allow_social = !allow_social;
 
       localStorage.allow_social = allow_social;
 
@@ -598,7 +640,7 @@ function onEvents()
 
     });
 
-    //Behavior click  StoreNavigation
+    // Event click button "Store Navigation"
     $('#level').on('click', '.btnStoreNavigation', function() { 
       var store_navigation = castBool(localStorage.store_navigation);
 
@@ -608,11 +650,9 @@ function onEvents()
 
       //console.log('visualizar '+store_navigation);
       renderOptions(TAB);
-
-
     });
 
-    //Behavior click  StoreNavigation
+    // Event click button "Trade non-sensitive queries"
     $('#level').on('click', '.btnShareSearch', function() { 
       var share_search = castBool(localStorage.share_search);
 
@@ -622,11 +662,9 @@ function onEvents()
 
       //console.log('visualizar '+share_search);
       renderOptions(TAB);
-
     });
 
-
-    //Behavior click  adtracks
+    // Event click button "blocked / allowed"
     $('#layer_adtracks').on('click', '.btnAdtrack', function() { 
 
       var service_name=$(this).data("service_name");
@@ -642,58 +680,59 @@ function onEvents()
       renderAdtracks(TAB);
 
       event.preventDefault();
-
     });
 
+    // Event click button "BECOME A MEMBER"
     $('#become-member').on('click', 'button', function(){
       TABS.create({url: URL + '/user/registration'});
     });
 
+    // Event click button "Email us"
     $('#in-love').on('click','.email-us', function(){
     });
 
+    // Event click button "Become owner"
     $('#in-love').on('click','.become-owner', function(){
       TABS.create({url: URL + '/user/registration'});
     });
 
+    // Event click button "Share on G+"
     $('#in-love').on('click','.google-plus', function(){
     });
 
+    // Event click button "Donate"
     $('#in-love').on('click','.donate', function(){
       TABS.create({url: URL + '/site/donate'});
     });
 
+    // Event click button "Share on FB"
     $('#in-love').on('click','.fa-facebook', function (event){
       //event.preventDefault();
       //TABS.create({url : 'http://www.facebook.com/sharer.php?s=100&p[url]=https://www.thegooddata.org&p[images][0]=https://www.thegooddata.org/img/final-logo-200px.png&p[title]=TheGoodData!&p[summary]=Be in control of your data while doing some good.'});
     });
 
+    // Event click button "Share on Twitter"
     $('#in-love').on('click','.twitter', function(){
     });
 
+    // Event click button "Sign out"
     $('#header').on('click','#btnLogout', function(){
-
       localStorage.member_id = 0;
       localStorage.member_username='';
     
       onLoad();
     });
 
-    
-
-
-
+    // Event click on any link
     $('body').on('click','a', function(){
       TABS.create({url: this.getAttribute('href')});
       return false;
     });
 
-    // 
-    // Behavior tooltips
-    //
-    
+    // Activate tooltips for sing-in sign-out buttons
     $('#btnLogin, #btnLogout').tooltip();
 
+    // Activate tooltip for sharing header message
     $('#layer_achievement_id').tooltip({
       "animation": true,
       "html": true, 
@@ -732,16 +771,15 @@ function onEvents()
       },500);
     });
 
-    // Behavior forgot password
+    // Event click button "forgot password"
     $('#forgotPassword').click(function (){
-
       if(!$('#recover-password').is(':visible')){
         $('#recover-password').show().animate({'top': '0px'});
       }
       return false;
     });
 
-    // Behavior password recovery close button
+    // Event click button "close password-recovery form"
     $('#recover-password .close').click(function(e){
       e.stopPropagation();
       var height = $('#recover-password').innerHeight();
@@ -754,7 +792,7 @@ function onEvents()
       return false;
     });
 
-    // Behavior 'send' button in password recovery
+    // Event click button "send" in password-recovery form
     $('#btnResetPassword').click(function(){
       $(this).html('<i class="fa fa-spinner fa-spin"/>').attr('disabled','disabled');
 
