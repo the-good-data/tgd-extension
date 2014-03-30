@@ -220,15 +220,15 @@ function renderAdtracks(tab){
   
 }
 
-//Write Achivements values
-function writeAchivement(achivements){
+//Write Achievements values
+function writeAchievement(achievements){
   
   var text = '';
   $("#layer_achievement_value").empty();
 
-  for(i = 0; i < achivements.length; i++){
-    var achivement = achivements[i];
-    $("#layer_achievement_value").append('<li>'+achivement['text'+LANG]+'</li>');
+  for(i = 0; i < achievements.length; i++){
+    var achievement = achievements[i];
+    $("#layer_achievement_value").append('<li><a href="'+achievement['link'+LANG]+'" target="_blank">'+achievement['text'+LANG]+'</a></li>');
   }
 
   var element = $('#layer_achievement_value li'),
@@ -260,10 +260,10 @@ function writeAchivement(achivements){
 
 //Render Achievement in extension
 function renderAchievement(){
-  LoadAchievements(writeAchivement);
+  LoadAchievements(writeAchievement);
 }
 
-//Write Achivements values
+//Write Achievements values
 function writeQueries(queries){
   $("#layer_achievement_contributions").html(queries.toString());
 }
@@ -678,7 +678,7 @@ function onEvents()
     });
 
     // Event click button "BECOME A MEMBER"
-    $('#become-member').on('click', 'button', function(){
+    $('#become-member').click(function(){
       TABS.create({url: URL + '/user/registration'});
     });
 
@@ -689,6 +689,7 @@ function onEvents()
     // Event click button "Become owner"
     $('#in-love').on('click','.become-owner', function(){
       TABS.create({url: URL + '/user/registration'});
+      return false;
     });
 
     // Event click button "Share on G+"
