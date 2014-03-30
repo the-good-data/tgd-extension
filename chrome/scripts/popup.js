@@ -506,17 +506,12 @@ function onEvents()
     $('#btnLogin').click(function (event) {
         console.log('clicked');
 
-        if ( $( "#login" ).is( ":hidden" ) ) {
-            $("header, #body, footer").hide();
-            $( "#login" ).fadeIn( "slow" , function(){
-              //Render password recovery form
-              if(!TGD.passwordRecoveryRendered){
-                renderPasswordRecovery();
-              }
-            });
+        if ( $( "#sign-in" ).is( ":hidden" ) ) {
+            $("#content").hide();
+            $( "#sign-in" ).fadeIn( "slow");
         } else {
-            $( "#login" ).fadeOut("slow", function(){
-              $("header, #body, footer").show();
+            $( "#sign-in" ).fadeOut("slow", function(){
+              $("#content").show();
             });
         }
         event.preventDefault();  
