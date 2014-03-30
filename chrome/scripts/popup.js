@@ -46,7 +46,6 @@ var TAB_CURRENT;
 TGD = {
   killTooltip: true,
   stopSlide : false,
-  passwordRecoveryRendered: false,
   onEventsCalled : false
 }
 
@@ -197,12 +196,12 @@ function renderAdtracks(tab){
   });
 
   //Control viewport, hide element unuseful
-  if (i>0){
-    $('#btnExpandAdtracks').show();
-  }
-  else{
-    $('#btnExpandAdtracks').hide();
-  }
+  // if (i>0){
+  //   $('#btnExpandAdtracks').show();
+  // }
+  // else{
+  //   $('#btnExpandAdtracks').hide();
+  // }
 
   if (i==0){
     $('#layer_adtracks').hide();
@@ -424,20 +423,6 @@ function renderHeader(){
   }
 }
 
-function renderPasswordRecovery(){
-  var height = $('#login').innerHeight();
-  var width = $('#login').innerWidth();
-
-  $('#recover-password')
-    .innerHeight(height)
-    .innerWidth(width)
-    .css({
-      'top':-height+'px',
-      'left': '0px'
-    });
-  TGD.passwordRecoveryRendered = true;
-}
-
 function onLoad(){
   
   const TAB = TAB_CURRENT;
@@ -476,13 +461,13 @@ function onLoad(){
   // resulting in undesired behaviour.
   // TODO: This needs to be fixed
   if(!TGD.onEventsCalled){
-    onEvents();
+    onEvents(DOMAIN, TAB);
   }
 }
 
-function onEvents()
+function onEvents(DOMAIN, TAB)
 {
-  $( document ).ready(function() {
+//  $( document ).ready(function() {
         
     // Remove focus from links
     $('a').blur();
@@ -661,7 +646,8 @@ function onEvents()
 
     // Event click button "blocked / allowed"
     $('#layer_adtracks').on('click', '.btnAdtrack', function() { 
-
+      const ID = TAB.id;
+      
       var service_name=$(this).data("service_name");
       var status=$(this).data("status");
 
@@ -767,69 +753,41 @@ function onEvents()
       },500);
     });
 
-    // Event click button "forgot password"
-    $('#forgotPassword').click(function (){
-      if(!$('#recover-password').is(':visible')){
-        $('#recover-password').show().animate({'top': '0px'});
-      }
-      return false;
-    });
-
-    // Event click button "close password-recovery form"
-    $('#recover-password .close').click(function(e){
-      e.stopPropagation();
-      var height = $('#recover-password').innerHeight();
-
-      if($('#recover-password').is(':visible')){
-        $('#recover-password').show().animate({'top': -height+'px'},400,function(){
-          $(this).hide();
-        });
-      }
-      return false;
-    });
-
-    // Event click button "send" in password-recovery form
-    $('#btnResetPassword').click(function(){
-      $(this).html('<i class="fa fa-spinner fa-spin"/>').attr('disabled','disabled');
-
-      /*
-       * TODO: Implement the passord resetting process
-       *  0 - validate input
-       *  1 - make the call
-       *  2 - handle response
-       *  3 - print output  
-       */
-    });
-    
     TGD.onEventsCalled = true;
-  });
-
-  
+//  });
 }
 
 /* Paints the UI. */
-(window).addEventListener(
+$( document ).ready(function() {
+  TABS.query(
+    {
+      currentWindow: true, 
+      active: true
+    },
+    function(tabs){        
+      TAB_CURRENT = tabs[0];
+      onLoad();
+    }
+  );
+});
 
-  'load', function() 
-  {
-    
-    TABS.query
-    (
-      {
-        currentWindow: true, 
-        active: true
-      }
-      , 
-      function(tabs) 
-      {        
-
-        TAB_CURRENT = tabs[0];
-        onLoad();
-
-        
-      }
-    );
-  }
-  ,
-  true
-);
+// (window).addEventListener(
+//   'load', function() 
+//   {
+//     TABS.query
+//     (
+//       {
+//         currentWindow: true, 
+//         active: true
+//       }
+//       , 
+//       function(tabs) 
+//       {        
+//         TAB_CURRENT = tabs[0];
+//         onLoad();
+//       }
+//     );
+//   }
+//   ,
+//   true
+// );
