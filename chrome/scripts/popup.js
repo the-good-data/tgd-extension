@@ -467,7 +467,7 @@ function onLoad(){
 
 function onEvents(DOMAIN, TAB)
 {
-//  $( document ).ready(function() {
+  $( document ).ready(function() {
         
     // Remove focus from links
     $('a').blur();
@@ -600,6 +600,7 @@ function onEvents(DOMAIN, TAB)
     // Event click button "Allow Social"
     $('#not-working').on('click', '.btnAllowSocial', function() { 
       var allow_social = castBool(localStorage.allow_social);
+      const ID = TAB.id;
 
       allow_social = !allow_social;
 
@@ -647,7 +648,7 @@ function onEvents(DOMAIN, TAB)
     // Event click button "blocked / allowed"
     $('#layer_adtracks').on('click', '.btnAdtrack', function() { 
       const ID = TAB.id;
-      
+
       var service_name=$(this).data("service_name");
       var status=$(this).data("status");
 
@@ -754,40 +755,40 @@ function onEvents(DOMAIN, TAB)
     });
 
     TGD.onEventsCalled = true;
-//  });
+  });
 }
 
 /* Paints the UI. */
-$( document ).ready(function() {
-  TABS.query(
-    {
-      currentWindow: true, 
-      active: true
-    },
-    function(tabs){        
-      TAB_CURRENT = tabs[0];
-      onLoad();
-    }
-  );
-});
+// $( document ).ready(function() {
+//   TABS.query(
+//     {
+//       currentWindow: true, 
+//       active: true
+//     },
+//     function(tabs){        
+//       TAB_CURRENT = tabs[0];
+//       onLoad();
+//     }
+//   );
+// });
 
-// (window).addEventListener(
-//   'load', function() 
-//   {
-//     TABS.query
-//     (
-//       {
-//         currentWindow: true, 
-//         active: true
-//       }
-//       , 
-//       function(tabs) 
-//       {        
-//         TAB_CURRENT = tabs[0];
-//         onLoad();
-//       }
-//     );
-//   }
-//   ,
-//   true
-// );
+(window).addEventListener(
+  'load', function() 
+  {
+    TABS.query
+    (
+      {
+        currentWindow: true, 
+        active: true
+      }
+      , 
+      function(tabs) 
+      {        
+        TAB_CURRENT = tabs[0];
+        onLoad();
+      }
+    );
+  }
+  ,
+  true
+);
