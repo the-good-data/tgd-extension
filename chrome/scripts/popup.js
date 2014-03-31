@@ -227,7 +227,7 @@ function writeAchievement(achievements){
 
   for(i = 0; i < achievements.length; i++){
     var achievement = achievements[i];
-    $("#layer_achievement_value").append('<li><a href="'+achievement['link'+LANG]+'" target="_blank">'+achievement['text'+LANG]+'</a></li>');
+    $("#layer_achievement_value").append('<li><i class="glyphicon glyphicon-bullhorn"></i><a href="'+achievement['link'+LANG]+'" target="_blank">'+achievement['text'+LANG]+'</a></li>');
   }
 
   var element = $('#layer_achievement_value li'),
@@ -412,14 +412,16 @@ function renderHeader(){
 
   //console.log(localStorage.member_id);
   if (localStorage.member_id != 0){
-    $('.username').text(localStorage.member_username);
-    $('.authenticated').show();
-    $('.anonymous').hide();
+    $('header .username').text(localStorage.member_username);
+    $('header .authenticated').show();
+    $('header .anonymous').hide();
+    $('#content').addClass('authenticated');
   }
   else
   {
-    $('.authenticated').hide();
-    $('.anonymous').show();
+    $('header .authenticated').hide();
+    $('header .anonymous').show();
+    $('#content').removeClass('authenticated');
   }
 }
 
@@ -555,28 +557,20 @@ function onEvents(DOMAIN, TAB)
       var sStatus=$(this).html();
       var status=false;
 
-      if (sStatus == 'ON')
-      {
+      if (sStatus == 'ON') {
         status=false;
-      }
-      else if (sStatus == 'OFF')
-      {
+      }else if (sStatus == 'OFF') {
         status=true
-
       }
 
-      try
-      {
+      try {
         // for (i in BACKGROUND.ADTRACKS[ID]) 
         // {
         // var adtrack = BACKGROUND.ADTRACKS[ID][i];
         console.log('----> '+'*'+' - '+status);
         setWhitelistStatus(DOMAIN,TAB,'*',status);
         // }
-
-      }
-      catch(err)
-      {
+      } catch(err) {
         console.log(err);
       }
       
@@ -618,7 +612,6 @@ function onEvents(DOMAIN, TAB)
       
       //Render adtracks in table
       renderAdtracks(TAB);
-
     });
 
     // Event click button "Store Navigation"
@@ -743,7 +736,17 @@ function onEvents(DOMAIN, TAB)
 
       // hides tooltip on mouseclick on any of the social icons
       $('.tooltip .fa').click(function(){
+        var activeHref = $('#layer_achievement_value li:visible a').attr('href'),
+            socialHref = '';
+        if($(this).hasClass('fa-facebook')){
+          socialHref = 'https://www.facebook.com/sharer/sharer.php?u=' + activeHref;
+        }else if($(this).hasClass('fa-twitter')){
+          socialHref = 'https://twitter.com/home?status=' + activeHref;
+        }else if($(this).hasClass('fa-google-plus')){
+          socialHref = 'https://plus.google.com/share?url=' + activeHref;
+        }
         $that.tooltip('hide');
+        TABS.create({url: socialHref});
       })
     }).mouseleave(function(){
       setTimeout(function(){

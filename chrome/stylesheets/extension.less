@@ -152,6 +152,12 @@ section#sign-in{
                 background-repeat: no-repeat;*/
             }
         }
+        .authenticated{
+            display:none;
+        }     
+        .anonymous{
+            display:block;
+        }
     }
 
     label{
@@ -362,7 +368,7 @@ section#content{
             font-size: 13px;
             
             > div:first-child {
-                padding: 15px 10px 0px 25px;
+                padding: 15px 5px 0px 30px;
             }
             
             .button{
@@ -389,6 +395,12 @@ section#content{
                         &:hover{
                             text-decoration: underline;
                         }
+                    }
+                    i{
+                        position: absolute;
+                        top: 8px;
+                        left: 10px;
+                        font-size: 20px;
                     }
                 }
             }
@@ -454,7 +466,14 @@ section#content{
                 font-size:@small-font-size;
                 top: -5px;
                 right: 5px;
-                color : @color-section-more;
+                display: none;
+                a{
+                    text-decoration: none;
+                    color : @color-section-more;
+                    &:hover{
+                        text-decoration: underline;
+                    }
+                }
             }
         }  
 
@@ -462,6 +481,9 @@ section#content{
             background-color : @color-background-good-data;
             .title, .more{
                 background-image: url("../images/good-background.png");
+            }
+            .more{
+                display: inline-block;
             }
             .content{
                 padding-left: 25px;
@@ -500,6 +522,7 @@ section#content{
                 .button{
                     padding-top: 4px;
                     padding-bottom:3px;
+                    width: 90%;
                 }
                 table{
                     width: 100%
@@ -547,9 +570,23 @@ section#content{
                 
                     width: 36px;
                     top: 13px;
-                    left: 8px;
-                
+                    left: 8px;        
             }
+            .sub{
+                > .button{
+                    width: 30px;
+                }
+            }
+        }
+    }
+
+    &.authenticated{
+        div#body{
+            .title-more{
+                .more{
+                    display: inline-block;
+                }
+            }            
         }
     }
 }
@@ -569,10 +606,11 @@ footer{
                 margin-top: 0px;
                 margin-bottom: 0px;
                 font-size:12px;
-                .button{
+                > .button{
                     line-height: 1em;
                     margin: 2px;
                     margin-right: 5px;
+                    width: 30px;
                 }
             }
         }
@@ -681,7 +719,7 @@ footer{
     }
     &.fa-facebook,&.fa-twitter,&.fa-google-plus{
         padding:3px;
-        width: 15px;
+        width: 17px;
         text-align: center;
         margin-left: 2px;
         background-color: @blueishGray;
