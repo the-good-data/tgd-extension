@@ -217,17 +217,29 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
     const REDIRECT_SAFE = REQUESTED_URL != REQUESTS[TAB_ID];
 
     const SOCIAL_SERVICES = ['Facebook','Twitter'];
-    const INVISIBLE_SERVICES = ['Chango'];
+    const INVISIBLE_SERVICES = ['Chango','Pubmatic','adxhm','eBay','Google','Fox One Stop Media','Federated Media','eXelate','Casale Media','LiveIntent','Improve Digital','Criteo','Rapleaf','AudienceManager','OpenX','Twitter','AOL','AddThis','AppNexus','Facebook','LiveRail','BrightRoll','Skimlinks','SpotXchange','adBrite','CONTEXTWEB','rmxregateKnowledge','adaptv'];
+    const SEARCHS_DOMAINS = ['google.com','bing.com','yahoo.com'];
 
     var allow_social = castBool(localStorage.allow_social);
     
-
-    if (contains(INVISIBLE_SERVICES,childService.name) )
+    if (PARENT_DOMAIN == 'facebook.com' && childService.name == 'Facebook' && localStorage.share_search)
     {
       whitelisted = true;
     }
-    
-    else  if (contains(SOCIAL_SERVICES,childService.name) && allow_social){
+    else if (PARENT_DOMAIN == 'twitter.com' && childService.name == 'Twitter' && localStorage.share_search)
+    {
+      whitelisted = true;
+    }
+    // else if (contains(SEARCHS_DOMAINS,PARENT_DOMAIN) && contains(INVISIBLE_SERVICES,childService.name) )
+    // {
+    //   whitelisted = true;
+    // }
+    else if (/*!contains(SEARCHS_DOMAINS,PARENT_DOMAIN) && */contains(INVISIBLE_SERVICES,childService.name) && childService.name != 'Facebook' && childService.name != 'Twitter' )
+    {
+      whitelisted = true;
+    }
+    else  if (contains(SOCIAL_SERVICES,childService.name) && allow_social)
+    {
       whitelisted = true;
     }
     else if (
@@ -418,14 +430,10 @@ function lookforQuery(REQUESTED_URL)
   var isGoogleSiteSearch = ( isGoogle && !hasGoogleImgApi && ((REQUESTED_URL.search("suggest=") > -1) || (REQUESTED_URL.search("output=search") > -1) || (REQUESTED_URL.search("/s?") > -1)) );
   
   var isBingOMBSearch = ( isBing && (REQUESTED_URL.search("osjson.aspx") > -1) );
-  var isBingSiteSearch = ( (isBing || isDisconnect) && (REQUESTED_URL.search("qsonhs.aspx") > -1) );
-  
-  // var isBlekkoSearch = ( (isBlekko || isDisconnect) && (T_OTHER || T_XMLHTTPREQUEST) && (REQUESTED_URL.search("autocomplete") > -1) );
-  //var isYahooSearch = ( (isYahoo || isDisconnect) && T_SCRIPT && (REQUESTED_URL.search("search.yahoo") > -1) && ((REQUESTED_URL.search("jsonp") > -1) || (REQUESTED_URL.search("gossip") > -1)) );
+  var isBingSiteSearch = ( isBing && (REQUESTED_URL.search("search?") > -1) );
   var isYahooSearch = ( isYahoo && (REQUESTED_URL.search("search.yahoo") > -1) );
 
-  //if ( (isProxied || isDisconnect || modeSettings==2) && (isChromeInstant || isGoogleOMBSearch || isGoogleSiteSearch || isBingOMBSearch || isBingSiteSearch || isBlekkoSearch || isYahooSearch) ) {
-  if ( (isProxied || isDisconnect || modeSettings==2) && (isChromeInstant || isGoogleOMBSearch || isGoogleSiteSearch || isBingSiteSearch || isYahooSearch) ) {
+  if ( isProxied && (isChromeInstant || isGoogleOMBSearch || isGoogleSiteSearch || isBingSiteSearch || isYahooSearch) ) {
     blocking = true;
     if (!isDisconnect) {
       if ( (modeSettings==1) && !isGoogleOMBSearch ) blocking = false;
@@ -554,7 +562,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
       var localtime = new Date();
 
-      syncQueriesBlacklist();
+      //syncQueriesBlacklist();
       syncWhitelist();
 
       CHILD_DOMAIN = GET(tab.url);
