@@ -227,7 +227,7 @@ function writeAchievement(achievements){
 
   for(i = 0; i < achievements.length; i++){
     var achievement = achievements[i];
-    $("#layer_achievement_value").append('<li><i class="glyphicon glyphicon-bullhorn"></i><a href="'+achievement['link'+LANG]+'" target="_blank">'+achievement['text'+LANG]+'</a></li>');
+    $("#layer_achievement_value").append('<li><i></i><a href="'+achievement['link'+LANG]+'" target="_blank">'+achievement['text'+LANG]+'</a></li>');
   }
 
   var element = $('#layer_achievement_value li'),
@@ -700,10 +700,15 @@ function onEvents(DOMAIN, TAB)
     });
 
     // Event click on any link
-    $('body').on('click','a', function(){
+    $('body a').not('.more-inner').click(function(){
       TABS.create({url: this.getAttribute('href')});
       return false;
     });
+
+    $('.more a').click(function(){
+      TABS.create({url: URL + '/' + $(this).data('target')});
+      return false;
+    })
 
     // Activate tooltips for sing-in sign-out buttons
     $('#btnLogin, #btnLogout').tooltip();
