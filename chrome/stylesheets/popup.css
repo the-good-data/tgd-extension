@@ -73,7 +73,9 @@ input, :link, :visited { outline: none }
 .shown#search { display: table-row }
 
 
-.close{
+
+.close
+{
   position: fixed;
   background: url('../images/close.png');
   top:0;
