@@ -1052,12 +1052,21 @@ function getDataFromQuery(requested_url, searchEngineName){
   var paramJSON = {};
 
   if (searchEngineName == 'google')
-    requested_url=requested_url.replace("#q=","&q=");
-
+  {
+    if (requested_url.indexOf("?") != -1)
+    {
+      requested_url=requested_url.replace("#q=","&q=");
+    }
+    else
+    { 
+      requested_url=requested_url.replace("#q=","?q=");
+    }
+    
+  }
+  
   try
   {
     var parameters = requested_url.split("?")[1].split("&");
-    
     var excludeParam = new Array;
     var url_params = "/?s=" + C_MN;
     
@@ -1073,11 +1082,12 @@ function getDataFromQuery(requested_url, searchEngineName){
         aux[1] = aux[1].replace(/'/g, "%27");
       }
       if(!alreadyHasQ) paramJSON[aux[0]] = aux[1];
-      if(aux[0] == "q") alreadyHasQ = true;
+      //if(aux[0] == "q") alreadyHasQ = true;
     }
     for (var i=0; i<excludeParam.length; i++) {
       delete paramJSON[excludeParam[i]];
     }
+    
   }
   catch(err)
   {
