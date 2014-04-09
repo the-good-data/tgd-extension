@@ -49,6 +49,11 @@ TGD = {
   onEventsCalled : false
 }
 
+function renderVersion(){
+  var manifest = chrome.runtime.getManifest();
+  $('.version').text(manifest.version);
+}
+
 //Render adtracks in table
 function renderAdtracks(tab){
   const TAB = tab;
@@ -425,6 +430,14 @@ function renderHeader(){
   }
 }
 
+function renderLinks(){
+  $('#forgotPassword').attr('href',URL+'/user/recovery');
+  $('#moreStats').attr('href',URL+'/evilData');
+  $('#moreAchievements').attr('href',URL+'/goodData');
+  $('#moreProjects').attr('href',URL+'/goodData');
+  $('#moreAboutYou').attr('href',URL+'/userData');
+}
+
 function onLoad(){
   
   const TAB = TAB_CURRENT;
@@ -434,8 +447,14 @@ function onLoad(){
   const WHITELIST = DESERIALIZE(localStorage.whitelist) || {};
   const SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
   
+  //Render links
+  renderLinks();
+
   //Render Correct Header
   renderHeader();
+
+  //Render version
+  renderVersion();
 
   //Render adtracks in table
   renderAdtracks(TAB);
@@ -678,7 +697,8 @@ function onEvents(DOMAIN, TAB)
 
     // Event click button "Donate"
     $('#in-love').on('click','.donate', function(){
-      TABS.create({url: URL + '/site/donate'});
+      TABS.create({url: URL + '/donate'});
+      return false;
     });
 
     // Event click button "Share on FB"
@@ -696,6 +716,9 @@ function onEvents(DOMAIN, TAB)
       localStorage.member_id = 0;
       localStorage.member_username='';
     
+      $.get( URL+"/user/logout", function( data ) {
+      });
+
       onLoad();
     });
 
