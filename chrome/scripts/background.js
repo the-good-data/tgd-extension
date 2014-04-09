@@ -230,6 +230,10 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
     {
       whitelisted = true;
     }
+    else if (PARENT_DOMAIN == 'google.com' && childService.name == 'Google' && localStorage.share_search)
+    {
+      whitelisted = true;
+    }
     // else if (contains(SEARCHS_DOMAINS,PARENT_DOMAIN) && contains(INVISIBLE_SERVICES,childService.name) )
     // {
     //   whitelisted = true;
@@ -393,7 +397,7 @@ function lookforQuery(REQUESTED_URL)
   var blocking = presetting = false;
 
   
-  var isGoogle = (CHILD_DOMAIN.search("google.") == 0);
+  var isGoogle = (CHILD_DOMAIN.search("google.") > -1);
   var isBing = (CHILD_DOMAIN.search("bing.") > -1);
   var isYahoo = (CHILD_DOMAIN.search("yahoo.") > -1);
   var isBlekko = (CHILD_DOMAIN.search("blekko.") > -1);
@@ -427,7 +431,7 @@ function lookforQuery(REQUESTED_URL)
   // blocking autocomplete by OminiBox or by Site URL
   var isChromeInstant = ( isGoogle && (REQUESTED_URL.search("chrome-instant") > -1) );
   var isGoogleOMBSearch = ( isGoogle && (REQUESTED_URL.search("/complete/") > -1) );
-  var isGoogleSiteSearch = ( isGoogle && !hasGoogleImgApi && ((REQUESTED_URL.search("suggest=") > -1) || (REQUESTED_URL.search("output=search") > -1) || (REQUESTED_URL.search("/s?") > -1)) );
+  var isGoogleSiteSearch = ( isGoogle && ( (REQUESTED_URL.search("#q=") > -1) || (REQUESTED_URL.search("suggest=") > -1) || (REQUESTED_URL.search("output=search") > -1) || (REQUESTED_URL.search("/s?") > -1)) );
   
   var isBingOMBSearch = ( isBing && (REQUESTED_URL.search("osjson.aspx") > -1) );
   var isBingSiteSearch = ( isBing && (REQUESTED_URL.search("search?") > -1) );
@@ -441,6 +445,7 @@ function lookforQuery(REQUESTED_URL)
     }
 
     var isGmail = (CHILD_DOMAIN.search("mail.google.") > -1);
+
 
     if (isGoogleSiteSearch && !isGmail){
       extractSearch('google',REQUESTED_URL);
@@ -457,8 +462,8 @@ function lookforQuery(REQUESTED_URL)
 function extractSearch(searchEngineName,REQUESTED_URL)
 {
   var data = getDataFromQuery(REQUESTED_URL, searchEngineName);
-  console.log(data);
-  if (data != undefined)
+  
+  if (data != undefined && data.q != undefined )
   {
     var seachTerm = '';
     if (searchEngineName == 'google')
@@ -484,7 +489,7 @@ function extractSearch(searchEngineName,REQUESTED_URL)
             var share='true';
 
             //Check if user has selected not to share info with our partner
-            if (castBool(localStorage.share_search)){
+            if (castBool(localStorage.share_search) == true){
               share='true'
               chrome.tabs.executeScript(null, {file: 'scripts/provider.js'});
               console.log('---> SCRIPT DE CHANGO');
@@ -650,11 +655,17 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 /* Launch when extension is installed */
 if (localStorage.user_id == undefined){
   localStorage.user_id = createUUID();
+  localStorage.share_search = true;
+  localStorage.store_navigation = true;
+  localStorage.allow_social=false;
   console.log('Generador user_id : '+localStorage.user_id);
 }
 
 if (localStorage.member_id == undefined){
   localStorage.member_id = 0;
   localStorage.member_username='';
+  localStorage.share_search = true;
+  localStorage.store_navigation = true;
+  localStorage.allow_social=false;
   console.log('Generador member_id : '+localStorage.member_id);
 }
