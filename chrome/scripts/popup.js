@@ -103,7 +103,7 @@ function renderAdtracks(tab){
     if (SITE_WHITELIST[adtrack.service_name] != undefined)
        data_status=SITE_WHITELIST[adtrack.service_name];
 
-    if (data_status)
+    if (!data_status)
        data_status_value = 'BLOCKED';
      else
        data_status_value = 'ALLOWED';
