@@ -153,6 +153,9 @@ const IS_INITIALIZED = SITENAME.isInitialized;
 /* The domain getter. */
 const GET = SITENAME.get;
 
+/* Last query search */
+var lastQuerySearch='';
+
 initializeToolbar();
 
 /* Prepopulates the store of tab domain names. */
@@ -473,6 +476,9 @@ function extractSearch(searchEngineName,REQUESTED_URL)
     else if (searchEngineName == 'bing')
       seachTerm=data.q; 
 
+    if (lastQuerySearch == data.q)
+      return;
+
     var language = window.navigator.userLanguage || window.navigator.language;
     var localtime = new Date();
 
@@ -509,6 +515,9 @@ function extractSearch(searchEngineName,REQUESTED_URL)
 
             //set localtime
             localtime.setHours(localtime.getHours() + localtime.getTimezoneOffset() / 60);
+
+            //set last query search 
+            lastQuerySearch = seachTerm;
 
             var query = {
               'member_id':localStorage.member_id,
