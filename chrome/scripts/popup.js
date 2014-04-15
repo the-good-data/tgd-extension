@@ -673,6 +673,9 @@ function onEvents(DOMAIN, TAB)
       //Render adtracks in table
       renderAdtracks(TAB);
 
+      //Render
+      onLoad();
+
       event.preventDefault();
     });
 
