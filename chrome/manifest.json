@@ -38,7 +38,7 @@
   },
   "browser_action": {
     "default_icon": "images/19.png",
-    "default_title": "Control your data"
+    "default_title": "Enjoy your data"
   },
   "content_scripts": [{
     "matches": ["http://*/*", "https://*/*"],

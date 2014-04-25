@@ -191,9 +191,8 @@ section#sign-in{
         }
     }
 
-    .remember-forget{
-        width: 50%;
-        float: left;
+    .sign-in-options{
+        padding-right: 15px;
         margin:0px auto 0px !important;
     }
 
@@ -323,11 +322,10 @@ section#content{
             }
             
             // centers the text vertically
-            > div {
+            > div:first-child {
                 padding: 6px 8px;
                 color: @color-text;
                 line-height: 28px;
-                height: 28px;
                 vertical-align: middle;
             }
             
@@ -509,9 +507,10 @@ section#content{
             }
         
             #layer_adtracks_expand{
-                padding-top: 5px;
+                overflow: auto
             }
             table{
+                margin-top:5px;
                 width: 100%;
             }
             td{
@@ -679,7 +678,6 @@ footer{
         text-transform: uppercase;
         display: inline-block;
         //margin-top: 10px;
-        margin-left: 5px;
         //width: 50%;
         font-size: 9px;
         padding: 2px 3px;
