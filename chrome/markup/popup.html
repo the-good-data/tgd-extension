@@ -1,191 +1,201 @@
 <!DOCTYPE html>
 <!--
 
-  Copyright 2014 The Good Data Cooperative Ltd. / 
-  Copyright 2010-2014 Disconnect, Inc.
+Copyright 2014 The Good Data Cooperative Ltd. / 
+Copyright 2010-2014 Disconnect, Inc.
 
-  This program is free software, excluding the brand features and third-party 
-  portions of the program identified in the “Exceptions” below: you can redis-
-  tribute it and/or modify it under the terms of the GNU General Public License 
-  as published by the Free Software Foundation, either version 3 of the License, 
-  or (at your option) any later version.
+This program is free software, excluding the brand features and third-party 
+portions of the program identified in the “Exceptions” below: you can redis-
+tribute it and/or modify it under the terms of the GNU General Public License 
+as published by the Free Software Foundation, either version 3 of the License, 
+or (at your option) any later version.
 
-  This program is distributed in the hope that it will be useful, but WITHOUT 
-  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
-  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+This program is distributed in the hope that it will be useful, but WITHOUT 
+ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
+FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License along with 
-  this program.  If not, see <http://www.gnu.org/licenses/>.
+You should have received a copy of the GNU General Public License along with 
+this program.  If not, see <http://www.gnu.org/licenses/>.
 
-  Authors (one per line):
+Authors (one per line):
 
 -->
 <html>
-    <head>
-        <title>TODO supply a title</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width">
-        
-        <link rel="stylesheet" href="../stylesheets/bootstrap.min.css">
-        <link rel="stylesheet" href="../stylesheets/bootstrap.glyphicons.min.css">
-        <link rel="stylesheet" href="../stylesheets/extension.css">
-        <link rel="stylesheet" href="../stylesheets/webfonts.css">
-        <link rel="stylesheet" href="../stylesheets/font-awesome.min.css">
-        <link rel="stylesheet" href="../stylesheets/simpletextrotator.css">
-        
-        <script src="../scripts/vendor/port/port.js"></script>
-        <script src="../scripts/md5.js"></script>
+<head>
+  <title>TODO supply a title</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width">
 
-        <script src="../scripts/config.js"></script>
-        <script src="../scripts/common.js"></script>
-        
-        <script src="../scripts/vendor/jquery/jquery-1.10.1.min.js"></script>
-        <script src="../scripts/vendor/jquery/jquery.simple-text-rotator.min.js"></script>
+  <link rel="stylesheet" href="../stylesheets/bootstrap.min.css">
+  <link rel="stylesheet" href="../stylesheets/bootstrap.glyphicons.min.css">
+  <link rel="stylesheet" href="../stylesheets/extension.css">
+  <link rel="stylesheet" href="../stylesheets/webfonts.css">
+  <link rel="stylesheet" href="../stylesheets/font-awesome.min.css">
+  <link rel="stylesheet" href="../stylesheets/simpletextrotator.css">
 
-        <script src="../scripts/bootstrap.min.js"></script>
-        <script src="../scripts/popup.js"></script>
+  <script src="../scripts/vendor/port/port.js"></script>
+  <script src="../scripts/md5.js"></script>
 
-    </head>
-    <body tabindex="1" class="regular">
-        <div id="container">
-            <!-- Login section -->
-            <section id="sign-in" style="display:none">
-                <div>
-                    <div class="heading">
-                        Sign in to your account<i class="close fa fa-times-circle"></i>
-                    </div>
-                    <form name="login-form" id="login-form">
-                        <input type="text" placeholder="Username" name="txtUsername" id="txtUsername"/>                           
-                        <input type="password" placeholder="Password" name="txtPassword" id="txtPassword"/>
-                        <div class="clearfix">
-                            <div class="sign-in-options">
-                                <a id="forgotPassword" href="" target="_blank">Forgot password?</a>
-                            </div>
-                        </div>
-                        <div><p id="pError"></p></div>
-                        <button id="btnSignIn" type="button" name="submit" class="green">SIGN IN</button>
-                    </form>
-                </div>
-                <div>
-                    <div class="hr"></div>
-                    <div>
-                        Do you want to collaborate with us?
-                    </div>
-                    <button  id="become-member" name="sign-up" class="red">BECOME A MEMBER</button>
-                </div>
-            </section><!-- id="login" -->
+  <script src="../scripts/config.js"></script>
+  <script src="../scripts/common.js"></script>
 
-            <!-- Main content section -->
-            <section id="content">
-                <header id="header">
-                    <!-- welcome for anonymous -->
-                    <div  class="welcome anonymous">
-                        <div>
-                          <div class="logo"></div>TheGoodData
-                        </div>
-                        <i id="btnLogin" class="button fa fa-power-off" data-toggle="tooltip" data-placement="left" title="sign in"></i>
-                    </div>
-                    <!-- welcome for authenticated -->
-                    <div class="welcome authenticated">
-                        <div>
-                            <div class="logo"></div>Welcome <span class="username">Juan</span>!
-                        </div>
-                        <i id="btnLogout" class="fa fa-power-off button " data-toggle="tooltip" data-placement="left" title="sign out"></i>
-                    </div>
-                    <!-- achievements messages -->                   
-                    <div class="message">
-                        <div style="padding-top:0px">
-                          <ul id="layer_achievement_value">
-                          </ul>
-                        </div>
-                        <div id="layer_achievement_id" class="button" data-toggle="tooltip"></div>
-                    </div>
-                </header>
+  <script src="../scripts/vendor/jquery/jquery-1.10.1.min.js"></script>
+  <script src="../scripts/vendor/jquery/jquery.simple-text-rotator.min.js"></script>
 
-                <div id="body">
-                    <section id="evil-data">
-                        <div class="title-more">
-                            <div class="title">EVIL DATA</div>
-                            <div class="more"><a id="moreStats" class="more-inner" href="#" data-target="evilData">MORE STATS</a></div>
-                        </div>
+  <script src="../scripts/bootstrap.min.js"></script>
+  <script src="../scripts/popup.js"></script>
 
-                        <div class="content"><span id="layer_adtracks_count" class="red">0</span> threats found on this page 
-
-                            <i id="btnExpandAdtracks" class="button collapsed fa fa-plus"></i><br> 
-                            <div id="layer_adtracks_expand" style="display:none">
-                                <table id="layer_adtracks" cellspacing="0">
-                                    <tbody>
-                                        <!-- To be filled-in by the extension -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </section> <!-- id="evil-data" -->
-
-                    <section id="good-data">
-                        <div class="title-more">
-                            <div class="title">GOOD DATA</div>
-                            <div class="more"><a id="moreAchievements" class="more-inner" href="#" data-target="goodData">MORE ACHIEVEMENTS</a></div>
-
-                        </div>
-
-                        <div class="content"><span id="layer_loans_value" class="green">0</span> projects funded with your help<a id="moreProjects" href="" target="_blank" class="button share fa fa-plus"></a><!--<div class="button add">&nbsp;</div><br><br>
-      
-                        
-                        <div id="layer_loans_expand"> 
-                          <table id="layer_loans_more" cellspacing="0">
-                            <tbody>
-                              <tr>
-                                  <th>PROJECTS</th>
-                                  <th>COUNTRIES</th>
-                                  <th>INVESTED</th>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      -->
-                    </section> <!-- id="good-data" -->
-
-                    <section id="level">
-                        <div class="title-more">
-                            <div class="title" id="layer_usertype_title">APPRENTICE</div>
-                            <div class="more"><a id="moreAboutYou" class="more-inner" href="#" data-target="userData">MORE ABOUT YOU</a></div>
-
-                        </div>
-
-                        <div class="content">
-                            <img id="layer_usertype_image" src="../images/apprentice.png" class="icon apprentice" />
-                            You've contributed with <span class="green" id="layer_achievement_contributions">0</span><span class="green"> pieces</span> of data this month
-                            <div id="button_delete_stored_data" class="button delete deleteQueries">delete stored data</div>
-                        </div>    
-                        <div class="sub">
-                            <div id="layer_config_store_navigation" class="btnStoreNavigation button"></div>Store navigation and non-sensitive queries
-                        </div>
-                        <div class="sub">
-                            <div id="layer_config_share_search" class="btnShareSearch button"></div>Trade non-sensitive queries anonymously
-                        </div>
-                    </section><!-- id="level" -->
-                </div>
-
-                <footer id="footer" class="clearfix">
-                    <div id="not-working">
-                        <div class="title">Not working properly?</div>
-                        <div class="option"><div id="layer_config_deactivate_current" class="button btnDeactivateCurrent off">OFF</div>Allow threats on this site</div>
-                        <div class="option"><div id="layer_config_allow_social" class="button btnAllowSocial on">ON</div>Allow social networks</div>
-                        <div class="option"><a href="mailto:info@thegooddata.org" class="email-us">Report a problem</a></div>
-
-                    </div>
-                    <div id="in-love">
-                        <div class="title">In love with us?</div>
-                        <a href="https://www.thegooddata.org/donate" class="button donate">DONATE</a><a href="http://www.facebook.com/sharer.php?s=100&p[url]=https://www.thegooddata.org&p[images][0]=https://www.thegooddata.org/img/final-logo-200px.png&p[title]=TheGoodData!&p[summary]=Be in control of your data while doing some good." class="button fa fa-facebook"></a><a href="https://twitter.com/home?status=http://www.thegooddata.org%20lets%20you%20enjoy%20your%20data" class="button fa fa-twitter"></a><a href="https://plus.google.com/share?url=http://www.thegooddata.org" class="button fa fa-google-plus"></a><a href="https://www.thegooddata.org/apply" class="button become-owner">COLLABORATE</a>
-                        <div class="version">
-                        <span class="plugin_version"></span>
-                        </div>
-
-                    </div>
-                </footer>
-
-            </section><!-- id="content" -->
+</head>
+<body tabindex="1" class="regular">
+  <div id="container">
+    <!-- Login section -->
+    <section id="sign-in" style="display:none">
+      <div>
+        <div class="heading">
+          Sign in to your account<i class="close fa fa-times-circle"></i>
         </div>
-    </body>
+        <form name="login-form" id="login-form">
+          <input type="text" placeholder="Username" name="txtUsername" id="txtUsername"/>                           
+          <input type="password" placeholder="Password" name="txtPassword" id="txtPassword"/>
+          <div class="clearfix">
+            <div class="sign-in-options">
+              <a id="forgotPassword" href="" target="_blank">Forgot password?</a>
+            </div>
+          </div>
+          <div><p id="pError"></p></div>
+          <button id="btnSignIn" type="button" name="submit" class="green">SIGN IN</button>
+        </form>
+      </div>
+      <div>
+        <div class="hr"></div>
+        <div>
+          Do you want to collaborate with us?
+        </div>
+        <button  id="become-member" name="sign-up" class="red">BECOME A MEMBER</button>
+      </div>
+    </section><!-- id="login" -->
+
+    <!-- Main content section -->
+    <section id="content">
+      <header id="header">
+        <!-- welcome for anonymous -->
+        <div  class="welcome anonymous">
+          <div>
+            <div class="logo"></div>TheGoodData
+          </div>
+          <i id="btnLogin" class="button fa fa-power-off" data-toggle="tooltip" data-placement="left" title="sign in"></i>
+        </div>
+        <!-- welcome for authenticated -->
+        <div class="welcome authenticated">
+          <div class="logo"></div><p>Welcome <span class="username">Juan</span>!</p>
+          <i id="btnLogout" class="fa fa-power-off button " data-toggle="tooltip" data-placement="left" title="sign out"></i>
+        </div>
+        <!-- achievements messages -->                   
+        <div class="message">
+          <div style="padding-top:0px">
+            <ul id="layer_achievement_value">
+            </ul>
+          </div>
+          <div id="layer_achievement_id" class="button" data-toggle="tooltip"></div>
+        </div>
+      </header>
+
+      <div id="body">
+        <section id="evil-data">
+          <div class="title-more">
+            <div class="title">EVIL DATA</div>
+            <div class="more"><a id="moreStats" class="more-inner" href="#" data-target="evilData">MORE STATS</a></div>
+          </div>
+
+          <div class="content">
+            <p>
+              <span id="layer_adtracks_count" class="red">0</span> threats found on this page
+              <i id="btnExpandAdtracks" class="button collapsed fa fa-plus"></i>
+            </p>
+
+            <div id="layer_adtracks_expand" style="display:none">
+              <table id="layer_adtracks" cellspacing="0">
+                <tbody>
+                  <!-- To be filled-in by the extension -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section> <!-- id="evil-data" -->
+
+        <section id="good-data">
+          <div class="title-more">
+            <div class="title">GOOD DATA</div>
+            <div class="more"><a id="moreAchievements" class="more-inner" href="#" data-target="goodData">MORE ACHIEVEMENTS</a></div>
+          </div>
+
+          <div class="content">
+            <p>
+              <span id="layer_loans_value" class="green">0</span> projects funded with your help
+              <a id="moreProjects" href="" target="_blank" class="button share fa fa-plus"></a>
+            </p>
+            <!--<div class="button add">&nbsp;</div><br><br>
+              <div id="layer_loans_expand"> 
+              <table id="layer_loans_more" cellspacing="0">
+              <tbody>
+                <tr>
+                    <th>PROJECTS</th>
+                    <th>COUNTRIES</th>
+                    <th>INVESTED</th>
+                </tr>
+              </tbody>
+              </table>
+              </div>
+            -->
+          </div>
+        </section> <!-- id="good-data" -->
+
+        <section id="level">
+          <div class="title-more">
+            <div class="title" id="layer_usertype_title">APPRENTICE</div>
+            <div class="more"><a id="moreAboutYou" class="more-inner" href="#" data-target="userData">MORE ABOUT YOU</a></div>
+
+          </div>
+
+          <div class="content">
+            <img id="layer_usertype_image" src="../images/apprentice.png" class="icon apprentice" />
+            <p>You've contributed with <span class="green" id="layer_achievement_contributions">0</span><span class="green"> pieces</span> of data this month</p>
+            <div id="button_delete_stored_data" class="button delete deleteQueries">delete stored data</div>
+          </div>    
+          <div class="sub">
+            <div id="layer_config_store_navigation" class="btnStoreNavigation button"></div>Store navigation and non-sensitive queries
+          </div>
+          <div class="sub">
+            <div id="layer_config_share_search" class="btnShareSearch button"></div>Trade non-sensitive queries anonymously
+          </div>
+        </section><!-- id="level" -->
+      </div>
+
+      <footer id="footer" class="clearfix">
+        <div id="not-working">
+          <div class="title">Not working properly?</div>
+          <div class="option"><div id="layer_config_deactivate_current" class="button btnDeactivateCurrent off">OFF</div>Allow threats on this site</div>
+          <div class="option"><div id="layer_config_allow_social" class="button btnAllowSocial on">ON</div>Allow social networks</div>
+          <div class="option"><a href="mailto:info@thegooddata.org" class="email-us">Report a problem</a></div>
+
+        </div>
+        <div id="in-love">
+          <div class="title">In love with us?</div>
+          <a href="https://www.thegooddata.org/donate" class="button donate">DONATE</a>
+          <a href="http://www.facebook.com/sharer.php?s=100&p[url]=https://www.thegooddata.org&p[images][0]=https://www.thegooddata.org/img/final-logo-200px.png&p[title]=TheGoodData!&p[summary]=Be in control of your data while doing some good." class="button fa fa-facebook"></a>
+          <a href="https://twitter.com/home?status=http://www.thegooddata.org%20lets%20you%20enjoy%20your%20data" class="button fa fa-twitter"></a><a href="https://plus.google.com/share?url=http://www.thegooddata.org" class="button fa fa-google-plus"></a>
+          <a href="https://www.thegooddata.org/apply" class="button become-owner">COLLABORATE</a>
+
+          <div class="version">
+            <span class="plugin_version"></span>
+          </div>
+
+        </div>
+      </footer>
+
+    </section><!-- id="content" -->
+  </div>
+</body>
 </html>
+
+
