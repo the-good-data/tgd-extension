@@ -106,6 +106,7 @@ h2 {
   color: white;
   padding: 3px 6px;
   font-size: 10px;
+  font-family: ProximaNovaSoft-Semibold;
   display: inline-block;
 }
 .button:hover {
@@ -126,12 +127,13 @@ h2 {
   background-color: #96cca2;
 }
 .button.delete {
-  border: 2px solid #6e828d;
+  border: 1px solid #6e828d;
   color: #6e828d;
   text-transform: uppercase;
   display: inline-block;
-  font-size: 9px;
-  padding: 2px 3px;
+  font-size: 10px;
+  font-family: ProximaNovaSoft-Semibold;
+  padding: 2px 6px;
 }
 .button.off {
   background-color: #cccccc;
