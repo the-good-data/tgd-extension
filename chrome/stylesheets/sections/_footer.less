@@ -1,0 +1,44 @@
+footer {
+  background-color : @xxLightGray;
+  border-top : 1px solid @lightGray;
+  color: @gray;
+  padding-top: 10px;
+
+  &>div {
+    float:left;
+    margin-bottom: 10px;
+    &>div {
+      margin-left:5px;
+      &.option {
+        margin-top: 0px;
+        margin-bottom: 0px;
+        font-size:12px;
+        > .button {
+          line-height: 1em;
+          margin: 2px;
+          margin-right: 5px;
+          width: 30px;
+        }
+      }
+    }
+  }
+
+  .title {
+    font-family: @font-medium;
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 5px;
+  }
+  #not-working {
+    width: 59%;
+    
+    
+  }
+  #in-love {
+    width: 41%;
+    .button {
+      float: left;
+      margin-top: 3px;
+    }
+  }
+}

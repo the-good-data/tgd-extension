@@ -1,7 +1,3 @@
-/* 
-    Created on : Dec 16, 2013, 4:41:40 PM
-    Author     : juan
-    */
 /*---------------------------------------------------
     LESS Elements 0.9
   ---------------------------------------------------
@@ -11,6 +7,19 @@
 html,
 body {
   font-family: ProximaNovaSoft-Regular;
+}
+body {
+  margin: 0;
+  padding: 0;
+  border-width: 0;
+  background-color: #efefef;
+}
+h1,
+h2 {
+  display: inline;
+  font-size: 16px;
+  font-weight: normal;
+  font-family: ProximaNovaSoft-Bold;
 }
 .clearfix:after {
   content: ".";
@@ -27,29 +36,37 @@ body {
 .clearfix {
   display: block;
 }
-/* End hide from IE Mac */
-.caret {
-  border: 4px solid transparent;
-  display: inline-block;
+/* End hide from IE Mac */.tooltip .tooltip-inner {
+  padding: 7px;
 }
-.caret.right {
-  border-left-color: #7d7d7d;
-  margin-left: 4px;
+.tooltip .fa {
+  -webkit-transition: all 0.2s ease-out;
+  -moz-transition: all 0.2s ease-out;
+  -o-transition: all 0.2s ease-out;
+  transition: all 0.2s ease-out;
+  font-size: 14px;
+  padding: 5px;
+  margin: 2px 1px;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
 }
-.caret.bottom {
-  border-top-color: #7d7d7d;
-  margin-top: 4px;
-  margin-right: 4px;
+.tooltip .fa.fa-facebook {
+  cursor: pointer;
+  padding-left: 8px;
+  padding-right: 9px;
 }
-#container {
-  width: 320px;
-  background-color: white;
+.tooltip .fa.fa-facebook:hover {
+  background-color: #3B5998;
 }
-body {
-  margin: 0;
-  padding: 0;
-  border-width: 0;
-  background-color: #efefef;
+.tooltip .fa.fa-twitter:hover {
+  cursor: pointer;
+  color: #55ACEE;
+  background-color: #000;
+}
+.tooltip .fa.fa-google-plus:hover {
+  cursor: pointer;
+  background-color: #CB4437;
 }
 section#sign-in {
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.1);
@@ -238,10 +255,6 @@ section#content header .welcome {
   height: 40px;
   padding: 6px 8px;
   line-height: 28px;
-}
-section#content header .welcome > p {
-  display: inline;
-  font-family: ProximaNovaSoft-Bold;
 }
 section#content header .welcome .tooltip.left .tooltip-inner {
   padding: 0 8px;
@@ -550,6 +563,23 @@ footer #in-love .button {
   float: left;
   margin-top: 3px;
 }
+.caret {
+  border: 4px solid transparent;
+  display: inline-block;
+}
+.caret.right {
+  border-left-color: #7d7d7d;
+  margin-left: 4px;
+}
+.caret.bottom {
+  border-top-color: #7d7d7d;
+  margin-top: 4px;
+  margin-right: 4px;
+}
+#container {
+  width: 320px;
+  background-color: white;
+}
 .button {
   -webkit-box-shadow: inset 0 -1px 0px rgba(0, 0, 0, 0.4);
   -moz-box-shadow: inset 0 -1px 0px rgba(0, 0, 0, 0.4);
@@ -687,36 +717,4 @@ footer #in-love .button {
 }
 .email-us:hover {
   text-decoration: underline;
-}
-.tooltip .tooltip-inner {
-  padding: 7px;
-}
-.tooltip .fa {
-  -webkit-transition: all 0.2s ease-out;
-  -moz-transition: all 0.2s ease-out;
-  -o-transition: all 0.2s ease-out;
-  transition: all 0.2s ease-out;
-  font-size: 14px;
-  padding: 5px;
-  margin: 2px 1px;
-  -webkit-border-radius: 2px;
-  -moz-border-radius: 2px;
-  border-radius: 2px;
-}
-.tooltip .fa.fa-facebook {
-  cursor: pointer;
-  padding-left: 8px;
-  padding-right: 9px;
-}
-.tooltip .fa.fa-facebook:hover {
-  background-color: #3B5998;
-}
-.tooltip .fa.fa-twitter:hover {
-  cursor: pointer;
-  color: #55ACEE;
-  background-color: #000;
-}
-.tooltip .fa.fa-google-plus:hover {
-  cursor: pointer;
-  background-color: #CB4437;
 }

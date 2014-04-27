@@ -1,0 +1,333 @@
+// --------------------
+// main content section
+// --------------------
+
+section#content {
+  header {
+    > div {
+      position: relative;
+      padding-right: 40px;
+    }
+
+    .button {
+      .rounded(0);
+      .inner-shadow(0, 0, 0);
+      .transition();
+      padding:0;
+      cursor: pointer;
+      position: absolute;
+      top: 0px;
+      right: 0px;
+      width: 40px;
+      height: 40px;
+    }
+
+    // welcome heading 
+    .welcome {
+      font-size: 16px;
+      color : @color-text;
+      background-color : white;
+      height : 40px;
+      padding: 6px 8px;
+      line-height: 28px;
+
+      .tooltip {
+        &.left {
+          .tooltip-inner {
+            padding: 0 8px;
+            background-color: transparent;
+            color: @color-text;
+          }
+        }
+      }
+
+      // centers the text vertically
+      > div:first-child  {
+        padding: 6px 8px;
+        color: @color-text;
+        line-height: 28px;
+        vertical-align: middle;
+      }
+      
+      .logo {
+        display: inline-block;
+        width: 28px;
+        height: 28px;
+        background-image: url("../images/logo.png");
+        margin-right: 5px;
+        vertical-align: top;
+      }
+            
+      &.anonymous, &.authenticated {
+        .button {
+          text-align: center;
+          line-height: 40px;
+          vertical-align: middle;
+          color: @color-text;
+          font-size: 1.25em;
+          border-left: 1px solid @color-table-border;
+          &:hover {
+            background-color: @color-background-button-signing-hover;
+            color: white;
+          }
+          &:active {
+            position: absolute;
+            top:0px;
+          }
+        }    
+      }
+    } // .welcome
+        
+    // achievements message
+    .message {
+      color: white;
+      background-color: @color-background-message-bar;
+      margin-bottom: 10px;
+      font-size: 12px;
+      font-family: @font-semi-bold;
+      height: 35px;
+
+      > div:first-child  {
+        padding: 15px 5px 0px 30px;
+      }
+
+      .button {
+        background-color: @color-background-message-bar-dark;
+        background-image: url("../images/share.png");
+        background-position: 10px center;
+        background-repeat: no-repeat;
+        height: 100%;
+        border-left: 1px solid #033951;
+      }
+
+      ul {
+        padding: 0 10px;
+        margin: 0;
+
+        li {
+          display: table-cell;
+          list-style-type: none;
+          vertical-align: middle;
+          margin:0;
+          height: 35px;
+          line-height: 12px;
+          a {
+            color: white;
+            text-decoration: none;
+            &:hover {
+              text-decoration: underline;
+            }
+          }
+          i {
+            position: absolute;
+            top: 6px;
+            left: 10px;
+            font-size: 20px;
+            width: 24px;
+            height: 24px;
+            background-repeat: no-repeat;
+            background-image: url(../images/loudspeaker-white.png);
+          }
+        }
+      }
+
+    }// .message    
+  }
+  #body section:first-child {
+    margin-top:15px;
+  }
+  .content {
+    border-top: 1px solid @lightGray;
+    position: relative;
+    padding: 18px 10px 18px 60px;
+    font-size:14px;
+    font-family: @font-bold;
+    color: @color-text;
+    
+    >p {
+      margin:0;
+      font-size: 14px;
+    }
+    .green {
+      color: @tgd-green;
+    }
+    
+    .red {
+      color: @tgd-red;
+    }
+  }
+
+  div#body {
+    position: relative;
+
+    .sub {
+      font-size: 12px;
+      color: @color-text;
+      margin: 0px 0px 0px 5px;
+      .button {
+        padding-top: 3px;
+        padding-bottom:2px;
+        line-height: 1em;
+        margin: 2px;
+        margin-right: 5px;
+      }
+    }
+
+    .title-more {
+      position: relative;
+      font-family: @font-bold;
+      font-size: 12px;
+
+      .title,.more {
+        position: absolute;
+        background-repeat: repeat-x;
+        z-index: 100;
+        padding-left: 3px;
+        padding-right: 3px;
+      }
+      .title {
+        background-position: 0px -6px;
+        top: -8px;
+        left: 5px;
+        color : @color-section-title;
+      }
+      .more {
+        background-position: 0px -7px;
+        font-size:@small-font-size;
+        top: -5px;
+        right: 7px;
+        display: none;
+        .more-inner {
+          font-family: @font-bold;
+          font-weight: normal;
+        }
+        a {
+          text-decoration: none;
+          color : @color-section-more;
+          &:hover {
+            text-decoration: underline;
+          }
+        }
+      }
+    } 
+    table {
+      th  {
+        font-weight: normal;
+        font-family: @font-regular;
+      }
+    } 
+
+    section#good-data {
+      background-color : @color-background-good-data;
+      .title, .more {
+        background-image: url("../images/good-background.png");
+      }
+      .more {
+        display: inline-block;
+      }
+      .content {
+        padding-left: 25px;
+      }
+      .button {
+        padding: 5px 5px 3px 5px;
+      }
+    }
+
+    section#evil-data {
+      background-color : @color-background-evil-data;
+      th {
+        text-align: left;
+        font-size: @small-font-size;
+        color: #99ABB5;
+        &:last-child {
+          text-align: center;
+        }
+      }
+
+      #layer_adtracks_expand {
+        overflow: auto
+      }
+      table {
+        margin-top:5px;
+        width: 100%;
+      }
+      td {
+        .box-sizing();
+        padding: 4px 0 2px 0;
+        border-top:  1px solid @color-table-border;
+        vertical-align: top;
+        font-size:@evil-data-table-font-size;
+        span {
+          color: @tgd-red;
+        }
+        .button {
+          padding-top: 4px;
+          padding-bottom:3px;
+          width: 90%;
+        }
+        table {
+          width: 100%
+        }
+        &:nth-child(1) {
+          width: 10%
+        }
+        &:nth-child(2) {
+          width: 43%;
+        }
+        &:nth-child(3) {
+          width: 21%;
+        }
+        &:nth-child(4) {
+          width: 26%;
+          padding-top:2px;
+          padding-left: 5px;
+          text-align: center;
+          vertical-align: middle;
+        }
+      }
+
+      .content {
+        padding-left: 25px;
+      }
+      .title, .more {
+        background-image: url("../images/evil-background.png");
+      }
+      .button {
+        padding: 5px 5px 3px 5px;
+      }
+    }
+
+    section#level {
+      padding-bottom: 10px;
+      .content {
+        padding-bottom: 20px;
+        padding-left: 50px;
+      }
+      .title, .more {
+        background-image: url("../images/apprentice-background.png");
+      }
+      .icon {
+        position: absolute;
+
+        width: 36px;
+        top: 13px;
+        left: 8px;        
+      }
+      .sub {
+        > .button {
+          width: 30px;
+        }
+      }
+    }
+  }
+
+  &.authenticated {
+    div#body {
+      .title-more {
+        .more {
+          display: inline-block;
+        }
+      }            
+    }
+  }
+}

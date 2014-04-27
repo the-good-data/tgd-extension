@@ -1,0 +1,164 @@
+// --------------------
+// Sign-in section
+// --------------------
+
+section#sign-in {
+
+  .inner-shadow(0, 1px, 1px, 0.1);
+  background-color: @lightYellow;
+  text-align: center;
+  padding:10px;
+
+  .close {
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 20px;
+  }
+
+  header {
+    > div {            
+      text-align: center;
+      padding-bottom:10px;
+      padding-right: 0;
+
+      > h1 {
+        color: @color-background-message-bar;
+        display: inline;
+        position: relative;
+        font-size: @h1-font-size;
+        top: -17px;
+        padding:0px 0 20px 10px;
+                /*
+                background-image: url("../img/logo-login.png");
+                background-position: left center;
+                background-repeat: no-repeat;*/
+      }
+    }
+    .authenticated {
+      display:none;
+    }     
+    .anonymous {
+      display:block;
+    }
+  }
+
+  label {
+    text-align: left;
+    margin: 0;
+    display: block;
+    font-size: 13px;
+    color: @darkBeige;
+    line-height: 1;
+    cursor: pointer;
+    input {
+      float: left;
+      display: inline-block;
+      width: auto;
+      height: auto;
+      margin: 5px;
+      margin-top: 0px;
+    }
+  }
+
+  a {
+    font-size: 13px;
+    color: @darkBeige;
+    text-decoration: none;
+    line-height: 1;
+    display: block;
+    padding-right: 5px;
+    text-align: right;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .sign-in-options {
+    padding-right: 15px;
+    margin:0px auto 0px !important;
+  }
+
+  #pError {
+    color: red;
+    font-size: 13px;
+  }
+
+  .hr {
+    width: 40px;
+    border-top: 1px solid #D8D4C1;
+    border-right: none;
+    border-bottom: none;
+    border-right: none;
+    margin: 20px auto;
+  }
+
+  div  {
+    color: @darkBeige;
+    &.heading {
+      font-family: @font-semi-bold;    
+    }
+  }
+
+  div:nth-child(1) {
+    margin:10px auto 15px;
+  }
+
+  input, button {
+    display: block;
+    margin: 10px auto;
+  }
+
+  input {
+    .rounded(3px);
+    .inner-shadow(0, 1px, 1px, 0.1);
+    padding:0 10px;
+    width: 90%;
+    border: 1px solid @grayBeige;
+    color: @darkBeige;
+    font-family: @font-regular;   
+    font-size: 14px; 
+    height: 35px;
+  }
+
+  button {
+    .rounded(30px);
+    .inner-shadow(0, -2px, 0, 0.2);
+    outline: none;
+    margin: 15px auto;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    color: white;
+    border: none;
+    width: 220px;         
+    font-family: @font-regular;
+    font-weight: bold;
+    letter-spacing: 1px;
+    cursor: pointer;
+    font-size: 1em;
+    display: table-cell;
+    vertical-align: middle;
+    text-transform: uppercase;
+    &.green {
+      background-color: @tgd-green;
+      &:hover {
+        background-color: lighten(@tgd-green, 10%);
+      }
+    }
+    &.red {
+      background-color: @tgd-red;
+      &:hover {
+        background-color: lighten(@tgd-red, 10%);
+      }
+    }
+    &:active {
+      position: relative;
+      top: 2px;
+      .inner-shadow(0,0,0);           
+    }
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
