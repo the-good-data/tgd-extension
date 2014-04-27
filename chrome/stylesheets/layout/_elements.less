@@ -1,8 +1,9 @@
 /*---------------------------------------------------
-    LESS Elements 0.9
+    THE GOOD DATA MIXINS
   ---------------------------------------------------
     A set of useful LESS mixins
     More info at: http://lesselements.com
+    Plus some custom mixins
   ---------------------------------------------------*/
 
 .gradient(@color: #F5F5F5, @start: #EEE, @stop: #FFF) {
@@ -153,4 +154,9 @@
   -moz-background-clip: @argument;
   -webkit-background-clip: @argument;
   background-clip: @argument;
+}
+.pressed() {
+  position: relative;
+  top: 1px;
+  .inner-shadow(0, 0, 0);
 }

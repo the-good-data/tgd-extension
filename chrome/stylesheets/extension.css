@@ -1,8 +1,9 @@
 /*---------------------------------------------------
-    LESS Elements 0.9
+    THE GOOD DATA MIXINS
   ---------------------------------------------------
     A set of useful LESS mixins
     More info at: http://lesselements.com
+    Plus some custom mixins
   ---------------------------------------------------*/
 html,
 body {
@@ -21,6 +22,13 @@ h2 {
   font-weight: normal;
   font-family: ProximaNovaSoft-Bold;
 }
+h2 {
+  font-size: 14px;
+}
+#container {
+  width: 320px;
+  background-color: white;
+}
 .clearfix:after {
   content: ".";
   display: block;
@@ -36,7 +44,21 @@ h2 {
 .clearfix {
   display: block;
 }
-/* End hide from IE Mac */.tooltip .tooltip-inner {
+/* End hide from IE Mac */
+.caret {
+  border: 4px solid transparent;
+  display: inline-block;
+}
+.caret.right {
+  border-left-color: #7d7d7d;
+  margin-left: 4px;
+}
+.caret.bottom {
+  border-top-color: #7d7d7d;
+  margin-top: 4px;
+  margin-right: 4px;
+}
+.tooltip .tooltip-inner {
   padding: 7px;
 }
 .tooltip .fa {
@@ -68,6 +90,128 @@ h2 {
   cursor: pointer;
   background-color: #CB4437;
 }
+.button {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-transition: all 0.2s ease-out;
+  -moz-transition: all 0.2s ease-out;
+  -o-transition: all 0.2s ease-out;
+  transition: all 0.2s ease-out;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  line-height: 1em;
+  color: white;
+  padding: 3px 6px;
+  font-size: 10px;
+  display: inline-block;
+}
+.button:hover {
+  text-decoration: none;
+}
+.button:active,
+.button.pressed {
+  position: relative;
+  top: 1px;
+  -webkit-box-shadow: inset 0 0 0 rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: inset 0 0 0 rgba(0, 0, 0, 0.4);
+  box-shadow: inset 0 0 0 rgba(0, 0, 0, 0.4);
+}
+.button.on {
+  background-color: #74bb83;
+}
+.button.on:hover {
+  background-color: #96cca2;
+}
+.button.delete {
+  border: 2px solid #6e828d;
+  color: #6e828d;
+  text-transform: uppercase;
+  display: inline-block;
+  font-size: 9px;
+  padding: 2px 3px;
+}
+.button.off {
+  background-color: #cccccc;
+}
+.button.off:hover {
+  background-color: #e6e6e6;
+}
+.button.allowed {
+  font-size: 9px;
+  background-color: #74bb83;
+  width: 54px;
+}
+.button.allowed:hover {
+  background-color: #96cca2;
+}
+.button.blocked {
+  font-size: 9px;
+  width: 54px;
+  background-color: #e76758;
+}
+.button.blocked:hover {
+  background-color: #ed9085;
+}
+.button.block {
+  background-color: #6e828d;
+}
+.button.share,
+.button.add,
+.button.store {
+  display: inline-block;
+  margin-left: 5px;
+}
+.button.fa-facebook,
+.button.fa-twitter,
+.button.fa-google-plus {
+  padding: 3px;
+  width: 17px;
+  text-align: center;
+  margin-left: 2px;
+  background-color: #6e828d;
+}
+.button.fa-facebook:hover,
+.button.fa-twitter:hover,
+.button.fa-google-plus:hover {
+  background-color: #8a9ba4;
+  color: white;
+}
+.button.share {
+  background-color: #e76758;
+}
+.button.share:hover {
+  background-color: #ed9085;
+  color: white;
+}
+.button.expanded {
+  background-color: #7d7d7d;
+}
+.button.expanded:hover {
+  background-color: #979797;
+  color: white;
+}
+.button.collapsed {
+  background-color: #e76758;
+}
+.button.collapsed:hover {
+  background-color: #ed9085;
+  color: white;
+}
+.button.donate,
+.button.become-owner {
+  background-color: #8e64bf;
+}
+.button.donate:hover,
+.button.become-owner:hover {
+  background-color: #a888ce;
+  color: white;
+}
+.button.become-owner {
+  width: 84%;
+}
 section#sign-in {
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.1);
   -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.1);
@@ -96,9 +240,9 @@ section#sign-in header > div > h1 {
   top: -17px;
   padding: 0px 0 20px 10px;
   /*
-                background-image: url("../img/logo-login.png");
-                background-position: left center;
-                background-repeat: no-repeat;*/
+        background-image: url("../img/logo-login.png");
+        background-position: left center;
+        background-repeat: no-repeat;*/
 
 }
 section#sign-in header .authenticated {
@@ -363,20 +507,25 @@ section#content .content .green {
 section#content .content .red {
   color: #e76758;
 }
-section#content div#body {
-  position: relative;
-}
-section#content div#body .sub {
+section#content .content-options {
   font-size: 12px;
   color: #7d7d7d;
   margin: 0px 0px 0px 5px;
+  padding-left: 11px;
 }
-section#content div#body .sub .button {
+section#content .content-options li {
+  list-style: none;
+  margin-bottom: 3px;
+}
+section#content .content-options .button {
   padding-top: 3px;
   padding-bottom: 2px;
   line-height: 1em;
   margin: 2px;
   margin-right: 5px;
+}
+section#content div#body {
+  position: relative;
 }
 section#content div#body .title-more {
   position: relative;
@@ -505,7 +654,7 @@ section#content div#body section#level {
 }
 section#content div#body section#level .content {
   padding-bottom: 20px;
-  padding-left: 50px;
+  padding-left: 60px;
 }
 section#content div#body section#level .title,
 section#content div#body section#level .more {
@@ -514,10 +663,10 @@ section#content div#body section#level .more {
 section#content div#body section#level .icon {
   position: absolute;
   width: 36px;
-  top: 13px;
-  left: 8px;
+  top: 14px;
+  left: 18px;
 }
-section#content div#body section#level .sub > .button {
+section#content div#body section#level .content-options .button {
   width: 30px;
 }
 section#content.authenticated div#body .title-more .more {
@@ -527,25 +676,32 @@ footer {
   background-color: #efefef;
   border-top: 1px solid #cccccc;
   color: #7d7d7d;
-  padding-top: 10px;
+  padding: 8px;
 }
 footer > div {
   float: left;
+  vertical-align: top;
   margin-bottom: 10px;
 }
-footer > div > div {
-  margin-left: 5px;
-}
-footer > div > div.option {
-  margin-top: 0px;
-  margin-bottom: 0px;
-  font-size: 12px;
-}
-footer > div > div.option > .button {
-  line-height: 1em;
-  margin: 2px;
-  margin-right: 5px;
+footer > div#not-working .button {
   width: 30px;
+  padding-top: 3px;
+  padding-bottom: 2px;
+  line-height: 1em;
+  margin: 2px 5px 2px 0;
+}
+footer ul.content-options {
+  font-size: 12px;
+  color: #7d7d7d;
+  margin: 0;
+  padding: 6px 0 0 0;
+}
+footer ul.content-options li {
+  list-style: none;
+  margin-bottom: 3px;
+}
+footer ul.content-options li p {
+  display: inline;
 }
 footer .title {
   font-family: ProximaNovaSoft-Medium;
@@ -554,167 +710,21 @@ footer .title {
   margin-bottom: 5px;
 }
 footer #not-working {
-  width: 59%;
+  width: 188px;
 }
 footer #in-love {
-  width: 41%;
+  width: 116px;
 }
 footer #in-love .button {
   float: left;
   margin-top: 3px;
 }
-.caret {
-  border: 4px solid transparent;
-  display: inline-block;
-}
-.caret.right {
-  border-left-color: #7d7d7d;
-  margin-left: 4px;
-}
-.caret.bottom {
-  border-top-color: #7d7d7d;
-  margin-top: 4px;
-  margin-right: 4px;
-}
-#container {
-  width: 320px;
-  background-color: white;
-}
-.button {
-  -webkit-box-shadow: inset 0 -1px 0px rgba(0, 0, 0, 0.4);
-  -moz-box-shadow: inset 0 -1px 0px rgba(0, 0, 0, 0.4);
-  box-shadow: inset 0 -1px 0px rgba(0, 0, 0, 0.4);
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
-  -webkit-transition: all 0.2s ease-out;
-  -moz-transition: all 0.2s ease-out;
-  -o-transition: all 0.2s ease-out;
-  transition: all 0.2s ease-out;
-  border: none;
-  cursor: pointer;
-  text-decoration: none;
-  text-align: center;
-  line-height: 1em;
-  color: white;
-  padding: 3px 6px;
-  font-size: 10px;
-  display: inline-block;
-}
-.button:hover {
-  text-decoration: none;
-}
-.button:active,
-.button.pressed {
-  position: relative;
-  top: 1px;
-  -webkit-box-shadow: inset 0 0 0 rgba(0, 0, 0, 0.4);
-  -moz-box-shadow: inset 0 0 0 rgba(0, 0, 0, 0.4);
-  box-shadow: inset 0 0 0 rgba(0, 0, 0, 0.4);
-}
-.button.on {
-  background-color: #74bb83;
-}
-.button.on:hover {
-  background-color: #96cca2;
-}
-.button.delete {
-  border: 2px solid #6e828d;
-  color: #6e828d;
-  text-transform: uppercase;
-  display: inline-block;
-  font-size: 9px;
-  padding: 2px 3px;
-}
-.button.off {
-  background-color: #cccccc;
-}
-.button.off:hover {
-  background-color: #e6e6e6;
-}
-.button.on,
-.button.off {
-  width: 20px;
-}
-.button.allowed {
-  font-size: 9px;
-  background-color: #74bb83;
-  width: 54px;
-}
-.button.allowed:hover {
-  background-color: #96cca2;
-}
-.button.blocked {
-  font-size: 9px;
-  width: 54px;
-  background-color: #e76758;
-}
-.button.blocked:hover {
-  background-color: #ed9085;
-}
-.button.block {
-  background-color: #6e828d;
-}
-.button.share,
-.button.add,
-.button.store {
-  display: inline-block;
-  margin-left: 5px;
-}
-.button.fa-facebook,
-.button.fa-twitter,
-.button.fa-google-plus {
-  padding: 3px;
-  width: 17px;
-  text-align: center;
-  margin-left: 2px;
-  background-color: #6e828d;
-}
-.button.fa-facebook:hover,
-.button.fa-twitter:hover,
-.button.fa-google-plus:hover {
-  background-color: #8a9ba4;
-  color: white;
-}
-.button.share {
-  background-color: #e76758;
-}
-.button.share:hover {
-  background-color: #ed9085;
-  color: white;
-}
-.button.expanded {
-  background-color: #7d7d7d;
-}
-.button.expanded:hover {
-  background-color: #979797;
-  color: white;
-}
-.button.collapsed {
-  background-color: #e76758;
-}
-.button.collapsed:hover {
-  background-color: #ed9085;
-  color: white;
-}
-.button.donate,
-.button.become-owner {
-  background-color: #8e64bf;
-}
-.button.donate:hover,
-.button.become-owner:hover {
-  background-color: #a888ce;
-  color: white;
-}
-.button.become-owner {
-  width: 84%;
-}
-.email-us {
+footer .email-us {
   color: #7d7d7d;
   padding-left: 39px;
   line-height: 20px;
   text-decoration: none;
 }
-.email-us:hover {
+footer .email-us:hover {
   text-decoration: underline;
 }

@@ -1,0 +1,110 @@
+.button {
+  .rounded(5px);
+  .transition();
+
+  border: none; 
+  cursor: pointer;
+  text-decoration: none;
+  text-align: center;
+  line-height: 1em;
+  color: white;
+  padding: 3px 6px;
+  font-size: @button-font-size;
+  display: inline-block;
+
+  &:hover {
+    text-decoration: none;
+  }
+  // remove inner shadow and move 1px down for a pressed-down effect
+  &:active,
+  &.pressed {
+    .pressed();
+  }    
+  &.on {
+    background-color: @tgd-green;
+    &:hover {
+      background-color: lighten(@tgd-green,10%);
+    }
+  }
+  &.delete {
+    border: 2px solid @blueishGray;
+    color: @blueishGray;
+    text-transform: uppercase;
+    display: inline-block;
+    font-size: 9px;
+    padding: 2px 3px;
+  }
+  &.off {
+    background-color: @lightGray;
+    &:hover {
+      background-color: lighten(@lightGray,10%);
+    }
+  }
+
+  &.allowed {
+    font-size: @xsmall-font-size;
+    background-color: @tgd-green;
+    width: 54px;
+    &:hover {
+      background-color: lighten(@tgd-green,10%);
+    }
+  }
+  &.blocked {
+    font-size: @xsmall-font-size;
+    width: 54px;
+    background-color: @tgd-red;
+    &:hover {
+      background-color: lighten(@tgd-red,10%);
+    }
+  }
+  &.block {
+    background-color: @blueishGray;
+  }
+  &.share,&.add,&.store/*,&.facebook,&.twitter,&.google-plus*/ {
+   display: inline-block;
+   margin-left: 5px;
+  }
+  &.fa-facebook,&.fa-twitter,&.fa-google-plus {
+    padding:3px;
+    width: 17px;
+    text-align: center;
+    margin-left: 2px;
+    background-color: @blueishGray;
+    &:hover {
+      background-color: lighten(@blueishGray, 10%);
+      color: white;
+    }
+  }
+  &.share {
+    background-color: @tgd-red;
+    &:hover {
+      background-color: lighten(@tgd-red,10%);
+      color: white;
+    }
+  }
+  &.expanded {
+    background-color: @gray;
+    &:hover {
+      background-color: lighten(@gray,10%);
+      color: white;
+    }
+  }
+  &.collapsed {
+    background-color: @tgd-red;
+    &:hover {
+      background-color: lighten(@tgd-red,10%);
+      color: white;
+    }
+  }
+  &.donate,
+  &.become-owner {
+    background-color: @purple;
+    &:hover {
+      background-color: lighten(@purple, 10%);
+      color: white;
+    }
+  }
+  &.become-owner {
+    width: 84%;
+  }
+}

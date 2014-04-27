@@ -19,6 +19,15 @@ h2 {
   font-family: ProximaNovaSoft-Bold;
 }
 
+h2 {
+  font-size:14px;
+}
+
+#container{
+  width : 320px;
+  background-color: white;
+}
+
 .clearfix:after {
   content:".";
   display:block;
@@ -33,3 +42,17 @@ h2 {
 
 .clearfix { display:block; }
 /* End hide from IE Mac */
+
+.caret {
+  border: 4px solid transparent;
+  display: inline-block;
+  &.right {
+    border-left-color: @color-text;
+    margin-left: 4px
+  }
+  &.bottom {
+    border-top-color: @color-text;
+    margin-top: 4px;
+    margin-right: 4px;
+  }
+}

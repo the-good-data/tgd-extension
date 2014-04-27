@@ -1,170 +1,29 @@
-@import "elements.less";
-@import "variables.less";
+// Copyright 2014 The Good Data Cooperative Ltd. / 
+// Copyright 2010-2014 Disconnect, Inc.
 
-@import "layout/_common.less";
-@import "layout/_tooltip.less";
+// This program is free software, excluding the brand features and third-party 
+// portions of the program identified in the “Exceptions” below: you can redis-
+// tribute it and/or modify it under the terms of the GNU General Public License 
+// as published by the Free Software Foundation, either version 3 of the License, 
+// or (at your option) any later version.
 
+// This program is distributed in the hope that it will be useful, but WITHOUT 
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS 
+// FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
 
-@import "sections/_sign_in.less";
-@import "sections/_main_content.less";
-@import "sections/_footer.less";
+// You should have received a copy of the GNU General Public License along with 
+// this program.  If not, see <http://www.gnu.org/licenses/>.
 
+// Authors (one per line):
+//   Raul Galindo, rgalindo33@gmail.com
+//   Juan Menendez
 
+@import 'layout/_elements.less';
+@import 'layout/_variables.less';
+@import 'layout/_main.less';
+@import 'layout/_tooltip.less';
+@import 'layout/_buttons.less';
 
-
-.caret{
-  border: 4px solid transparent;
-  display: inline-block;
-  &.right{
-    border-left-color: @color-text;
-    margin-left: 4px
-  }
-  &.bottom{
-    border-top-color: @color-text;
-    margin-top: 4px;
-    margin-right: 4px;
-  }
-}
-
-#container{
-  width : 320px;
-  background-color: white;
-}
-
-
-
-
-.pressed(){
-  position: relative;
-  top: 1px;
-  .inner-shadow(0, 0, 0);
-}
-.button{
-// inner shadow for 3D effect
-.inner-shadow(0, -1px, 0px); 
-// rounded corners  
-.rounded(5px);
-.transition();
-border: none; 
-cursor: pointer;
-text-decoration: none;
-text-align: center;
-line-height: 1em;
-color: white;
-padding: 3px 6px;
-font-size: @button-font-size;
-display: inline-block;
-&:hover{
-  text-decoration: none;
-}
-// remove inner shadow and move 1px down for a pressed-down effect
-&:active,&.pressed{
-  .pressed();
-}    
-&.on{
-  background-color: @tgd-green;
-  &:hover{
-    background-color: lighten(@tgd-green,10%);
-  }
-}
-&.delete{
-  border: 2px solid @blueishGray;
-  color: @blueishGray;
-  text-transform: uppercase;
-  display: inline-block;
-    //margin-top: 10px;
-    //width: 50%;
-    font-size: 9px;
-    padding: 2px 3px;
-  }
-
-  &.off{
-    background-color: @lightGray;
-    &:hover{
-      background-color: lighten(@lightGray,10%);
-    }
-  }
-
-  &.on,&.off{
-    width: 20px;
-  }
-
-  &.allowed{
-    font-size: @xsmall-font-size;
-    background-color: @tgd-green;
-    width: 54px;
-    &:hover{
-      background-color: lighten(@tgd-green,10%);
-    }
-  }
-
-  &.blocked{
-    font-size: @xsmall-font-size;
-    width: 54px;
-    background-color: @tgd-red;
-    &:hover{
-      background-color: lighten(@tgd-red,10%);
-    }
-  }
-
-  &.block{
-    background-color: @blueishGray;
-  }
-  &.share,&.add,&.store/*,&.facebook,&.twitter,&.google-plus*/{
-   display: inline-block;
-   margin-left: 5px;
-  }
-  &.fa-facebook,&.fa-twitter,&.fa-google-plus{
-    padding:3px;
-    width: 17px;
-    text-align: center;
-    margin-left: 2px;
-    background-color: @blueishGray;
-    &:hover{
-      background-color: lighten(@blueishGray, 10%);
-      color: white;
-    }
-  }
-  &.share{
-    background-color: @tgd-red;
-    &:hover{
-      background-color: lighten(@tgd-red,10%);
-      color: white;
-    }
-  }
-  &.expanded{
-    background-color: @gray;
-    &:hover{
-      background-color: lighten(@gray,10%);
-      color: white;
-    }
-  }
-  &.collapsed{
-    background-color: @tgd-red;
-    &:hover{
-      background-color: lighten(@tgd-red,10%);
-      color: white;
-    }
-  }
-  &.donate,&.become-owner{
-    background-color: @purple;
-    &:hover{
-      background-color: lighten(@purple, 10%);
-      color: white;
-    }
-  }
-
-  &.become-owner{
-    width: 84%;
-  }
-}
-
-.email-us{
-color: @gray;
-padding-left: 39px;
-line-height: 20px;
-text-decoration: none;
-  &:hover{
-    text-decoration: underline;
-  }
-}
+@import 'sections/_sign_in.less';
+@import 'sections/_main_content.less';
+@import 'sections/_footer.less';

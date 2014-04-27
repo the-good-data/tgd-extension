@@ -2,23 +2,30 @@ footer {
   background-color : @xxLightGray;
   border-top : 1px solid @lightGray;
   color: @gray;
-  padding-top: 10px;
+  padding: 8px;
 
   &>div {
     float:left;
+    vertical-align: top;
     margin-bottom: 10px;
-    &>div {
-      margin-left:5px;
-      &.option {
-        margin-top: 0px;
-        margin-bottom: 0px;
-        font-size:12px;
-        > .button {
-          line-height: 1em;
-          margin: 2px;
-          margin-right: 5px;
-          width: 30px;
-        }
+    &#not-working .button {
+      width: 30px;
+      padding-top: 3px;
+      padding-bottom:2px;
+      line-height: 1em;
+      margin: 2px 5px 2px 0;
+    }
+  }
+  ul.content-options {
+    font-size: 12px;
+    color: @color-text;
+    margin: 0;
+    padding: 6px 0 0 0;
+    li {
+      list-style: none;
+      margin-bottom: 3px;
+      p {
+        display: inline;
       }
     }
   }
@@ -30,15 +37,23 @@ footer {
     margin-bottom: 5px;
   }
   #not-working {
-    width: 59%;
-    
-    
+    width: 188px;
   }
+
   #in-love {
-    width: 41%;
+    width: 116px;
     .button {
       float: left;
       margin-top: 3px;
+    }
+  }
+  .email-us {
+    color: @gray;
+    padding-left: 39px;
+    line-height: 20px;
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
     }
   }
 }

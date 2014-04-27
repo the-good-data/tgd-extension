@@ -33,16 +33,16 @@
 @import url("http://hello.myfonts.net/count/2926a8");
 
   
-@font-face {font-family: 'ProximaNovaSoft-Medium';src: url('webfonts/2926A8_0_0.eot');src: url('webfonts/2926A8_0_0.eot?#iefix') format('embedded-opentype'),url('webfonts/2926A8_0_0.woff') format('woff'),url('webfonts/2926A8_0_0.ttf') format('truetype');}
+@font-face {font-family: 'ProximaNovaSoft-Medium';src: url('../../fonts/webfonts/2926A8_0_0.eot');src: url('../../fonts/webfonts/2926A8_0_0.eot?#iefix') format('embedded-opentype'),url('../../fonts/webfonts/2926A8_0_0.woff') format('woff'),url('../../fonts/webfonts/2926A8_0_0.ttf') format('truetype');}
  
   
-@font-face {font-family: 'ProximaNovaSoft-Semibold';src: url('webfonts/2926A8_1_0.eot');src: url('webfonts/2926A8_1_0.eot?#iefix') format('embedded-opentype'),url('webfonts/2926A8_1_0.woff') format('woff'),url('webfonts/2926A8_1_0.ttf') format('truetype');}
+@font-face {font-family: 'ProximaNovaSoft-Semibold';src: url('../../fonts/webfonts/2926A8_1_0.eot');src: url('../../fonts/webfonts/2926A8_1_0.eot?#iefix') format('embedded-opentype'),url('../../fonts/webfonts/2926A8_1_0.woff') format('woff'),url('../../fonts/webfonts/2926A8_1_0.ttf') format('truetype');}
  
   
-@font-face {font-family: 'ProximaNovaSoft-Bold';src: url('webfonts/2926A8_2_0.eot');src: url('webfonts/2926A8_2_0.eot?#iefix') format('embedded-opentype'),url('webfonts/2926A8_2_0.woff') format('woff'),url('webfonts/2926A8_2_0.ttf') format('truetype');}
+@font-face {font-family: 'ProximaNovaSoft-Bold';src: url('../../fonts/webfonts/2926A8_2_0.eot');src: url('../../fonts/webfonts/2926A8_2_0.eot?#iefix') format('embedded-opentype'),url('../../fonts/webfonts/2926A8_2_0.woff') format('woff'),url('../../fonts/webfonts/2926A8_2_0.ttf') format('truetype');}
  
   
-@font-face {font-family: 'ProximaNovaSoft-Regular';src: url('webfonts/2926A8_3_0.eot');src: url('webfonts/2926A8_3_0.eot?#iefix') format('embedded-opentype'),url('webfonts/2926A8_3_0.woff') format('woff'),url('webfonts/2926A8_3_0.ttf') format('truetype');}
+@font-face {font-family: 'ProximaNovaSoft-Regular';src: url('../../fonts/webfonts/2926A8_3_0.eot');src: url('../../fonts/webfonts/2926A8_3_0.eot?#iefix') format('embedded-opentype'),url('../../fonts/webfonts/2926A8_3_0.woff') format('woff'),url('../../fonts/webfonts/2926A8_3_0.ttf') format('truetype');}
  
 .ProximaNovaSoft-Medium { font-family: ProximaNovaSoft-Medium; }
 .ProximaNovaSoft-Semibold { font-family: ProximaNovaSoft-Semibold; }

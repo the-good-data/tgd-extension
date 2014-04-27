@@ -156,22 +156,25 @@ section#content {
       color: @tgd-red;
     }
   }
-
+  .content-options {
+    font-size: 12px;
+    color: @color-text;
+    margin: 0px 0px 0px 5px;
+    padding-left: 11px;
+    li {
+      list-style: none;
+      margin-bottom: 3px;
+    }
+    .button {
+      padding-top: 3px;
+      padding-bottom:2px;
+      line-height: 1em;
+      margin: 2px;
+      margin-right: 5px;
+    }
+  }
   div#body {
     position: relative;
-
-    .sub {
-      font-size: 12px;
-      color: @color-text;
-      margin: 0px 0px 0px 5px;
-      .button {
-        padding-top: 3px;
-        padding-bottom:2px;
-        line-height: 1em;
-        margin: 2px;
-        margin-right: 5px;
-      }
-    }
 
     .title-more {
       position: relative;
@@ -301,7 +304,7 @@ section#content {
       padding-bottom: 10px;
       .content {
         padding-bottom: 20px;
-        padding-left: 50px;
+        padding-left: 60px;
       }
       .title, .more {
         background-image: url("../images/apprentice-background.png");
@@ -310,11 +313,11 @@ section#content {
         position: absolute;
 
         width: 36px;
-        top: 13px;
-        left: 8px;        
+        top: 14px;
+        left: 18px;        
       }
-      .sub {
-        > .button {
+      .content-options {
+        .button {
           width: 30px;
         }
       }
