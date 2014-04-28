@@ -54,7 +54,7 @@ section#content {
         width: 28px;
         height: 28px;
         background-image: url("../images/logo.png");
-        margin-right: 5px;
+        margin: 0 5px 0 -2px;
         vertical-align: top;
       }
             
@@ -134,7 +134,7 @@ section#content {
     }// .message    
   }
   #body section:first-child {
-    margin-top:15px;
+    margin-top:16px;
   }
   .content {
     border-top: 1px solid @lightGray;
@@ -159,17 +159,19 @@ section#content {
   .content-options {
     font-size: 12px;
     color: @color-text;
-    margin: 0px 0px 0px 5px;
-    padding-left: 11px;
+    margin: 0px 0px 0px 6px;
+    padding-left: 12px;
     li {
       list-style: none;
-      margin-bottom: 3px;
+      margin-bottom: 5px;
+      &:last-of-type {
+        margin-bottom: 0px;
+      }
     }
     .button {
       padding-top: 3px;
       padding-bottom:2px;
       line-height: 1em;
-      margin: 2px;
       margin-right: 5px;
     }
   }
@@ -185,8 +187,7 @@ section#content {
         position: absolute;
         background-repeat: repeat-x;
         z-index: 100;
-        padding-left: 3px;
-        padding-right: 3px;
+        padding: 0 5px;
       }
       .title {
         background-position: 0px -6px;
@@ -231,9 +232,7 @@ section#content {
       .content {
         padding-left: 25px;
       }
-      .button {
-        padding: 5px 5px 3px 5px;
-      }
+
     }
 
     section#evil-data {
@@ -251,7 +250,7 @@ section#content {
         overflow: auto
       }
       table {
-        margin-top:5px;
+        margin-top:3px;
         width: 100%;
       }
       td {
@@ -262,11 +261,6 @@ section#content {
         font-size:@evil-data-table-font-size;
         span {
           color: @tgd-red;
-        }
-        .button {
-          padding-top: 4px;
-          padding-bottom:3px;
-          width: 90%;
         }
         table {
           width: 100%
@@ -295,15 +289,11 @@ section#content {
       .title, .more {
         background-image: url("../images/evil-background.png");
       }
-      .button {
-        padding: 5px 5px 3px 5px;
-      }
     }
 
     section#level {
-      padding-bottom: 10px;
+      padding-bottom: 6px;
       .content {
-        padding-bottom: 20px;
         padding-left: 60px;
       }
       .title, .more {

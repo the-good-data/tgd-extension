@@ -25,6 +25,9 @@ h2 {
 h2 {
   font-size: 14px;
 }
+button {
+  -webkit-font-smoothing: antialiased;
+}
 #container {
   width: 320px;
   background-color: white;
@@ -104,10 +107,14 @@ h2 {
   text-align: center;
   line-height: 1em;
   color: white;
+  background-color: white;
   padding: 3px 6px;
   font-size: 10px;
   font-family: ProximaNovaSoft-Semibold;
   display: inline-block;
+}
+.button:focus {
+  outline: none;
 }
 .button:hover {
   text-decoration: none;
@@ -213,6 +220,10 @@ h2 {
 }
 .button.become-owner {
   width: 84%;
+}
+.button.single-char {
+  padding: 4px 5px 2px 5px;
+  margin: 1px 0 0 4px;
 }
 section#sign-in {
   -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.1);
@@ -418,7 +429,7 @@ section#content header .welcome .logo {
   width: 28px;
   height: 28px;
   background-image: url("../images/logo.png");
-  margin-right: 5px;
+  margin: 0 5px 0 -2px;
   vertical-align: top;
 }
 section#content header .welcome.anonymous .button,
@@ -489,7 +500,7 @@ section#content header .message ul li i {
   background-image: url(../images/loudspeaker-white.png);
 }
 section#content #body section:first-child {
-  margin-top: 15px;
+  margin-top: 16px;
 }
 section#content .content {
   border-top: 1px solid #cccccc;
@@ -512,18 +523,20 @@ section#content .content .red {
 section#content .content-options {
   font-size: 12px;
   color: #7d7d7d;
-  margin: 0px 0px 0px 5px;
-  padding-left: 11px;
+  margin: 0px 0px 0px 6px;
+  padding-left: 12px;
 }
 section#content .content-options li {
   list-style: none;
-  margin-bottom: 3px;
+  margin-bottom: 5px;
+}
+section#content .content-options li:last-of-type {
+  margin-bottom: 0px;
 }
 section#content .content-options .button {
   padding-top: 3px;
   padding-bottom: 2px;
   line-height: 1em;
-  margin: 2px;
   margin-right: 5px;
 }
 section#content div#body {
@@ -539,8 +552,7 @@ section#content div#body .title-more .more {
   position: absolute;
   background-repeat: repeat-x;
   z-index: 100;
-  padding-left: 3px;
-  padding-right: 3px;
+  padding: 0 5px;
 }
 section#content div#body .title-more .title {
   background-position: 0px -6px;
@@ -583,9 +595,6 @@ section#content div#body section#good-data .more {
 section#content div#body section#good-data .content {
   padding-left: 25px;
 }
-section#content div#body section#good-data .button {
-  padding: 5px 5px 3px 5px;
-}
 section#content div#body section#evil-data {
   background-color: #ecf4f8;
 }
@@ -601,7 +610,7 @@ section#content div#body section#evil-data #layer_adtracks_expand {
   overflow: auto;
 }
 section#content div#body section#evil-data table {
-  margin-top: 5px;
+  margin-top: 3px;
   width: 100%;
 }
 section#content div#body section#evil-data td {
@@ -616,11 +625,6 @@ section#content div#body section#evil-data td {
 }
 section#content div#body section#evil-data td span {
   color: #e76758;
-}
-section#content div#body section#evil-data td .button {
-  padding-top: 4px;
-  padding-bottom: 3px;
-  width: 90%;
 }
 section#content div#body section#evil-data td table {
   width: 100%;
@@ -648,14 +652,10 @@ section#content div#body section#evil-data .title,
 section#content div#body section#evil-data .more {
   background-image: url("../images/evil-background.png");
 }
-section#content div#body section#evil-data .button {
-  padding: 5px 5px 3px 5px;
-}
 section#content div#body section#level {
-  padding-bottom: 10px;
+  padding-bottom: 6px;
 }
 section#content div#body section#level .content {
-  padding-bottom: 20px;
   padding-left: 60px;
 }
 section#content div#body section#level .title,
@@ -683,14 +683,13 @@ footer {
 footer > div {
   float: left;
   vertical-align: top;
-  margin-bottom: 10px;
 }
 footer > div#not-working .button {
   width: 30px;
   padding-top: 3px;
   padding-bottom: 2px;
   line-height: 1em;
-  margin: 2px 5px 2px 0;
+  margin-right: 5px;
 }
 footer ul.content-options {
   font-size: 12px;
@@ -700,7 +699,10 @@ footer ul.content-options {
 }
 footer ul.content-options li {
   list-style: none;
-  margin-bottom: 3px;
+  margin-bottom: 5px;
+}
+footer ul.content-options li:last-of-type {
+  margin-bottom: 0px;
 }
 footer ul.content-options li p {
   display: inline;
@@ -714,12 +716,14 @@ footer .title {
 footer #not-working {
   width: 188px;
 }
+footer .version {
+  margin-top: 5px;
+}
 footer #in-love {
   width: 116px;
 }
 footer #in-love .button {
   float: left;
-  margin-top: 3px;
 }
 footer .email-us {
   color: #7d7d7d;

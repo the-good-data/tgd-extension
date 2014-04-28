@@ -84,13 +84,13 @@ Authors (one per line):
         <div  class="welcome anonymous">
           <div class="logo"></div>
           <h1>TheGoodData</h1>
-          <i id="btnLogin" class="button fa fa-power-off" data-toggle="tooltip" data-placement="left" title="sign in"></i>
+          <button id="btnLogin" class="button fa fa-power-off" data-toggle="tooltip" data-placement="left" title="sign in"></button>
         </div>
         <!-- welcome for authenticated -->
         <div class="welcome authenticated">
           <div class="logo"></div>
           <h1>Welcome <span class="username">Juan</span>!</h1>
-          <i id="btnLogout" class="fa fa-power-off button " data-toggle="tooltip" data-placement="left" title="sign out"></i>
+          <button id="btnLogout" class="fa fa-power-off button " data-toggle="tooltip" data-placement="left" title="sign out"></button>
         </div>
         <!-- achievements messages -->                   
         <div class="message">
@@ -98,7 +98,7 @@ Authors (one per line):
             <ul id="layer_achievement_value">
             </ul>
           </div>
-          <div id="layer_achievement_id" class="button" data-toggle="tooltip"></div>
+          <button id="layer_achievement_id" class="button" data-toggle="tooltip"></button>
         </div>
       </header>
 
@@ -112,7 +112,7 @@ Authors (one per line):
           <div class="content">
             <p>
               <span id="layer_adtracks_count" class="red">0</span> threats found on this page
-              <i id="btnExpandAdtracks" class="button collapsed fa fa-plus"></i>
+              <button id="btnExpandAdtracks" class="button single-char collapsed fa fa-plus"></button>
             </p>
 
             <div id="layer_adtracks_expand" style="display:none">
@@ -134,9 +134,9 @@ Authors (one per line):
           <div class="content">
             <p>
               <span id="layer_loans_value" class="green">0</span> projects funded with your help
-              <a id="moreProjects" href="" target="_blank" class="button share fa fa-plus"></a>
+              <a id="moreProjects" href="" target="_blank" class="button single-char share fa fa-plus"></a>
             </p>
-            <!--<div class="button add">&nbsp;</div><br><br>
+            <!--<button class="button add">&nbsp;</button><br><br>
               <div id="layer_loans_expand"> 
               <table id="layer_loans_more" cellspacing="0">
               <tbody>
@@ -163,16 +163,17 @@ Authors (one per line):
             <p>
               You've contributed with 
               <span class="green" id="layer_achievement_contributions">0</span>
-              <span class="green"> pieces</span> of data this month
-              <div id="button_delete_stored_data" class="button delete deleteQueries">delete stored data</div>
+              <span class="green"> pieces</span> 
+              of data this month
+              <button id="button_delete_stored_data" class="button delete deleteQueries">delete stored data</button>
             </p>
           </div>    
           <ul class="content-options">
             <li>
-              <div id="layer_config_store_navigation" class="btnStoreNavigation button"></div>Store navigation and non-sensitive queries
+              <button id="layer_config_store_navigation" class="btnStoreNavigation button"></button>Store navigation and non-sensitive queries
             </li>
             <li>
-              <div id="layer_config_share_search" class="btnShareSearch button"></div>Trade non-sensitive queries anonymously
+              <button id="layer_config_share_search" class="btnShareSearch button"></button>Trade non-sensitive queries anonymously
             </li>
           </div>
         </section><!-- id="level" -->
@@ -184,11 +185,11 @@ Authors (one per line):
           <h2>Not working properly?</h2>
           <ul class="content-options">
             <li>
-              <div id="layer_config_deactivate_current" class="button btnDeactivateCurrent off">OFF</div>
+              <button id="layer_config_deactivate_current" class="button btnDeactivateCurrent off">OFF</button>
               <p>Allow threats on this site</p>
             </li>
             <li>
-              <div id="layer_config_allow_social" class="button btnAllowSocial on">ON</div>
+              <button id="layer_config_allow_social" class="button btnAllowSocial on">ON</button>
               <p>Allow social networks</p>
             </li>
             <li>
@@ -207,7 +208,7 @@ Authors (one per line):
               <a href="http://www.facebook.com/sharer.php?s=100&p[url]=https://www.thegooddata.org&p[images][0]=https://www.thegooddata.org/img/final-logo-200px.png&p[title]=TheGoodData!&p[summary]=Be in control of your data while doing some good." class="button fa fa-facebook"></a>
               <a href="https://twitter.com/home?status=http://www.thegooddata.org%20lets%20you%20enjoy%20your%20data" class="button fa fa-twitter"></a><a href="https://plus.google.com/share?url=http://www.thegooddata.org" class="button fa fa-google-plus"></a>
             </li>
-            <li>
+            <li class="clearfix">
               <a href="https://www.thegooddata.org/apply" class="button become-owner">COLLABORATE</a>
             </li>
           </ul>

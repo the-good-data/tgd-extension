@@ -7,13 +7,12 @@ footer {
   &>div {
     float:left;
     vertical-align: top;
-    margin-bottom: 10px;
     &#not-working .button {
       width: 30px;
       padding-top: 3px;
       padding-bottom:2px;
       line-height: 1em;
-      margin: 2px 5px 2px 0;
+      margin-right: 5px;
     }
   }
   ul.content-options {
@@ -23,7 +22,10 @@ footer {
     padding: 6px 0 0 0;
     li {
       list-style: none;
-      margin-bottom: 3px;
+      margin-bottom: 5px;
+      &:last-of-type {
+        margin-bottom: 0px;
+      }
       p {
         display: inline;
       }
@@ -39,12 +41,14 @@ footer {
   #not-working {
     width: 188px;
   }
+  .version {
+    margin-top:5px;  
+  }
 
   #in-love {
     width: 116px;
     .button {
       float: left;
-      margin-top: 3px;
     }
   }
   .email-us {

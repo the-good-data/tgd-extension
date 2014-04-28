@@ -2,12 +2,17 @@
   .rounded(5px);
   .transition();
 
+  &:focus {
+    outline: none;
+  }
+
   border: none; 
   cursor: pointer;
   text-decoration: none;
   text-align: center;
   line-height: 1em;
   color: white;
+  background-color: white;
   padding: 3px 6px;
   font-size: @button-font-size;
   font-family: @font-semi-bold;
@@ -108,5 +113,9 @@
   }
   &.become-owner {
     width: 84%;
+  }
+  &.single-char {
+     padding: 4px 5px 2px 5px;
+     margin: 1px 0 0 4px;
   }
 }
