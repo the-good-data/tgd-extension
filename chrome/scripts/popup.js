@@ -767,12 +767,16 @@ function onEvents(DOMAIN, TAB)
 
       // hides tooltip on mouseclick on any of the social icons
       $('.tooltip .fa').click(function(){
-        var activeHref = $('#layer_achievement_value li:visible a').attr('href'),
-            socialHref = '';
+        var active     = $('#layer_achievement_value li:visible a');
+        var activeHref = active.attr('href'),
+            activeText = active.text(),
+            socialHref = '',
+            statusText = activeText + ' ' + activeHref + ' @thegooddata';
+
         if($(this).hasClass('fa-facebook')){
           socialHref = 'https://www.facebook.com/sharer/sharer.php?u=' + activeHref;
         }else if($(this).hasClass('fa-twitter')){
-          socialHref = 'https://twitter.com/home?status=' + activeHref;
+          socialHref = 'https://twitter.com/home?status=' + statusText;
         }else if($(this).hasClass('fa-google-plus')){
           socialHref = 'https://plus.google.com/share?url=' + activeHref;
         }
