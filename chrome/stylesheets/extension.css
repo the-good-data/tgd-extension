@@ -462,6 +462,9 @@ section#content header .message {
 section#content header .message > div:first-child {
   padding: 15px 5px 0px 30px;
 }
+section#content header .message #layer_achievement_value p {
+  display: table-cell;
+}
 section#content header .message .button {
   background-color: #06445f;
   background-image: url("../images/share.png");
@@ -479,7 +482,7 @@ section#content header .message ul li {
   list-style-type: none;
   vertical-align: middle;
   margin: 0;
-  height: 35px;
+  height: 36px;
   line-height: 12px;
 }
 section#content header .message ul li a {
@@ -505,7 +508,7 @@ section#content #body section:first-child {
 section#content .content {
   border-top: 1px solid #cccccc;
   position: relative;
-  padding: 18px 10px 18px 60px;
+  padding: 18px 10px 18px 18px;
   font-size: 14px;
   font-family: ProximaNovaSoft-Bold;
   color: #7d7d7d;
@@ -513,6 +516,9 @@ section#content .content {
 section#content .content > p {
   margin: 0;
   font-size: 14px;
+}
+section#content .content img + p {
+  margin-left: 45px;
 }
 section#content .content .green {
   color: #74bb83;
@@ -592,9 +598,6 @@ section#content div#body section#good-data .more {
 section#content div#body section#good-data .more {
   display: inline-block;
 }
-section#content div#body section#good-data .content {
-  padding-left: 25px;
-}
 section#content div#body section#evil-data {
   background-color: #ecf4f8;
 }
@@ -633,30 +636,24 @@ section#content div#body section#evil-data td:nth-child(1) {
   width: 10%;
 }
 section#content div#body section#evil-data td:nth-child(2) {
-  width: 43%;
+  width: 25%;
 }
 section#content div#body section#evil-data td:nth-child(3) {
-  width: 21%;
+  width: 40%;
 }
 section#content div#body section#evil-data td:nth-child(4) {
-  width: 26%;
+  width: 25%;
   padding-top: 2px;
   padding-left: 5px;
   text-align: center;
   vertical-align: middle;
-}
-section#content div#body section#evil-data .content {
-  padding-left: 25px;
 }
 section#content div#body section#evil-data .title,
 section#content div#body section#evil-data .more {
   background-image: url("../images/evil-background.png");
 }
 section#content div#body section#level {
-  padding-bottom: 6px;
-}
-section#content div#body section#level .content {
-  padding-left: 60px;
+  padding-bottom: 12px;
 }
 section#content div#body section#level .title,
 section#content div#body section#level .more {

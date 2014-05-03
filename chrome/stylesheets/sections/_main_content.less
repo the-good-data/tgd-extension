@@ -90,6 +90,11 @@ section#content {
       > div:first-child  {
         padding: 15px 5px 0px 30px;
       }
+      #layer_achievement_value {
+        p {
+          display: table-cell;
+        }
+      }
 
       .button {
         background-color: @color-background-message-bar-dark;
@@ -109,7 +114,7 @@ section#content {
           list-style-type: none;
           vertical-align: middle;
           margin:0;
-          height: 35px;
+          height: 36px;
           line-height: 12px;
           a {
             color: white;
@@ -139,14 +144,17 @@ section#content {
   .content {
     border-top: 1px solid @lightGray;
     position: relative;
-    padding: 18px 10px 18px 60px;
+    padding: 18px 10px 18px 18px;
     font-size:14px;
     font-family: @font-bold;
     color: @color-text;
     
     >p {
-      margin:0;
+      margin: 0;
       font-size: 14px;
+    }
+    img + p{
+      margin-left: 45px;
     }
     .green {
       color: @tgd-green;
@@ -229,10 +237,6 @@ section#content {
       .more {
         display: inline-block;
       }
-      .content {
-        padding-left: 25px;
-      }
-
     }
 
     section#evil-data {
@@ -269,22 +273,18 @@ section#content {
           width: 10%
         }
         &:nth-child(2) {
-          width: 43%;
+          width: 25%;
         }
         &:nth-child(3) {
-          width: 21%;
+          width: 40%;
         }
         &:nth-child(4) {
-          width: 26%;
+          width: 25%;
           padding-top:2px;
           padding-left: 5px;
           text-align: center;
           vertical-align: middle;
         }
-      }
-
-      .content {
-        padding-left: 25px;
       }
       .title, .more {
         background-image: url("../images/evil-background.png");
@@ -292,10 +292,7 @@ section#content {
     }
 
     section#level {
-      padding-bottom: 6px;
-      .content {
-        padding-left: 60px;
-      }
+      padding-bottom: 12px;
       .title, .more {
         background-image: url("../images/apprentice-background.png");
       }

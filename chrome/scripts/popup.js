@@ -19,6 +19,7 @@
   Authors (one per line):
 
     Brian Kennish <byoogle@gmail.com>
+    Raul Galindo  <rgalindo33@gmail.com>
   
 */
 
@@ -69,7 +70,7 @@ function renderAdtracks(tab){
   $("#layer_adtracks > tbody").html("");
 
   //Render header table
-  $('#layer_adtracks').append('<tr><th>#</th><th>NAME</th><th>TYPE</th><th>STATUS</th></tr>');
+  $('#layer_adtracks').append('<tr><th>#</th><th>TYPE</th><th>NAME</th><th>STATUS</th></tr>');
 
   var i = 0;
 
@@ -111,7 +112,7 @@ function renderAdtracks(tab){
     var count =hAdtracksCount.getItem(adtrack.service_name);
 
     var selector='#layer_adtracks tr:last';
-    $(selector).after('<tr><td>'+count+'</td><td>'+adtrack.service_name+'</td><td>'+adtrack.category+'</td><td><div class="btnAdtrack button '+data_status_value.toLowerCase()+'" data-service_name="'+adtrack.service_name+'" data-status="'+data_status+'">'+data_status_value+'</div></td></tr>');
+    $(selector).after('<tr><td>'+count+'</td><td>'+adtrack.category+'</td><td>'+adtrack.service_name+'</td><td><div class="btnAdtrack button '+data_status_value.toLowerCase()+'" data-service_name="'+adtrack.service_name+'" data-status="'+data_status+'">'+data_status_value+'</div></td></tr>');
     
     i++;
   }
@@ -121,9 +122,14 @@ function renderAdtracks(tab){
   function partialSort(arr, start, end, index) {
       var preSorted = arr.slice(0, start), 
           postSorted = arr.slice(end);
+
       var sorted = arr.slice(start, end).sort(function(a,b){
         var A = $(a).children().eq(index).text().toUpperCase(),
             B = $(b).children().eq(index).text().toUpperCase();
+
+      console.info("desde var sorted");      
+      console.log( A );
+      console.warn( B );
         
         if(A < B) {
           return -1;
@@ -141,19 +147,22 @@ function renderAdtracks(tab){
       return arr;
   }
 
-  var rows = $('#layer_adtracks tbody  tr').get().splice(1);
-
+  var rows = $('#layer_adtracks tbody  tr').get();
+  console.info( rows);
   // sort by number of threads
   rows.sort(function(a, b) {
     var A = parseInt($(a).children().eq(0).text(), 10),
         B = parseInt($(b).children().eq(0).text(), 10);
-    
+        
+    console.log( A );
+    console.warn( B );
+
     if(A < B) {
-      return -1;
+      return 1;
     }
 
     if(A > B) {
-      return 1;
+      return -1;
     }
     return 0;
   });
@@ -232,7 +241,7 @@ function writeAchievement(achievements){
 
   for(i = 0; i < achievements.length; i++){
     var achievement = achievements[i];
-    $("#layer_achievement_value").append('<li><i></i><a href="'+achievement['link'+LANG]+'" target="_blank">'+achievement['text'+LANG]+'</a></li>');
+    $("#layer_achievement_value").append('<li><p><i></i><a href="'+achievement['link'+LANG]+'" target="_blank">'+achievement['text'+LANG]+'</a></p></li>');
   }
 
   var element = $('#layer_achievement_value li'),
@@ -496,12 +505,14 @@ function onEvents(DOMAIN, TAB)
     //Event click button "expand adtracks"
     $('#btnExpandAdtracks').click(function () {
         if ( $( "#layer_adtracks_expand" ).is( ":hidden" ) ) {
-            $( "#layer_adtracks_expand" ).slideDown( "slow" );
+            // $( "#layer_adtracks_expand" ).slideDown( "slow" );
+            $( "#layer_adtracks_expand" ).show();
             $('#btnExpandAdtracks').removeClass("fa-plus collapsed");
             $('#btnExpandAdtracks').addClass("fa-minus pressed expanded");
 
         } else {
-            $( "#layer_adtracks_expand" ).slideUp( "slow" );
+            // $( "#layer_adtracks_expand" ).slideUp( "slow" );
+            $( "#layer_adtracks_expand" ).hide();
             $('#btnExpandAdtracks').removeClass("fa-minus pressed expanded");
             $('#btnExpandAdtracks').addClass("fa-plus collapsed");
         }
