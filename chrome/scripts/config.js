@@ -23,7 +23,7 @@
 const C_MN = "d2hhdGlmaWRpZHRoaXMx";
 const SALT = "";
 
-//const TGD_API = "http://localhost/TGD/src/webapp/TGD/";
+// const TGD_API = "http://localhost:8080/webapp/tgd/";
 //const TGD_API = "https://www.thegooddata.org/";
 const TGD_API = "https://pre.thegooddata.org/";
 
