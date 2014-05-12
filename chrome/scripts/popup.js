@@ -70,7 +70,8 @@ function renderAdtracks(tab){
   $("#layer_adtracks > tbody").html("");
 
   //Render header table
-  
+  $('#layer_adtracks').append('<tr><th>#</th><th>TYPE</th><th>NAME</th><th>STATUS</th></tr>');
+
   var i = 0;
 
   var hAdtracks = new Hash();
@@ -93,10 +94,6 @@ function renderAdtracks(tab){
     }
   }
 
-  var deactivate_current=isDeactivateCurrent(DOMAIN,tab);
-  console.log(deactivate_current);
-  
-
   //Render Adtracks in GUI
   for (service in hAdtracks.items) 
   {
@@ -115,18 +112,10 @@ function renderAdtracks(tab){
     var count =hAdtracksCount.getItem(adtrack.service_name);
 
     var selector='#layer_adtracks tr:last';
-
-    if (deactivate_current == true){
-      $(selector).after('<tr><td>'+count+'</td><td>'+adtrack.category+'</td><td>'+adtrack.service_name+'</td><td><div class=" button '+"allowed"+'" data-service_name="'+adtrack.service_name+'" data-status="'+"false"+'">'+"ALLOW"+'</div></td></tr>');
-   
-    }
-    else{
-      $(selector).after('<tr><td>'+count+'</td><td>'+adtrack.category+'</td><td>'+adtrack.service_name+'</td><td><div class="btnAdtrack button '+data_status_value.toLowerCase()+'" data-service_name="'+adtrack.service_name+'" data-status="'+data_status+'">'+data_status_value+'</div></td></tr>');
-    } 
-
+    $(selector).after('<tr><td>'+count+'</td><td>'+adtrack.category+'</td><td>'+adtrack.service_name+'</td><td><div class="btnAdtrack button '+data_status_value.toLowerCase()+'" data-service_name="'+adtrack.service_name+'" data-status="'+data_status+'">'+data_status_value+'</div></td></tr>');
+    
     i++;
   }
-
 
   //Sort adtracks
 
@@ -159,6 +148,7 @@ function renderAdtracks(tab){
   rows.sort(function(a, b) {
     var A = parseInt($(a).children().eq(0).text(), 10),
         B = parseInt($(b).children().eq(0).text(), 10);
+        
 
     if(A < B) {
       return 1;
@@ -211,9 +201,6 @@ function renderAdtracks(tab){
   $.each(rows, function(index, row) {
     $('#layer_adtracks').children('tbody').append(row);
   });
-
-
- 
 
   //Control viewport, hide element unuseful
   // if (i>0){
@@ -527,7 +514,6 @@ function onEvents(DOMAIN, TAB)
 
     //Event click button "show sign-in form"
     $('#btnLogin').click(function (event) {
-        console.log('clicked');
 
         if ( $( "#sign-in" ).is( ":hidden" ) ) {
             $("#content").hide();
