@@ -501,12 +501,12 @@ function onEvents(DOMAIN, TAB)
             // $( "#layer_adtracks_expand" ).slideDown( "slow" );
             $( "#layer_adtracks_expand" ).show();
             $('#btnExpandAdtracks').removeClass("fa-plus collapsed");
-            $('#btnExpandAdtracks').addClass("fa-minus pressed expanded");
+            $('#btnExpandAdtracks').addClass("fa-minus expanded");
 
         } else {
             // $( "#layer_adtracks_expand" ).slideUp( "slow" );
             $( "#layer_adtracks_expand" ).hide();
-            $('#btnExpandAdtracks').removeClass("fa-minus pressed expanded");
+            $('#btnExpandAdtracks').removeClass("fa-minus expanded");
             $('#btnExpandAdtracks').addClass("fa-plus collapsed");
         }
         event.preventDefault();
