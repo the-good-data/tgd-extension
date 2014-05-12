@@ -137,10 +137,6 @@ function renderAdtracks(tab){
       var sorted = arr.slice(start, end).sort(function(a,b){
         var A = $(a).children().eq(index).text().toUpperCase(),
             B = $(b).children().eq(index).text().toUpperCase();
-
-      console.info("desde var sorted");      
-      console.log( A );
-      console.warn( B );
         
         if(A < B) {
           return -1;
@@ -159,14 +155,10 @@ function renderAdtracks(tab){
   }
 
   var rows = $('#layer_adtracks tbody  tr').get();
-  console.info( rows);
   // sort by number of threads
   rows.sort(function(a, b) {
     var A = parseInt($(a).children().eq(0).text(), 10),
         B = parseInt($(b).children().eq(0).text(), 10);
-        
-    console.log( A );
-    console.warn( B );
 
     if(A < B) {
       return 1;
@@ -796,7 +788,7 @@ function onEvents(DOMAIN, TAB)
         var activeHref = active.attr('href'),
             activeText = active.text(),
             socialHref = '',
-            statusText = activeText + ' ' + activeHref + ' @thegooddata';
+            statusText = encodeURIComponent( activeText + ' ' + activeHref + ' @thegooddata' );
 
         if($(this).hasClass('fa-facebook')){
           socialHref = 'https://www.facebook.com/sharer/sharer.php?u=' + activeHref;
