@@ -199,6 +199,13 @@ function Hash()
     }
 }
 
+function getDomainName(data)
+{
+  var    a      = document.createElement('a');
+         a.href = data;
+  return a.hostname;
+}
+
 //Add services to whitelist
 function addWhitelist(DOMAIN,service_name,status){
   const WHITELIST = deserialize(localStorage.whitelist) || {};
