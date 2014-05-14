@@ -114,10 +114,9 @@ function renderAdtracks(tab){
     var count =hAdtracksCount.getItem(adtrack.service_name);
 
     var selector='#layer_adtracks tr:last';
-    // $(selector).after('<tr><td>'+count+'</td><td>'+adtrack.category+'</td><td>'+adtrack.service_name+'</td><td><div class="btnAdtrack button '+data_status_value.toLowerCase()+'" data-service_name="'+adtrack.service_name+'" data-status="'+data_status+'">'+data_status_value+'</div></td></tr>');
+
     if (deactivate_current == true){
-      $(selector).after('<tr><td>'+count+'</td><td>'+adtrack.category+'</td><td>'+adtrack.service_name+'</td><td><div class=" button '+"allowed"+'" data-service_name="'+adtrack.service_name+'" data-status="'+"false"+'">'+"ALLOW"+'</div></td></tr>');
-   
+      $(selector).after('<tr><td>'+count+'</td><td>'+adtrack.category+'</td><td>'+adtrack.service_name+'</td><td><div class=" button '+"allowed"+'" data-service_name="'+adtrack.service_name+'" data-status="'+"false"+'">'+"ALLOWED"+'</div></td></tr>');
     }
     else{
       $(selector).after('<tr><td>'+count+'</td><td>'+adtrack.category+'</td><td>'+adtrack.service_name+'</td><td><div class="btnAdtrack button '+data_status_value.toLowerCase()+'" data-service_name="'+adtrack.service_name+'" data-status="'+data_status+'">'+data_status_value+'</div></td></tr>');
