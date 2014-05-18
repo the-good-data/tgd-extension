@@ -233,7 +233,7 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
     {
       whitelisted = true;
     }
-    else if (PARENT_DOMAIN == 'google.com' && childService.name == 'Google' && localStorage.share_search)
+    else if (PARENT_DOMAIN == 'doubleclick.net' && childService.name == 'Doubleclick' && localStorage.share_search)
     {
       whitelisted = true;
     }
@@ -348,6 +348,13 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
           'usertime': localtime.format("yyyy-mm-dd HH:MM:ss"),
           'status':status,
         };
+
+        console.log(childService.category);
+        if (childService.category == 'Content'){
+          console.log('===========================>');
+          console.log(adtrack);
+          console.log('===========================>');
+        }
 
         if (DEBUG && DEBUG_ADTRACK){
           console.log('ADTRACK DETECTADA');
