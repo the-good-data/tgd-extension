@@ -67,8 +67,9 @@ function renderAdtracks(tab){
   const SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
 
   //Clear
-  $("#layer_adtracks > tbody").html("");
-
+  //$("#layer_adtracks > tbody").html("");
+  $('#layer_adtracks tr').not(function(){if ($(this).has('th').length){return true}}).remove();
+      
   //Render header table
 
   var i = 0;
@@ -583,7 +584,7 @@ function onEvents(DOMAIN, TAB)
     $('#not-working').on('click', '.btnDeactivateCurrent', function() { 
 
       const ID = TAB.id;
-      
+
       var sStatus=$(this).html();
       var status=false;
 
@@ -603,6 +604,7 @@ function onEvents(DOMAIN, TAB)
       } catch(err) {
         console.log(err);
       }
+
       
       syncWhitelist();
 
