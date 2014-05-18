@@ -24,6 +24,8 @@ const C_MN = "d2hhdGlmaWRpZHRoaXMx";
 const SALT = "";
 
 // const TGD_API = "http://localhost:8080/webapp/tgd/";
+//const TGD_API = "http://localhost/TGD/src/webapp/TGD/";
+
 //const TGD_API = "https://www.thegooddata.org/";
 const TGD_API = "https://pre.thegooddata.org/";
 
@@ -35,7 +37,7 @@ const LANG = '_'+'en';
 const DEBUG = true;
 const DEBUG_ADTRACK = false;
 const DEBUG_BROWSING = false;
-const DEBUG_QUERY = true;
+const DEBUG_QUERY = false;
 const DEBUG_QUERY_BLACKLIST = false;
 const DEBUG_WHITELIST = false;
 const DEBUG_CREDENTIAL= false;
