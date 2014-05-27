@@ -220,7 +220,7 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
     const REDIRECT_SAFE = REQUESTED_URL != REQUESTS[TAB_ID];
 
     const SOCIAL_SERVICES = ['Facebook','Twitter'];
-    const INVISIBLE_SERVICES = ['Chango','Pubmatic','adxhm','eBay','Google','Fox One Stop Media','Federated Media','eXelate','Casale Media','LiveIntent','Improve Digital','Criteo','Rapleaf','AudienceManager','OpenX','Twitter','AOL','AddThis','AppNexus','Facebook','LiveRail','BrightRoll','Skimlinks','SpotXchange','adBrite','CONTEXTWEB','rmxregateKnowledge','adaptv'];
+    const INVISIBLE_SERVICES = ['Doubleclick','Chango','Pubmatic','adxhm','eBay','Google','Fox One Stop Media','Federated Media','eXelate','Casale Media','LiveIntent','Improve Digital','Criteo','Rapleaf','AudienceManager','OpenX','Twitter','AOL','AddThis','AppNexus','Facebook','LiveRail','BrightRoll','Skimlinks','SpotXchange','adBrite','CONTEXTWEB','rmxregateKnowledge','adaptv'];
     const SEARCHS_DOMAINS = ['google.com','bing.com','yahoo.com'];
 
     var allow_social = castBool(localStorage.allow_social);
@@ -233,8 +233,9 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
     {
       whitelisted = true;
     }
-    else if (PARENT_DOMAIN == 'doubleclick.net' && childService.name == 'Doubleclick' && localStorage.share_search)
+    else if (childService.name == 'Doubleclick' && localStorage.share_search)
     {
+
       whitelisted = true;
     }
     // else if (contains(SEARCHS_DOMAINS,PARENT_DOMAIN) && contains(INVISIBLE_SERVICES,childService.name) )

@@ -26,15 +26,16 @@ const SALT = "";
 // const TGD_API = "http://localhost:8080/webapp/tgd/";
 //const TGD_API = "http://localhost/TGD/src/webapp/TGD/";
 
-//const TGD_API = "https://www.thegooddata.org/";
-const TGD_API = "https://pre.thegooddata.org/";
+const TGD_API = "https://www.thegooddata.org/";
+//const TGD_API = "https://pre.thegooddata.org/";
 
-const URL = "https://pre.thegooddata.org";
+const URL = "https://www.thegooddata.org";
+//const URL = "https://pre.thegooddata.org";
 
 //const LANG = 'es';
 const LANG = '_'+'en';
 
-const DEBUG = true;
+const DEBUG = false;
 const DEBUG_ADTRACK = false;
 const DEBUG_BROWSING = false;
 const DEBUG_QUERY = false;
