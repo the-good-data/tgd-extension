@@ -450,7 +450,7 @@ function renderLinks(){
 }
 
 function onLoad(){
-  
+    
   const TAB = TAB_CURRENT;
   const ID = TAB.id;
   const CATEGORY_REQUESTS = (BACKGROUND.REQUEST_COUNTS[ID] || {}).Disconnect || {};
@@ -694,7 +694,7 @@ function onEvents(DOMAIN, TAB)
 
     // Event click button "BECOME A MEMBER"
     $('#become-member').click(function(){
-      TABS.create({url: URL + '/user/registration'});
+      TABS.create({url: URL + '/apply'});
     });
 
     // Event click button "Email us"
