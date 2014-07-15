@@ -1,2 +1,5 @@
 .DS_Store
 *.pem
+/nbproject/private/
+/nbproject/project.properties
+/nbproject/project.xml
