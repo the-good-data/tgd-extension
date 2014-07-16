@@ -20,22 +20,57 @@
   
 */
 
+/**
+ * To change constants for development version:
+ * 
+ * 1. Please go to options.html page.
+ * 2. Add a new item to the env select box, example: dev7
+ * 3. Get back here and add a new case inside the switch for the constants you need to change
+ */
+
+// set extension environment
+const TGD_ENV=getLocalOption("TGD_ENV", "prod");
+
 const C_MN = "d2hhdGlmaWRpZHRoaXMx";
 const SALT = "";
 
-// const TGD_API = "http://localhost:8080/webapp/tgd/";
-//const TGD_API = "http://localhost/TGD/src/webapp/TGD/";
+// set api url ----------------------------------------------------------------
+switch (TGD_ENV) {
+  case "dev1": {
+      const TGD_API = "http://tgd.heavydots.com/";
+      break;
+  }
+  default: {
+      const TGD_API = "https://www.thegooddata.org/";
+  }
+}
 
-const TGD_API = "https://www.thegooddata.org/";
-//const TGD_API = "https://pre.thegooddata.org/";
+// set website url -------------------------------------------------------------
+switch (TGD_ENV) {
+  case "dev1": {
+      const URL = "http://tgd.heavydots.com/";
+      break;
+  }
+  default: {
+      const URL = "https://www.thegooddata.org/";
+  }
+}
 
-const URL = "https://www.thegooddata.org";
-//const URL = "https://pre.thegooddata.org";
-
-//const LANG = 'es';
+// set extension lang
 const LANG = '_'+'en';
 
-const DEBUG = false;
+// set main debug --------------------------------------------------------------
+switch (TGD_ENV) {
+  case "dev1": {
+      const DEBUG = true;
+      break;
+  }
+  default: {
+      const DEBUG = false;
+  }
+}
+
+// other debug
 const DEBUG_ADTRACK = false;
 const DEBUG_BROWSING = false;
 const DEBUG_QUERY = false;
@@ -49,3 +84,15 @@ const DEBUG_QUERIES_COUNT = false;
 const DEBUG_QUERIES_PERCENTILE = false;
 const DEBUG_LANGUAGES_SUPPORT_CHECK = false;
 const DEBUG_DELETE_QUERIES = false;
+
+// log some information to know on what environment we're running
+console.log("Running TGD - ENV: "+localStorage.TGD_ENV);
+console.log("TGD API: "+TGD_API);
+
+// function used to get options from local storage
+function getLocalOption(key, defaultValue) {
+  if (localStorage[key] != undefined) {
+    return localStorage[key];
+  }
+  return defaultValue;
+}

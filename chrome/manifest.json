@@ -1,6 +1,7 @@
 {
   "manifest_version": 2,
   "name": "TheGoodData",
+  "options_page": "markup/options.html",
   "version": "1.0.24",
   "description":
       "Your data is valuable. Protect your privacy and make your data work for a good cause.",
