@@ -56,7 +56,8 @@ function renderVersion(){
 }
 
 //Render adtracks in table
-function renderAdtracks(tab){
+function renderAdtracks(tab) {  
+  
   const TAB = tab;
   const ID = TAB.id;
 
@@ -80,17 +81,19 @@ function renderAdtracks(tab){
   for (i in BACKGROUND.ADTRACKS[ID]) 
   {
     var adtrack = BACKGROUND.ADTRACKS[ID][i];
-    hAdtracks.setItem(adtrack.service_name, adtrack);
+    
+    var adtrack_key=adtrack.service_name+":"+adtrack.category;
+    hAdtracks.setItem(adtrack_key, adtrack);
 
-    if (!hAdtracksCount.hasItem(adtrack.service_name))
+    if (!hAdtracksCount.hasItem(adtrack_key))
     {
-      hAdtracksCount.setItem(adtrack.service_name,1);
+      hAdtracksCount.setItem(adtrack_key,1);
     }
     else
     {
-      var count = hAdtracksCount.getItem(adtrack.service_name);
+      var count = hAdtracksCount.getItem(adtrack_key);
       count++;
-      hAdtracksCount.setItem(adtrack.service_name,count);
+      hAdtracksCount.setItem(adtrack_key,count);
     }
   }
 
@@ -100,28 +103,55 @@ function renderAdtracks(tab){
   //Render Adtracks in GUI
   for (service in hAdtracks.items) 
   {
+    
+    // tip: service contains now adtrack.service_name:adtrack.category
+    
     var adtrack = hAdtracks.items[service];
     var data_status = false;
     var data_status_value = 'BLOCKED';
 
-    if (SITE_WHITELIST[adtrack.service_name] != undefined)
-       data_status=SITE_WHITELIST[adtrack.service_name];
+    // name+category?
+    if (SITE_WHITELIST[service] != undefined)
+       data_status=SITE_WHITELIST[service];
 
     if (!data_status)
-       data_status_value = 'BLOCKED';
-     else
-       data_status_value = 'ALLOWED';
+      data_status_value = 'BLOCKED';
+    else
+      data_status_value = 'ALLOWED';
     
-    var count =hAdtracksCount.getItem(adtrack.service_name);
+    var count =hAdtracksCount.getItem(service);
 
     var selector='#layer_adtracks tr:last';
-
-    if (deactivate_current == true){
-      $(selector).after('<tr><td>'+count+'</td><td>'+adtrack.category+'</td><td>'+adtrack.service_name+'</td><td><div class=" button '+"allowed"+'" data-service_name="'+adtrack.service_name+'" data-status="'+"false"+'">'+"ALLOWED"+'</div></td></tr>');
+    
+    if (deactivate_current == true) {
+      data_status_value = 'ALLOWED';
+      data_status=true;
     }
-    else{
-      $(selector).after('<tr><td>'+count+'</td><td>'+adtrack.category+'</td><td>'+adtrack.service_name+'</td><td><div class="btnAdtrack button '+data_status_value.toLowerCase()+'" data-service_name="'+adtrack.service_name+'" data-status="'+data_status+'">'+data_status_value+'</div></td></tr>');
-    } 
+    
+    var data_status_text=data_status_value;
+    var trading_style='';
+    var title='';
+    
+    if ((contains(BACKGROUND.TRADED_SERVICES,adtrack.service_name) || adtrack.category==BACKGROUND.CONTENT_NAME)) {
+      if (SITE_WHITELIST[service] == undefined || SITE_WHITELIST[service] || deactivate_current) {
+        data_status_value = 'ALLOWED';
+        data_status_text=data_status_value;
+        data_status=true;
+        title='Content is automatically allowed.';
+        if (contains(BACKGROUND.TRADED_SERVICES,adtrack.service_name)) {
+          data_status_text='TRADING';
+          title=adtrack.service_name+' is automatically allowed for trading.';
+          trading_style='background-color: #0CF';
+        }
+      }
+    }
+
+//    if (deactivate_current == true){
+//      $(selector).after('<tr><td>'+count+'</td><td>'+adtrack.category+'</td><td>'+adtrack.service_name+'</td><td><div class=" button '+"allowed"+'" data-service_name="'+adtrack.service_name+'" data-category="'+adtrack.category+'" data-status="'+"false"+'">'+"ALLOWED"+'</div></td></tr>');
+//    }
+//    else{
+      $(selector).after('<tr><td>'+count+'</td><td>'+adtrack.category+'</td><td>'+adtrack.service_name+'</td><td><div title="'+title+'" style="'+trading_style+'" class="'+(deactivate_current?'':'btnAdtrack')+' button '+data_status_value.toLowerCase()+'" data-service_name="'+adtrack.service_name+'" data-category="'+adtrack.category+'" data-status="'+data_status+'">'+data_status_text+'</div></td></tr>');
+//    } 
 
     i++;
   }
@@ -418,7 +448,7 @@ function deactivateCurrent(tab){
   for (i in BACKGROUND.ADTRACKS[ID]) 
   {
     var adtrack = BACKGROUND.ADTRACKS[ID][i];
-    addWhitelist(DOMAIN,adtrack.service_name,true);
+    addWhitelist(DOMAIN,adtrack.service_name,adtrack.category,true);
   }
 
   return status;
@@ -599,7 +629,8 @@ function onEvents(DOMAIN, TAB)
         // {
         // var adtrack = BACKGROUND.ADTRACKS[ID][i];
         console.log('----> '+'*'+' - '+status);
-        setWhitelistStatus(DOMAIN,TAB,'*',status);
+        // TODO: Test if this is working properly since adding category.
+        setWhitelistStatus(DOMAIN,TAB,'*','*',status);
         // }
       } catch(err) {
         console.log(err);
@@ -616,8 +647,11 @@ function onEvents(DOMAIN, TAB)
       //Render deactivate current
       renderDeactivateCurrent(DOMAIN,TAB);
 
-      //Render adtracks in table
-      renderAdtracks(TAB);
+//      //Render adtracks in table
+//      renderAdtracks(TAB);
+
+      // Temp fix closing window so it will render new stats when opening again.
+      window.close();
 
       event.preventDefault();
     
@@ -635,15 +669,19 @@ function onEvents(DOMAIN, TAB)
       //console.log('visualizar '+allow_social);
       renderOptions(TAB);
 
-      addWhitelist(DOMAIN,'Facebook',!allow_social);
-      addWhitelist(DOMAIN,'Twitter',!allow_social);
+      addWhitelist(DOMAIN,'Facebook','Social',!allow_social);
+      addWhitelist(DOMAIN,'Twitter','Social',!allow_social);
       
       // syncWhitelist();
       
       TABS.reload(ID);
       
-      //Render adtracks in table
-      renderAdtracks(TAB);
+//      //Render adtracks in table
+//      renderAdtracks(TAB);
+      
+      // Temp fix closing window so it will render new stats when opening again.
+      window.close();
+      
     });
 
     // Event click button "Store Navigation"
@@ -676,18 +714,22 @@ function onEvents(DOMAIN, TAB)
 
       var service_name=$(this).data("service_name");
       var status=$(this).data("status");
+      var category=$(this).data("category");
 
-      addWhitelist(DOMAIN,service_name,status);
+      addWhitelist(DOMAIN,service_name,category,status);
 
       syncWhitelist();
       
       TABS.reload(ID);
       
-      //Render adtracks in table
-      renderAdtracks(TAB);
-
-      //Render
-      onLoad();
+      // Temp fix closing window so it will render new stats when opening again.
+      window.close();
+      
+//      //Render adtracks in table
+//      renderAdtracks(TAB);
+      
+//      //Render
+//      onLoad();
 
       event.preventDefault();
     });

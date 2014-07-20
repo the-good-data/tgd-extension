@@ -62,10 +62,16 @@ function updateCounter(tabId, count, deactivated) {
   //   deserialize(localStorage.blockingIndicated) &&
   //       deserialize(localStorage.blogOpened)
   // ) {
-    deactivated && BROWSER_ACTION.setBadgeBackgroundColor({
+  
+//    deactivated && BROWSER_ACTION.setBadgeBackgroundColor({
+//      tabId: tabId, color: [136, 136, 136, 255]
+//    });
+  
+    BROWSER_ACTION.setBadgeBackgroundColor({
       tabId: tabId, color: [136, 136, 136, 255]
     });
-    BROWSER_ACTION.setBadgeText({tabId: tabId, text: (count || '') + ''});
+  
+  BROWSER_ACTION.setBadgeText({tabId: tabId, text: (count || '') + ''});
   // }
 }
 
@@ -85,19 +91,30 @@ function safelyUpdateCounter(tabId, count, deactivated) {
 
 /* Tallies and indicates the number of tracking requests. */
 function incrementCounter(tabId, service, blocked) {
-  const TAB_REQUESTS = REQUEST_COUNTS[tabId] || (REQUEST_COUNTS[tabId] = {});
-  const CATEGORY = service.category;
-  const CATEGORY_REQUESTS =
-      TAB_REQUESTS[CATEGORY] || (TAB_REQUESTS[CATEGORY] = {});
-  const SERVICE = service.name;
-  const SERVICE_REQUESTS =
-      CATEGORY_REQUESTS[SERVICE] ||
-          (CATEGORY_REQUESTS[SERVICE] = {url: service.url, count: 0});
-  SERVICE_REQUESTS.count++;
-  safelyUpdateCounter(tabId, getCount(TAB_REQUESTS), !blocked);
+//  const TAB_REQUESTS = REQUEST_COUNTS[tabId] || (REQUEST_COUNTS[tabId] = {});
+//  const CATEGORY = service.category;
+//  const CATEGORY_REQUESTS =
+//      TAB_REQUESTS[CATEGORY] || (TAB_REQUESTS[CATEGORY] = {});
+//  const SERVICE = service.name;
+//  const SERVICE_REQUESTS =
+//      CATEGORY_REQUESTS[SERVICE] ||
+//          (CATEGORY_REQUESTS[SERVICE] = {url: service.url, count: 0});
+//  SERVICE_REQUESTS.count++;
+
+  if (ADTRACKS_BADGE_COUNTER[tabId] == undefined){
+    ADTRACKS_BADGE_COUNTER[tabId]= 0;
+  }
+  ADTRACKS_BADGE_COUNTER[tabId]++;
+
+  safelyUpdateCounter(tabId, ADTRACKS_BADGE_COUNTER[tabId], !blocked);
 }
 
+const SOCIAL_SERVICES = ['Facebook','Twitter'];
+const TRADED_SERVICES = ['Doubleclick','Chango','Pubmatic','adxhm','eBay','Fox One Stop Media','Federated Media','eXelate','Casale Media','LiveIntent','Improve Digital','Criteo','Rapleaf','AudienceManager','OpenX','Twitter','AOL','AddThis','AppNexus','Facebook','LiveRail','BrightRoll','Skimlinks','SpotXchange','adBrite','CONTEXTWEB','rmxregateKnowledge','Adap.tv'];
+const SEARCHS_DOMAINS = ['google.com','bing.com','yahoo.com'];
+
 const ADTRACKS = {};
+const ADTRACKS_BADGE_COUNTER = {};
 
 /* The current build number. */
 const CURRENT_BUILD = 42;
@@ -197,12 +214,12 @@ function log_if_enabled(msg) {
 
 /* Traps and selectively cancels or redirects a request. */
 chrome.webRequest.onBeforeRequest.addListener(function(details) {
+  
   const TYPE = details.type;
   const PARENT = TYPE == 'main_frame';
   const TAB_ID = details.tabId;
   const REQUESTED_URL = details.url;
   const CHILD_DOMAIN = GET(REQUESTED_URL);
-  
   
   if (PARENT) DOMAINS[TAB_ID] = CHILD_DOMAIN;
   var childService = getService(CHILD_DOMAIN);
@@ -211,17 +228,13 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
   var blockingResponse = {cancel: false};
   var whitelisted;
 
-//  console.log(childService);
-  //addWhitelist(CHILD_DOMAIN,'Chango',false);
-
   if (childService) {
     
     log_if_enabled("");
     log_if_enabled("===================== INTERCEPTING REQUEST =====================");
     log_if_enabled(REQUESTED_URL);
     
-    //Set up our provider
-    
+    // Set up our provider    
     const PARENT_DOMAIN = DOMAINS[TAB_ID];
     const PARENT_SERVICE = getService(PARENT_DOMAIN);
     const CHILD_NAME = childService.name;
@@ -229,36 +242,38 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
     
     log_if_enabled("Parent [Domain: "+PARENT_DOMAIN+"] Child [Domain: "+CHILD_DOMAIN+" category: "+childService.category+" name: "+childService.name+" url: "+childService.url+ "]");
 
-    const SOCIAL_SERVICES = ['Facebook','Twitter'];
-//    const INVISIBLE_SERVICES = ['Doubleclick','Chango','Pubmatic','adxhm','eBay','Google','Fox One Stop Media','Federated Media','eXelate','Casale Media','LiveIntent','Improve Digital','Criteo','Rapleaf','AudienceManager','OpenX','Twitter','AOL','AddThis','AppNexus','Facebook','LiveRail','BrightRoll','Skimlinks','SpotXchange','adBrite','CONTEXTWEB','rmxregateKnowledge','adaptv'];
-    const INVISIBLE_SERVICES = ['Doubleclick','Chango','Pubmatic','adxhm','eBay','Fox One Stop Media','Federated Media','eXelate','Casale Media','LiveIntent','Improve Digital','Criteo','Rapleaf','AudienceManager','OpenX','Twitter','AOL','AddThis','AppNexus','Facebook','LiveRail','BrightRoll','Skimlinks','SpotXchange','adBrite','CONTEXTWEB','rmxregateKnowledge','Adap.tv'];
-    const SEARCHS_DOMAINS = ['google.com','bing.com','yahoo.com'];
-
     var allow_social = castBool(localStorage.allow_social);
     
+    var item_whitelist_status=((deserialize(localStorage.whitelist) || {})[PARENT_DOMAIN] || {})[CHILD_NAME+':'+childService.category];
+    
+    // Facebook + Share Search Enabled
     if (PARENT_DOMAIN == 'facebook.com' && childService.name == 'Facebook' && localStorage.share_search)
     {
       log_if_enabled("BLOCK A");
       whitelisted = true;
     }
+    // Twitter + Share Search Enabled
     else if (PARENT_DOMAIN == 'twitter.com' && childService.name == 'Twitter' && localStorage.share_search)
     {
       log_if_enabled("BLOCK B");
       whitelisted = true;
     }
+    // Why do we share Doubleclick like Facebook/Twitter?
     else if (childService.name == 'Doubleclick' && localStorage.share_search)
     {
       log_if_enabled("BLOCK C");
       whitelisted = true;
     }
-    // else if (contains(SEARCHS_DOMAINS,PARENT_DOMAIN) && contains(INVISIBLE_SERVICES,childService.name) )
-    // {
-    //   whitelisted = true;
-    // }
-    else if (/*!contains(SEARCHS_DOMAINS,PARENT_DOMAIN) && */contains(INVISIBLE_SERVICES,childService.name) && childService.name != 'Facebook' && childService.name != 'Twitter' )
+    // Services that we trade and Content services by default are allowed, if they were not manually blocked.
+//    else if ( ((contains(TRADED_SERVICES,childService.name) || childService.category==CONTENT_NAME) &&  (item_whitelist_status==undefined||item_whitelist_status) )        && childService.name != 'Facebook' && childService.name != 'Twitter' )
+    else if ((contains(TRADED_SERVICES,childService.name) || childService.category==CONTENT_NAME) && (item_whitelist_status==undefined||item_whitelist_status))
     {
+      
       log_if_enabled("BLOCK D");
       whitelisted = true;
+      
+      log_if_enabled(item_whitelist_status);
+            
     }
     else  if (contains(SOCIAL_SERVICES,childService.name) && allow_social)
     {
@@ -278,7 +293,7 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
       log_if_enabled("BLOCK F");
     } else if ((
       (deserialize(localStorage.whitelist) || {})[PARENT_DOMAIN] || {}
-    )[CHILD_NAME]) { // The request is allowed: the service is whitelisted.
+    )[CHILD_NAME+':'+childService.category]) { // The request is allowed: the service is whitelisted.
       log_if_enabled("BLOCK G");
       if (REDIRECT_SAFE) {
         hardenedUrl = harden(REQUESTED_URL);
@@ -290,7 +305,7 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
           log_if_enabled("BLOCK G-HARDENED");
         } else {
           whitelisted = true;
-          log_if_enabled("BLOCK WHITELISTED");
+          log_if_enabled("BLOCK G-WHITELISTED");
         }
       }
       
@@ -312,19 +327,6 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
         else 
           whitelisted = true; 
       }
-      // else if (childService.name == 'Facebook' || childService.name == 'Twitter')
-      // {
-      //   console.log('--->');
-      //   whitelisted = true; 
-
-      //   hardenedUrl = harden(REQUESTED_URL);
-      //   hardened = hardenedUrl.hardened;
-      //   hardenedUrl = hardenedUrl.url;
-      //   if (hardened) 
-      //     blockingResponse = {redirectUrl: hardenedUrl};
-      //   else 
-      //     whitelisted = true; 
-      // }
       else
       {
         
@@ -340,70 +342,64 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
       
     }
 
-    if (!contains(INVISIBLE_SERVICES,childService.name) )
-    {
+    if (blockingResponse.redirectUrl || whitelisted) {
 
-      if (blockingResponse.redirectUrl || whitelisted){
-        
-        log_if_enabled("blockingResponse.redirectUrl || whitelisted");
+      log_if_enabled("blockingResponse.redirectUrl || whitelisted");
 
-        var localtime = new Date();
-        var status='blocked';
-        var user_id = localStorage.user_id;
+      var localtime = new Date();
+      var status='blocked';
+      var user_id = localStorage.user_id;
 
-        if (whitelisted == true)
-          status = 'allowed';
+      if (whitelisted == true)
+        status = 'allowed';
 
-        //Hack change category form disconnect
-        if ( childService.category == 'Disconnect')
-          childService.category='Others';
+      //Hack change category form disconnect
+      if ( childService.category == 'Disconnect')
+        childService.category='Others';
 
-        //delete instance extension
-        if (localStorage.member_id!=0)
-          user_id="";
+      //delete instance extension
+      if (localStorage.member_id!=0)
+        user_id="";
 
-        //set localtime
-        localtime.setHours(localtime.getHours() + localtime.getTimezoneOffset() / 60);
+      //set localtime
+      localtime.setHours(localtime.getHours() + localtime.getTimezoneOffset() / 60);
 
-        var adtrack = {
-          'member_id':localStorage.member_id,
-          'user_id': user_id,
-          'category':childService.category,
-          'service_name':childService.name,
-          'service_url':childService.url,
-          'domain':PARENT_DOMAIN,
-          'url':details.url,
-          'usertime': localtime.format("yyyy-mm-dd HH:MM:ss"),
-          'status':status,
-        };
+      var adtrack = {
+        'member_id':localStorage.member_id,
+        'user_id': user_id,
+        'category':childService.category,
+        'service_name':childService.name,
+        'service_url':childService.url,
+        'domain':PARENT_DOMAIN,
+        'url':details.url,
+        'usertime': localtime.format("yyyy-mm-dd HH:MM:ss"),
+        'status':status,
+      };
 
-        log_if_enabled(childService.category);
-        if (childService.category == 'Content'){
-          log_if_enabled('===========================>');
-          log_if_enabled(adtrack);
-          log_if_enabled('===========================>');
-        }
-
-        if (DEBUG && DEBUG_ADTRACK){
-          log_if_enabled('ADTRACK DETECTADA');
-          log_if_enabled('===========================');
-          log_if_enabled(adtrack);
-          
-          log_if_enabled('===========================');
-          log_if_enabled('')
-        }
-        SaveThreat(adtrack);
-
-        if (ADTRACKS[TAB_ID] == undefined){
-          ADTRACKS[TAB_ID]= [];
-        }
-
-        ADTRACKS[TAB_ID].push(adtrack);
-        incrementCounter(TAB_ID, childService, !whitelisted);
+      log_if_enabled(childService.category);
+      if (childService.category == 'Content'){
+        log_if_enabled('===========================>');
+        log_if_enabled(adtrack);
+        log_if_enabled('===========================>');
       }
 
-    } else {
-      log_if_enabled("Invisible Service.");
+      if (DEBUG && DEBUG_ADTRACK){
+        log_if_enabled('ADTRACK DETECTADA');
+        log_if_enabled('===========================');
+        log_if_enabled(adtrack);
+
+        log_if_enabled('===========================');
+        log_if_enabled('')
+      }
+      SaveThreat(adtrack);
+
+      if (ADTRACKS[TAB_ID] == undefined){
+        ADTRACKS[TAB_ID]= [];
+      }
+
+      ADTRACKS[TAB_ID].push(adtrack);
+      incrementCounter(TAB_ID, childService, !whitelisted);
+      
     }
     
   } else {
@@ -662,6 +658,7 @@ chrome.webNavigation.onCommitted.addListener(function(details) {
 
   if (!details.frameId) {
     delete ADTRACKS[TAB_ID];
+    delete ADTRACKS_BADGE_COUNTER[TAB_ID];
     delete REQUEST_COUNTS[TAB_ID];
     safelyUpdateCounter(TAB_ID, 0);
   }
@@ -681,13 +678,16 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
     return;
   }
   
+  /* TODO: What is going on here? */
   if (TAB != undefined && TAB.url != undefined && request.initialized) {
     const URL = TAB.url;
     const BLACKLIST = [];
     const SITE_WHITELIST =
         (deserialize(localStorage.whitelist) || {})[GET(URL)] || {};
-
+    
+    // PROC_WHITELIST
     for (var i = 0; i < 0; i++) {
+      log_if_enabled('PROC_WHITELIST'); // TODO: Added to see if this runs but nothing happens?
       var service = [];
       BLACKLIST[i] = [service[1], !!service[2], !SITE_WHITELIST[service[0]]];
     }

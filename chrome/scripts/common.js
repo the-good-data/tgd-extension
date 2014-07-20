@@ -207,35 +207,35 @@ function getDomainName(data)
 }
 
 //Add services to whitelist
-function addWhitelist(DOMAIN,service_name,status){
+function addWhitelist(DOMAIN,service_name, category, status){
   const WHITELIST = deserialize(localStorage.whitelist) || {};
   const SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
 
-  WHITELIST[DOMAIN][service_name]=!status;
+  WHITELIST[DOMAIN][service_name+':'+category]=!status;
   localStorage.whitelist = JSON.stringify(WHITELIST);
 }
 
 //Get status whitelisted service
-function getWhitelistStatus(DOMAIN,tab,service_name){
+function getWhitelistStatus(DOMAIN,tab,service_name,category){
   const WHITELIST = deserialize(localStorage.whitelist) || {};
   const SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
   
-  if (SITE_WHITELIST[service_name]==undefined)
+  if (SITE_WHITELIST[service_name+':'+category]==undefined)
   {
     return false;
   }
   else
   {
-    return SITE_WHITELIST[service_name];
+    return SITE_WHITELIST[service_name+':'+category];
   }
 }
 
 //Set status whitelisted service
-function setWhitelistStatus(DOMAIN,tab,service_name,status){
+function setWhitelistStatus(DOMAIN,tab,service_name,category,status){
   const WHITELIST = deserialize(localStorage.whitelist) || {};
   const SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
   
-  SITE_WHITELIST[service_name]=status;
+  SITE_WHITELIST[service_name+':'+category]=status;
   localStorage.whitelist = JSON.stringify(WHITELIST);
 
 }
@@ -263,7 +263,7 @@ function isDeactivateCurrent(DOMAIN,ID){
   {
     for (i in SITE_WHITELIST) 
     {
-      if (i == '*')
+      if (i == '*' || i == '*:*') // Added *:* because whitelist now works with service_name:category
       {
         status = SITE_WHITELIST[i];
       }
@@ -944,6 +944,15 @@ function syncWhitelist(){
     console.log('===========================');
     console.log('');
   }
+  
+  /**
+   * TODO:
+   * - Loop on all services for all domains
+   * - Get urls for all services
+   * - Add urls to another array
+   * - Modify the request to send both the full whitelist and the urls list
+   * - Now we can create a new adtrack_service inside the api if it is missing
+   */
 
   xhr.send( localStorage.whitelist);
 
