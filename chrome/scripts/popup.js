@@ -110,9 +110,14 @@ function renderAdtracks(tab) {
     var data_status = false;
     var data_status_value = 'BLOCKED';
 
-    // name+category?
-    if (SITE_WHITELIST[service] != undefined)
-       data_status=SITE_WHITELIST[service];
+// not looking in whitelist anymore, why do it if we've already got that info in the adtrack?
+//    // name+category?
+//    if (SITE_WHITELIST[service] != undefined)
+//       data_status=SITE_WHITELIST[service];
+
+    if (adtrack.status=='allowed') {
+      data_status=true;
+    }
 
     if (!data_status)
       data_status_value = 'BLOCKED';
@@ -132,26 +137,17 @@ function renderAdtracks(tab) {
     var trading_style='';
     var title='';
     
-    if ((contains(BACKGROUND.TRADED_SERVICES,adtrack.service_name) || adtrack.category==BACKGROUND.CONTENT_NAME)) {
-      if (SITE_WHITELIST[service] == undefined || SITE_WHITELIST[service] || deactivate_current) {
-        data_status_value = 'ALLOWED';
-        data_status_text=data_status_value;
-        data_status=true;
-        title='Content is automatically allowed.';
-        if (contains(BACKGROUND.TRADED_SERVICES,adtrack.service_name)) {
-          data_status_text='TRADING';
-          title=adtrack.service_name+' is automatically allowed for trading.';
-          trading_style='background-color: #0CF';
-        }
-      }
+    if (adtrack.status_extra.statusText) {
+      data_status_text=adtrack.status_extra.statusText;
+    }
+    if (adtrack.status_extra.buttonStyle) {
+      trading_style=adtrack.status_extra.buttonStyle;
+    }
+    if (adtrack.status_extra.buttonTitle) {
+      title=adtrack.status_extra.buttonTitle;
     }
 
-//    if (deactivate_current == true){
-//      $(selector).after('<tr><td>'+count+'</td><td>'+adtrack.category+'</td><td>'+adtrack.service_name+'</td><td><div class=" button '+"allowed"+'" data-service_name="'+adtrack.service_name+'" data-category="'+adtrack.category+'" data-status="'+"false"+'">'+"ALLOWED"+'</div></td></tr>');
-//    }
-//    else{
-      $(selector).after('<tr><td>'+count+'</td><td>'+adtrack.category+'</td><td>'+adtrack.service_name+'</td><td><div title="'+title+'" style="'+trading_style+'" class="'+(deactivate_current?'':'btnAdtrack')+' button '+data_status_value.toLowerCase()+'" data-service_name="'+adtrack.service_name+'" data-category="'+adtrack.category+'" data-status="'+data_status+'">'+data_status_text+'</div></td></tr>');
-//    } 
+    $(selector).after('<tr><td>'+count+'</td><td>'+adtrack.category+'</td><td>'+adtrack.service_name+'</td><td><div title="'+title+'" style="'+trading_style+'" class="'+(deactivate_current?'':'btnAdtrack')+' button '+data_status_value.toLowerCase()+'" data-service_name="'+adtrack.service_name+'" data-category="'+adtrack.category+'" data-status="'+data_status+'">'+data_status_text+'</div></td></tr>');
 
     i++;
   }
@@ -705,7 +701,15 @@ function onEvents(DOMAIN, TAB)
       localStorage.share_search = share_search;
 
       //console.log('visualizar '+share_search);
-      renderOptions(TAB);
+//      renderOptions(TAB);
+      
+      const ID = TAB.id;
+      
+      TABS.reload(ID);
+      
+      // Temp fix closing window so it will render new stats when opening again.
+      window.close();
+      
     });
 
     // Event click button "blocked / allowed"
@@ -732,6 +736,47 @@ function onEvents(DOMAIN, TAB)
 //      onLoad();
 
       event.preventDefault();
+    });
+    
+    // Reset preferences for all sites / clear whitelist
+    $('#reset_site_pref').on('click', function() { 
+      
+      
+      if (confirm("Do you want to reset preferences for all the sites?")) {
+        resetEntireWhitelist();
+        
+        alert("Local whitelist has been reset!");
+        
+        const ID = TAB.id;
+      
+        syncWhitelist();
+
+        TABS.reload(ID);
+
+        // Temp fix closing window so it will render new stats when opening again.
+        window.close();
+        
+        event.preventDefault();
+        
+        return false;
+        
+      }
+      
+    });
+    
+    $('#btnAdvancedSettings').on('click', function() { 
+      $('#body .body_main').hide();
+      $('#footer').hide();
+      $('#body .body_advanced_settings').show();
+      event.preventDefault();
+      return false;
+    });
+    $('#btnAdvancedSettings_return').on('click', function() { 
+      $('#body .body_main').show();
+      $('#footer').show();
+      $('#body .body_advanced_settings').hide();
+      event.preventDefault();
+      return false;
     });
 
     // Event click button "BECOME A MEMBER"

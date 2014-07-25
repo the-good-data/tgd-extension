@@ -110,7 +110,7 @@ function incrementCounter(tabId, service, blocked) {
 }
 
 const SOCIAL_SERVICES = ['Facebook','Twitter'];
-const TRADED_SERVICES = ['Doubleclick','Chango','Pubmatic','adxhm','eBay','Fox One Stop Media','Federated Media','eXelate','Casale Media','LiveIntent','Improve Digital','Criteo','Rapleaf','AudienceManager','OpenX','Twitter','AOL','AddThis','AppNexus','Facebook','LiveRail','BrightRoll','Skimlinks','SpotXchange','adBrite','CONTEXTWEB','rmxregateKnowledge','Adap.tv'];
+const TRADED_SERVICES = ['Doubleclick','Chango','Pubmatic','adxhm','eBay','Fox One Stop Media','Federated Media','eXelate','Casale Media','LiveIntent','Improve Digital','Criteo','Rapleaf','AudienceManager','OpenX','AOL','AddThis','AppNexus','LiveRail','BrightRoll','Skimlinks','SpotXchange','adBrite','CONTEXTWEB','rmxregateKnowledge','Adap.tv'];
 const SEARCHS_DOMAINS = ['google.com','bing.com','yahoo.com'];
 
 const ADTRACKS = {};
@@ -139,6 +139,9 @@ const REQUEST_COUNTS = {};
 
 /* The content key. */
 const CONTENT_NAME = 'Content';
+
+/* The content key. */
+const SOCIAL_NAME = 'Social';
 
 /* The "tabs" API. */
 const TABS = chrome.tabs;
@@ -227,11 +230,13 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
   var hardened;
   var blockingResponse = {cancel: false};
   var whitelisted;
+  var adtrack_status_extra={};
 
   if (childService) {
     
     log_if_enabled("");
     log_if_enabled("===================== INTERCEPTING REQUEST =====================");
+    log_if_enabled("Share search: "+castBool(localStorage.share_search));
     log_if_enabled(REQUESTED_URL);
     
     // Set up our provider    
@@ -240,50 +245,20 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
     const CHILD_NAME = childService.name;
     const REDIRECT_SAFE = REQUESTED_URL != REQUESTS[TAB_ID];
     
-    log_if_enabled("Parent [Domain: "+PARENT_DOMAIN+"] Child [Domain: "+CHILD_DOMAIN+" category: "+childService.category+" name: "+childService.name+" url: "+childService.url+ "]");
+    log_if_enabled("Parent [Domain: "+PARENT_DOMAIN+"] "+(PARENT_SERVICE?"category: "+PARENT_SERVICE.category+" name: "+PARENT_SERVICE.name+" url: "+PARENT_SERVICE.url+ "]":" - unknown parent service"));
+    log_if_enabled("Child [Domain: "+CHILD_DOMAIN+" category: "+childService.category+" name: "+childService.name+" url: "+childService.url+ "]");
 
     var allow_social = castBool(localStorage.allow_social);
     
     var item_whitelist_status=((deserialize(localStorage.whitelist) || {})[PARENT_DOMAIN] || {})[CHILD_NAME+':'+childService.category];
     
-    // Facebook + Share Search Enabled
-    if (PARENT_DOMAIN == 'facebook.com' && childService.name == 'Facebook' && localStorage.share_search)
-    {
-      log_if_enabled("BLOCK A");
-      whitelisted = true;
-    }
-    // Twitter + Share Search Enabled
-    else if (PARENT_DOMAIN == 'twitter.com' && childService.name == 'Twitter' && localStorage.share_search)
-    {
-      log_if_enabled("BLOCK B");
-      whitelisted = true;
-    }
-    // Why do we share Doubleclick like Facebook/Twitter?
-    else if (childService.name == 'Doubleclick' && localStorage.share_search)
-    {
-      log_if_enabled("BLOCK C");
-      whitelisted = true;
-    }
-    // Services that we trade and Content services by default are allowed, if they were not manually blocked.
-//    else if ( ((contains(TRADED_SERVICES,childService.name) || childService.category==CONTENT_NAME) &&  (item_whitelist_status==undefined||item_whitelist_status) )        && childService.name != 'Facebook' && childService.name != 'Twitter' )
-    else if ((contains(TRADED_SERVICES,childService.name) || childService.category==CONTENT_NAME) && (item_whitelist_status==undefined||item_whitelist_status))
-    {
-      
-      log_if_enabled("BLOCK D");
-      whitelisted = true;
-      
-      log_if_enabled(item_whitelist_status);
-            
-    }
-    else  if (contains(SOCIAL_SERVICES,childService.name) && allow_social)
-    {
-      log_if_enabled("BLOCK E");
-      whitelisted = true;
-    }
-    else if (
+    
+    
+    // The request is allowed: the topmost frame has the same origin.
+    if (
       PARENT || !PARENT_DOMAIN || CHILD_DOMAIN == PARENT_DOMAIN ||
           PARENT_SERVICE && CHILD_NAME == PARENT_SERVICE.name 
-    ) { // The request is allowed: the topmost frame has the same origin.
+    ) { 
       if (REDIRECT_SAFE) {
         hardenedUrl = harden(REQUESTED_URL);
         hardened = hardenedUrl.hardened;
@@ -291,9 +266,48 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
         if (hardened) blockingResponse = {redirectUrl: hardenedUrl};
       }
       log_if_enabled("BLOCK F");
-    } else if ((
+      
+    }
+    
+    // Trading services
+    else if (( (castBool(localStorage.share_search) && contains(TRADED_SERVICES,childService.name)) ) && (item_whitelist_status==undefined||item_whitelist_status))
+    {
+      
+      log_if_enabled("BLOCK TRADING");
+      whitelisted = true;
+      
+      log_if_enabled(item_whitelist_status);
+      
+      adtrack_status_extra.statusText='TRADING';
+      adtrack_status_extra.buttonStyle='background-color: #FCC34A';
+      adtrack_status_extra.buttonTitle=childService.name+' is automatically allowed for trading.';
+            
+    }
+    
+    // Content, allowed by default
+    else if (childService.category==CONTENT_NAME && (item_whitelist_status==undefined||item_whitelist_status))
+    {
+      
+      log_if_enabled("BLOCK CONTENT");
+      whitelisted = true;
+      
+      log_if_enabled(item_whitelist_status);
+      
+      adtrack_status_extra.buttonTitle=childService.name+' is automatically allowed for trading.';
+      
+    }
+    
+    // Service is in Social list, and Allow Social button is ON but check whitelisted status
+    else if (childService.category==SOCIAL_NAME && allow_social  && (item_whitelist_status==undefined||item_whitelist_status))
+    {
+      log_if_enabled("BLOCK E");
+      whitelisted = true;
+    }
+    
+    // The request is allowed: the service is whitelisted.
+    else if ((
       (deserialize(localStorage.whitelist) || {})[PARENT_DOMAIN] || {}
-    )[CHILD_NAME+':'+childService.category]) { // The request is allowed: the service is whitelisted.
+    )[CHILD_NAME+':'+childService.category]) { 
       log_if_enabled("BLOCK G");
       if (REDIRECT_SAFE) {
         hardenedUrl = harden(REQUESTED_URL);
@@ -313,7 +327,9 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
     else 
     {
       log_if_enabled("BLOCK H");
-
+      
+      
+      // Deactivated tab
       if (isDeactivateCurrent(PARENT_DOMAIN,TAB_ID))
       {
         log_if_enabled("BLOCK H-A");
@@ -374,20 +390,13 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
         'url':details.url,
         'usertime': localtime.format("yyyy-mm-dd HH:MM:ss"),
         'status':status,
+        'status_extra': adtrack_status_extra
       };
 
-      log_if_enabled(childService.category);
-      if (childService.category == 'Content'){
-        log_if_enabled('===========================>');
-        log_if_enabled(adtrack);
-        log_if_enabled('===========================>');
-      }
-
-      if (DEBUG && DEBUG_ADTRACK){
+      if (true || DEBUG_ADTRACK){
         log_if_enabled('ADTRACK DETECTADA');
         log_if_enabled('===========================');
         log_if_enabled(adtrack);
-
         log_if_enabled('===========================');
         log_if_enabled('')
       }

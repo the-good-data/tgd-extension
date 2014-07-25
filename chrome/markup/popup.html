@@ -103,88 +103,125 @@ Authors (one per line):
       </header>
 
       <div id="body">
-        <section id="evil-data">
-          <div class="title-more">
-            <div class="title">EVIL DATA</div>
-            <div class="more"><a id="moreStats" class="more-inner" href="#" data-target="evilData">MORE STATS</a></div>
-          </div>
-
-          <div class="content">
-            <p>
-              <span id="layer_adtracks_count" class="red">0</span> threats found on this page
-              <button id="btnExpandAdtracks" class="button single-char collapsed fa fa-plus"></button>
-            </p>
-
-            <div id="layer_adtracks_expand" style="display:none">
-              <table id="layer_adtracks" cellspacing="0">
-                <thead>
-                <tr>
-                  <th>#</th>
-                  <th>TYPE</th>
-                  <th>NAME</th>
-                  <th>STATUS</th>
-                </tr>
-                </thead>
-                <tbody>
-                  <!-- To be filled-in by the extension -->
-                </tbody>
-              </table>
+        
+        <div class="body_main">
+          <section id="evil-data">
+            <div class="title-more">
+              <div class="title">EVIL DATA</div>
+              <div class="more"><a id="moreStats" class="more-inner" href="#" data-target="evilData">MORE STATS</a></div>
             </div>
-          </div>
-        </section> <!-- id="evil-data" -->
 
-        <section id="good-data">
-          <div class="title-more">
-            <div class="title">GOOD DATA</div>
-            <div class="more"><a id="moreAchievements" class="more-inner" href="#" data-target="goodData">MORE ACHIEVEMENTS</a></div>
-          </div>
+            <div class="content">
+              <p>
+                <span id="layer_adtracks_count" class="red">0</span> threats found on this page
+                <button id="btnExpandAdtracks" class="button single-char collapsed fa fa-plus"></button>
+              </p>
 
-          <div class="content">
-            <p>
-              <span id="layer_loans_value" class="green">0</span> projects funded with your help
-              <a id="moreProjects" href="" target="_blank" class="button single-char share fa fa-plus"></a>
-            </p>
-            <!--<button class="button add">&nbsp;</button><br><br>
-              <div id="layer_loans_expand"> 
-              <table id="layer_loans_more" cellspacing="0">
-              <tbody>
-                <tr>
-                    <th>PROJECTS</th>
-                    <th>COUNTRIES</th>
-                    <th>INVESTED</th>
-                </tr>
-              </tbody>
-              </table>
+              <div id="layer_adtracks_expand" style="display:none">
+                <table id="layer_adtracks" cellspacing="0">
+                  <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>TYPE</th>
+                    <th>NAME</th>
+                    <th>STATUS</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                    <!-- To be filled-in by the extension -->
+                  </tbody>
+                </table>
               </div>
-            -->
-          </div>
-        </section> <!-- id="good-data" -->
+            </div>
+          </section> <!-- id="evil-data" -->
 
-        <section id="level">
-          <div class="title-more">
-            <div class="title" id="layer_usertype_title">APPRENTICE</div>
-            <div class="more"><a id="moreAboutYou" class="more-inner" href="#" data-target="userData">MORE ABOUT YOU</a></div>
-          </div>
+          <section id="good-data">
+            <div class="title-more">
+              <div class="title">GOOD DATA</div>
+              <div class="more"><a id="moreAchievements" class="more-inner" href="#" data-target="goodData">MORE ACHIEVEMENTS</a></div>
+            </div>
 
-          <div class="content">
-            <img id="layer_usertype_image" src="../images/apprentice.png" class="icon apprentice" />
-            <p>
-              You've contributed with 
-              <span class="green" id="layer_achievement_contributions">0</span>
-              <span class="green"> pieces</span> 
-              of data this month.
-              <button id="button_delete_stored_data" class="button delete deleteQueries">delete stored data</button>
-            </p>
-          </div>    
-          <ul class="content-options">
-            <li>
-              <button id="layer_config_store_navigation" class="btnStoreNavigation button"></button>Store navigation and non-sensitive queries
-            </li>
-            <li>
-              <button id="layer_config_share_search" class="btnShareSearch button"></button>Trade non-sensitive queries anonymously
-            </li>
-          </ul>
-        </section><!-- id="level" -->
+            <div class="content">
+              <p>
+                <span id="layer_loans_value" class="green">0</span> projects funded with your help
+                <a id="moreProjects" href="" target="_blank" class="button single-char share fa fa-plus"></a>
+              </p>
+              <!--<button class="button add">&nbsp;</button><br><br>
+                <div id="layer_loans_expand"> 
+                <table id="layer_loans_more" cellspacing="0">
+                <tbody>
+                  <tr>
+                      <th>PROJECTS</th>
+                      <th>COUNTRIES</th>
+                      <th>INVESTED</th>
+                  </tr>
+                </tbody>
+                </table>
+                </div>
+              -->
+            </div>
+          </section> <!-- id="good-data" -->
+
+          <section id="level">
+            <div class="title-more">
+              <div class="title" id="layer_usertype_title">APPRENTICE</div>
+              <div class="more"><a id="moreAboutYou" class="more-inner" href="#" data-target="userData">MORE ABOUT YOU</a></div>
+            </div>
+
+            <div class="content">
+              <img id="layer_usertype_image" src="../images/apprentice.png" class="icon apprentice" />
+              <p>
+                You've contributed with 
+                <span class="green" id="layer_achievement_contributions">0</span>
+                <span class="green"> pieces</span> 
+                of data this month.
+                <button id="button_delete_stored_data" class="button delete deleteQueries">delete stored data</button>
+              </p>
+            </div>    
+            <ul class="content-options">
+              <li>
+                <button id="layer_config_store_navigation" class="btnStoreNavigation button"></button>Store navigation and non-sensitive queries
+              </li>
+              <li>
+                <button id="layer_config_share_search" class="btnShareSearch button"></button>Trade non-sensitive queries anonymously
+              </li>
+            </ul>
+          </section><!-- id="level" -->
+        </div>
+        
+        <div class="body_advanced_settings" style="display: none;">
+          <section id="advanced-settings">
+            <div class="title-more">
+              <div class="title"><span style="background: #fff;">ADVANCED SETTINGS</span></div>
+            </div>
+
+            <div class="content">
+              <p>
+                Site preferences
+                <button class="button off" id="reset_site_pref">Reset all preferences</button>
+              </p>
+              <p style="text-align: center; padding: 30px 0">
+                
+                <button id="btnAdvancedSettings_return" class="button off" style="width: auto;">
+                  Return to main panel
+                </button>
+                
+              </p>
+            </div>
+          </section>
+        </div>
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
       </div>
 
       <footer id="footer" class="clearfix">
@@ -205,7 +242,15 @@ Authors (one per line):
                 Report a problem
               </a>
             </li>
+            <li>
+              <button id="btnAdvancedSettings" class="button off" style="width: auto; margin-left: 39px;">
+                Advanced settings
+              </button>
+            </li>
           </ul>
+          
+          
+          
         </div>
 
         <div id="in-love">
@@ -224,6 +269,8 @@ Authors (one per line):
 
         </div>
       </footer>
+      
+      
 
     </section><!-- id="content" -->
   </div>

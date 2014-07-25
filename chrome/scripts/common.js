@@ -206,6 +206,13 @@ function getDomainName(data)
   return a.hostname;
 }
 
+// Reset entire whitelist
+function resetEntireWhitelist(){
+  const WHITELIST = {};
+  const SITE_WHITELIST = {};
+  localStorage.whitelist = JSON.stringify(WHITELIST);
+}
+
 //Add services to whitelist
 function addWhitelist(DOMAIN,service_name, category, status){
   const WHITELIST = deserialize(localStorage.whitelist) || {};
