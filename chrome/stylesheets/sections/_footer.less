@@ -55,10 +55,16 @@ footer#footer {
     }
   }
   .email-us {
-    color: white;
+    font-family: @font-regular;
+    font-size:11px;
+    padding-left: 0;
+    padding-right: 0;
+    color: @gray;
     width: 100%;
-    background-color: @tgd-yellow;
+    background-color: transparent;
     text-decoration: none;
-    text-transform: uppercase;
+    &:hover{
+      text-decoration: underline;
+    }
   }
 }
