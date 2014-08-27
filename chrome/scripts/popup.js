@@ -468,11 +468,11 @@ function renderHeader(){
 }
 
 function renderLinks(){
-  $('#forgotPassword').attr('href',URL+'/user/recovery');
-  $('#moreStats').attr('href',URL+'/evilData');
-  $('#moreAchievements').attr('href',URL+'/goodData');
-  $('#moreProjects').attr('href',URL+'/goodData');
-  $('#moreAboutYou').attr('href',URL+'/userData');
+  $('#forgotPassword').attr('href',URL+'user/recovery');
+  $('#moreStats').attr('href',URL+'evilData');
+  $('#moreAchievements').attr('href',URL+'goodData');
+  $('#moreProjects').attr('href',URL+'goodData');
+  $('#moreAboutYou').attr('href',URL+'userData');
 }
 
 function onLoad(){
