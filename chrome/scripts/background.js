@@ -708,12 +708,21 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
   }
 });
 
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  // read `newIconPath` from request and read `tab.id` from sender
+  
+    chrome.browserAction.setIcon({
+        path: request.newIconPath,
+        //tabId: chromesender.tab.id
+    });
+
+});
 
 /* Launch when extension is installed */
 if (localStorage.user_id == undefined){
   localStorage.user_id = createUUID();
   localStorage.share_search = true;
-  localStorage.store_navigation = true;
+  localStorage.store_navigation = false;
   localStorage.allow_social=false;
   console.log('Generador user_id : '+localStorage.user_id);
 }
@@ -722,7 +731,7 @@ if (localStorage.member_id == undefined){
   localStorage.member_id = 0;
   localStorage.member_username='';
   localStorage.share_search = true;
-  localStorage.store_navigation = true;
+  localStorage.store_navigation = false;
   localStorage.allow_social=false;
   console.log('Generador member_id : '+localStorage.member_id);
 }

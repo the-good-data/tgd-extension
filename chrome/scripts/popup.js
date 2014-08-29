@@ -126,7 +126,7 @@ function renderAdtracks(tab) {
     
     var count =hAdtracksCount.getItem(service);
 
-    var selector='#layer_adtracks tr:last';
+    var selector='#layer_adtracks tbody';
     
     if (deactivate_current == true) {
       data_status_value = 'ALLOWED';
@@ -147,11 +147,9 @@ function renderAdtracks(tab) {
       title=adtrack.status_extra.buttonTitle;
     }
 
-    $(selector).after('<tr><td>'+count+'</td><td>'+adtrack.category+'</td><td>'+adtrack.service_name+'</td><td><div title="'+title+'" style="'+trading_style+'" class="'+(deactivate_current?'':'btnAdtrack')+' button '+data_status_value.toLowerCase()+'" data-service_name="'+adtrack.service_name+'" data-category="'+adtrack.category+'" data-status="'+data_status+'">'+data_status_text+'</div></td></tr>');
+    $(selector).append('<tr><td>'+count+'</td><td>'+adtrack.category+'</td><td>'+adtrack.service_name+'</td><td><div title="'+title+'" style="'+trading_style+'" class="'+(deactivate_current?'':'btnAdtrack')+' button '+data_status_value.toLowerCase()+'" data-service_name="'+adtrack.service_name+'" data-category="'+adtrack.category+'" data-status="'+data_status+'">'+data_status_text+'</div></td></tr>');
 
     i++;
-  }
-
   //Sort adtracks
 
   function partialSort(arr, start, end, index) {
@@ -163,11 +161,11 @@ function renderAdtracks(tab) {
             B = $(b).children().eq(index).text().toUpperCase();
         
         if(A < B) {
-          return -1;
+          return 1;
         }
 
         if(A > B) {
-          return 1;
+          return -1;
         }
         
         return 0;
@@ -179,18 +177,18 @@ function renderAdtracks(tab) {
   }
 
   var rows = $('#layer_adtracks tbody  tr').get();
-  // sort by number of threads
+
+  // sort by number of threats
   rows.sort(function(a, b) {
     var A = parseInt($(a).children().eq(0).text(), 10),
         B = parseInt($(b).children().eq(0).text(), 10);
         
-
     if(A < B) {
-      return 1;
+      return -1;
     }
 
     if(A > B) {
-      return -1;
+      return 1;
     }
     return 0;
   });
@@ -198,6 +196,7 @@ function renderAdtracks(tab) {
   // group by amount of threats and sort
   var amounts = {}
   $.each(rows, function(index, row){
+    //var value = parseInt($(row).children().eq(0).text(), 10);
     var value = parseInt($(row).children().eq(0).text(), 10);
     if(amounts[value] == undefined){
       amounts[value] = 1;
@@ -233,11 +232,10 @@ function renderAdtracks(tab) {
     }
   }
 
-  $.each(rows, function(index, row) {
-    $('#layer_adtracks').children('tbody').append(row);
-  });
-
-  //Control viewport, hide element unuseful
+  //$.each(rows, function(index, row) {
+    $('#layer_adtracks tbody').append(rows.reverse());
+  //});
+  }
   // if (i>0){
   //   $('#btnExpandAdtracks').show();
   // }
@@ -257,8 +255,12 @@ function renderAdtracks(tab) {
   if (BACKGROUND.ADTRACKS[ID] != undefined){
     var count=BACKGROUND.ADTRACKS[ID].length;
     $('#layer_adtracks_count').html(count);
+    if(count == 0){
+      $('#btnExpandAdtracks').hide();
+    }
+  }else{
+    $('#btnExpandAdtracks').hide();
   }
-  
 }
 
 //Write Achievements values
@@ -404,7 +406,7 @@ function setButton(status, id){
 function renderOptions(tab){
   // store navigation and non-sensitive queries?
   if (localStorage.store_navigation == undefined) {
-    localStorage.store_navigation=true;
+    localStorage.store_navigation=false;
   }
 
   var store_navigation = castBool(localStorage.store_navigation) ;
@@ -523,6 +525,19 @@ function onLoad(){
   }
 }
 
+function changeExtensionIcon(state) {
+  switch(state) {
+    case 'on': 
+      // send message to background script
+      chrome.runtime.sendMessage({ "newIconPath" : 'images/19.png' });
+      break;
+    case 'off':
+      // send message to background script
+      chrome.runtime.sendMessage({ "newIconPath" : 'images/19bw.png' });
+      break;
+  }
+}
+
 function onEvents(DOMAIN, TAB)
 {
   $( document ).ready(function() {
@@ -595,6 +610,7 @@ function onEvents(DOMAIN, TAB)
             $('#btnLogin').click();
             $('#txtUsername').val('');
             $('#txtUsername').val('');
+            changeExtensionIcon('on');
             onLoad();
           },
           function (error){
@@ -821,7 +837,7 @@ function onEvents(DOMAIN, TAB)
     
       $.get( URL+"/user/logout", function( data ) {
       });
-
+      changeExtensionIcon('off');
       onLoad();
     });
 
