@@ -38,7 +38,7 @@
     ]
   },
   "browser_action": {
-    "default_icon": "images/19.png",
+    "default_icon": "images/19bw.png",
     "default_title": "Enjoy your data"
   },
   "content_scripts": [{
