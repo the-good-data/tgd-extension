@@ -756,44 +756,103 @@ function onEvents(DOMAIN, TAB)
     
     // Reset preferences for all sites / clear whitelist
     $('#reset_site_pref').on('click', function() { 
-      
-      
-      if (confirm("Do you want to reset preferences for all the sites?")) {
+      // if the user had chosen not to receive confirmation
+      if(castBool(localStorage.ask_confirmation) == false){
+        var $buttons = $('#confirmation .buttons'),
+            $confirmation = $('#confirmation');
+
         resetEntireWhitelist();
-        
-        alert("Local whitelist has been reset!");
-        
+
+        // hide the buttons divs and move the confirmation to the left
+        $buttons.hide();
+        $confirmation.css({left: "-314px"}).slideDown({
+          complete: function() {
+            setTimeout(function(){
+              // slide up and restore
+              $confirmation.slideUp({
+                complete: function() {
+                  // restore buttons div an confirmation div to their original state
+                  $buttons.show();
+                  $confirmation.css({left: "0px"});
+                }
+              });
+            },2000);
+          }
+        });
+
+
         const ID = TAB.id;
-      
         syncWhitelist();
-
         TABS.reload(ID);
-
-        // Temp fix closing window so it will render new stats when opening again.
-        window.close();
-        
-        event.preventDefault();
-        
-        return false;
-        
+        // window.close(); TODO: necessary?
+        return;
       }
+
+      $('#confirmation').slideDown();
       
+      // if (confirm("Do you want to reset preferences for all the sites?")) {
+      //   resetEntireWhitelist();
+        
+      //   alert("Local whitelist has been reset!");
+        
+      //   const ID = TAB.id;
+      
+      //   syncWhitelist();
+
+      //   TABS.reload(ID);
+
+      //   // Temp fix closing window so it will render new stats when opening again.
+      //   window.close();
+        
+      //   event.preventDefault();
+        
+      //   return false;
+        
+      // }
+      
+    });
+
+    // cancel resetting preferences
+    $('#reset_pref_cancel').on('click', function() {
+      $('#confirmation').slideUp();
+    });
+
+    // accept resetting preferences
+    $('#reset_pref_ok').on('click', function() {
+      resetEntireWhitelist();
+      $('#confirmation').animate({left: "-314px"});
     });
     
-    $('#btnAdvancedSettings').on('click', function() { 
-      $('#body .body_main').hide();
-      $('#footer').hide();
-      $('#body .body_advanced_settings').show();
-      event.preventDefault();
-      return false;
+
+    $('#reset_alert_ok').on('click', function() {
+      localStorage.ask_confirmation = ($('#ask_confirmation:checked').val() == 1)?false:true;
+
+      $('#confirmation').slideUp({
+        complete: function() {
+           $('#confirmation').animate({left: "0px"});
+        }
+      });
+     
+      const ID = TAB.id;
+      syncWhitelist();
+      TABS.reload(ID);
+      // window.close(); TODO: necessary?
     });
-    $('#btnAdvancedSettings_return').on('click', function() { 
-      $('#body .body_main').show();
-      $('#footer').show();
-      $('#body .body_advanced_settings').hide();
-      event.preventDefault();
-      return false;
-    });
+
+    // $('#btnAdvancedSettings').on('click', function() { 
+    //   $('#body .body_main').hide();
+    //   $('#footer').hide();
+    //   $('#body .body_advanced_settings').show();
+    //   event.preventDefault();
+    //   return false;
+    // });
+    // $('#btnAdvancedSettings_return').on('click', function() { 
+    //   $('#body .body_main').show();
+    //   $('#footer').show();
+    //   $('#body .body_advanced_settings').hide();
+    //   event.preventDefault();
+    //   return false;
+    // });
 
     // Event click button "BECOME A MEMBER"
     $('#become-member').click(function(){
@@ -842,15 +901,10 @@ function onEvents(DOMAIN, TAB)
     });
 
     // Event click on any link
-    $('body a').not('.more-inner').click(function(){
+    $('body a').click(function(){
       TABS.create({url: this.getAttribute('href')});
       return false;
     });
-
-    $('.more a').click(function(){
-      TABS.create({url: URL + '/' + $(this).data('target')});
-      return false;
-    })
 
     // Activate tooltips for sing-in sign-out buttons
     $('#btnLogin, #btnLogout').tooltip();

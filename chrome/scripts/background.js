@@ -724,6 +724,7 @@ if (localStorage.user_id == undefined){
   localStorage.share_search = true;
   localStorage.store_navigation = false;
   localStorage.allow_social=false;
+  localStorage.ask_confirmation = true;
   console.log('Generador user_id : '+localStorage.user_id);
 }
 
@@ -733,5 +734,6 @@ if (localStorage.member_id == undefined){
   localStorage.share_search = true;
   localStorage.store_navigation = false;
   localStorage.allow_social=false;
+  localStorage.ask_confirmation = true;
   console.log('Generador member_id : '+localStorage.member_id);
 }

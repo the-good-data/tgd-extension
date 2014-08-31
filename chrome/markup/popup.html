@@ -77,7 +77,7 @@ Authors (one per line):
     </section><!-- id="login" -->
 
     <!-- Main content section -->
-    <section id="content">
+    <section id="content" style="overflow-x: hidden;">
 
       <header id="header">
         <!-- welcome for anonymous -->
@@ -212,22 +212,22 @@ Authors (one per line):
           </section>
         </div>
         -->
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
       </div>
-
-      <footer id="footer" class="clearfix">
-
+      <div id="confirmation" class="hidden">
+        <div class="message">Do you want to reset preferences for all the sites?
+          <div class="buttons">
+            <button id="reset_pref_ok" class="button btnResetPref off">OK</button>
+            <button id="reset_pref_cancel" class="button btnCancel off">CANCEL</button>
+          </div>
+        </div>
+        <div class="alert">Local whitelist has been reset!
+          <div class="buttons">
+            <label><input type="checkbox" id="ask_confirmation" value="1">do not ask for confirmation again</label>
+            <button id="reset_alert_ok" class="button btnResetPref off" style="float:right;">OK</button>
+          </div>
+        </div>
+      </div>
+      <footer id="footer" class="clearfix" style="overflow-x:hidden;">
         <div id="not-working">
           <h2>Not working properly?</h2>
           <ul class="content-options">
