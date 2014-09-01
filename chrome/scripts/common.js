@@ -722,32 +722,29 @@ function SaveBrowsing(browsing){
       if (xhr.readyState == 4) {
         // WARNING! Might be evaluating an evil script!
         
-        if (DEBUG && DEBUG_BROWSING){
-          var resp = JSON.parse(xhr.responseText);
-          console.log('BROWSING SALVADA EN EL API');
-          console.log('===========================');
-          console.log(resp);
-          console.log('===========================');
-          console.log('');
-        }
+        var resp = JSON.parse(xhr.responseText);
+        log_if_enabled('BROWSING SALVADA EN EL API','browsing');
+        log_if_enabled('===========================','browsing');
+        log_if_enabled(resp,'browsing');
+        log_if_enabled('===========================','browsing');
+        log_if_enabled('','browsing');
+        
 
         if ( xhr.status == 200)  {
-          if (DEBUG && DEBUG_BROWSING)
-            console.log(xhr.responseText);
+            log_if_enabled(xhr.responseText,'browsing');
         }
         else  {
-          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
+          log_if_enabled( "Error: " + xhr.status + ": " + xhr.statusText,'browsing');
         }
       }
   };
 
-  if (DEBUG && DEBUG_BROWSING){
-    console.log('BROWSING ENVIADA AL API');
-    console.log('===========================');
-    console.log(data);
-    console.log('===========================');
-    console.log('');
-  }
+    log_if_enabled('BROWSING ENVIADA AL API','browsing');
+    log_if_enabled('===========================','browsing');
+    log_if_enabled(data,'browsing');
+    log_if_enabled('===========================','browsing');
+    log_if_enabled('','browsing');
+  
 
   xhr.send(data);
 
@@ -1119,3 +1116,32 @@ function getDataFromQuery(requested_url, searchEngineName){
   
   return paramJSON;
 };
+
+// tool to parse url
+var parseUri_options = {
+    strictMode: false,
+    key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
+    q:   {
+            name:   "queryKey",
+            parser: /(?:^|&)([^&=]*)=?([^&]*)/g
+    },
+    parser: {
+            strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+            loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+    }
+};
+function parseUri(str) {
+    var	o   = parseUri_options,
+            m   = o.parser[o.strictMode ? "strict" : "loose"].exec(str),
+            uri = {},
+            i   = 14;
+
+    while (i--) uri[o.key[i]] = m[i] || "";
+
+    uri[o.q.name] = {};
+    uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
+            if ($1) uri[o.q.name][$1] = $2;
+    });
+
+    return uri;
+}

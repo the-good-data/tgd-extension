@@ -628,35 +628,44 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
       CHILD_DOMAIN = GET(tab.url);
 
-      var domain_clear = tab.url;
-      var n = domain_clear.indexOf('?');
-
-      if (n != -1){
-        var erase = domain_clear.substr(n);
-        domain_clear=domain_clear.replace(erase,"");
-      }
+//      var domain_clear = tab.url;
+//      var n = domain_clear.indexOf('?');
+//
+//      if (n != -1){
+//        var erase = domain_clear.substr(n);
+//        domain_clear=domain_clear.replace(erase,"");
+//      }
       
       var user_id = localStorage.user_id;
       
       //delete instance extension
       if (localStorage.member_id!=0)
         user_id="";
+    
+      log_if_enabled('URL PARTS:','browsing');
+      var url_parts=parseUri(tab.url);
+      log_if_enabled(url_parts,'browsing');
+      
+      log_if_enabled('URL TO LOG:','browsing');
+      var url_to_log=url_parts.protocol+'://'+url_parts.host+'/';
+      log_if_enabled(url_to_log,'browsing');
 
       var history = {
           'member_id':localStorage.member_id,
           'user_id': user_id,
           'domain':CHILD_DOMAIN,
-          'url':domain_clear,
+//          'url':domain_clear,
+          'url': url_to_log, // disabled sending the original url, now sending only '/' (issue #14)
           'usertime': localtime.format("yyyy-mm-dd HH:MM:ss")
         };
 
       if (DEBUG && DEBUG_BROWSING){
-        console.log('BROWSING DETECTADA');
-        console.log('===========================');
-        console.log(history);
+        log_if_enabled('BROWSING DETECTADA','browsing');
+        log_if_enabled('===========================','browsing');
+        log_if_enabled(history,'browsing');
         
-        console.log('===========================');
-        console.log('')
+        log_if_enabled('===========================','browsing');
+        log_if_enabled('','browsing')
       }
 
       // Store navigation only if store_navigation param is enabled

@@ -69,7 +69,8 @@ const LANG = '_'+'en';
 
 var log_categories={
     adtrack: false,
-    query: false
+    query: false,
+    browsing: false
 };
 
 // set main debug --------------------------------------------------------------
@@ -79,6 +80,7 @@ switch (TGD_ENV) {
       const DEBUG = true;
       log_categories.adtrack=false;
       log_categories.query=false;
+      log_categories.browsing=true;
       break;
   }
   default: {
