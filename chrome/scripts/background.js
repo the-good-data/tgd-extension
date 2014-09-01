@@ -209,9 +209,12 @@ false && INSTANT_ENABLED.get({}, function(details) {
       });
 });
 
-function log_if_enabled(msg) {
+function log_if_enabled(msg, category) {
   if (DEBUG) {
-    console.log(msg);
+      if (category && log_categories[category] === false) {
+          return;
+      }
+      console.log(msg);
   }
 }
 
@@ -234,10 +237,10 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
 
   if (childService) {
     
-    log_if_enabled("");
-    log_if_enabled("===================== INTERCEPTING REQUEST =====================");
-    log_if_enabled("Share search: "+castBool(localStorage.share_search));
-    log_if_enabled(REQUESTED_URL);
+    log_if_enabled("", "adtrack");
+    log_if_enabled("===================== INTERCEPTING REQUEST =====================", "adtrack");
+    log_if_enabled("Share search: "+castBool(localStorage.share_search), "adtrack");
+    log_if_enabled(REQUESTED_URL, "adtrack");
     
     // Set up our provider    
     const PARENT_DOMAIN = DOMAINS[TAB_ID];
@@ -245,8 +248,8 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
     const CHILD_NAME = childService.name;
     const REDIRECT_SAFE = REQUESTED_URL != REQUESTS[TAB_ID];
     
-    log_if_enabled("Parent [Domain: "+PARENT_DOMAIN+"] "+(PARENT_SERVICE?"category: "+PARENT_SERVICE.category+" name: "+PARENT_SERVICE.name+" url: "+PARENT_SERVICE.url+ "]":" - unknown parent service"));
-    log_if_enabled("Child [Domain: "+CHILD_DOMAIN+" category: "+childService.category+" name: "+childService.name+" url: "+childService.url+ "]");
+    log_if_enabled("Parent [Domain: "+PARENT_DOMAIN+"] "+(PARENT_SERVICE?"category: "+PARENT_SERVICE.category+" name: "+PARENT_SERVICE.name+" url: "+PARENT_SERVICE.url+ "]":" - unknown parent service"), "adtrack");
+    log_if_enabled("Child [Domain: "+CHILD_DOMAIN+" category: "+childService.category+" name: "+childService.name+" url: "+childService.url+ "]", "adtrack");
 
     var allow_social = castBool(localStorage.allow_social);
     
@@ -265,7 +268,7 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
         hardenedUrl = hardenedUrl.url;
         if (hardened) blockingResponse = {redirectUrl: hardenedUrl};
       }
-      log_if_enabled("BLOCK F");
+      log_if_enabled("BLOCK F", "adtrack");
       
     }
     
@@ -273,10 +276,10 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
     else if (( (castBool(localStorage.share_search) && contains(TRADED_SERVICES,childService.name)) ) && (item_whitelist_status==undefined||item_whitelist_status))
     {
       
-      log_if_enabled("BLOCK TRADING");
+      log_if_enabled("BLOCK TRADING", "adtrack");
       whitelisted = true;
       
-      log_if_enabled(item_whitelist_status);
+      log_if_enabled(item_whitelist_status, "adtrack");
       
       adtrack_status_extra.statusText='TRADING';
       adtrack_status_extra.buttonStyle='background-color: #FCC34A';
@@ -288,10 +291,10 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
     else if (childService.category==CONTENT_NAME && (item_whitelist_status==undefined||item_whitelist_status))
     {
       
-      log_if_enabled("BLOCK CONTENT");
+      log_if_enabled("BLOCK CONTENT", "adtrack");
       whitelisted = true;
       
-      log_if_enabled(item_whitelist_status);
+      log_if_enabled(item_whitelist_status, "adtrack");
       
       adtrack_status_extra.buttonTitle=childService.name+' is automatically allowed for trading.';
       
@@ -300,7 +303,7 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
     // Service is in Social list, and Allow Social button is ON but check whitelisted status
     else if (childService.category==SOCIAL_NAME && allow_social  && (item_whitelist_status==undefined||item_whitelist_status))
     {
-      log_if_enabled("BLOCK E");
+      log_if_enabled("BLOCK E", "adtrack");
       whitelisted = true;
     }
     
@@ -308,31 +311,31 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
     else if ((
       (deserialize(localStorage.whitelist) || {})[PARENT_DOMAIN] || {}
     )[CHILD_NAME+':'+childService.category]) { 
-      log_if_enabled("BLOCK G");
+      log_if_enabled("BLOCK G", "adtrack");
       if (REDIRECT_SAFE) {
         hardenedUrl = harden(REQUESTED_URL);
         hardened = hardenedUrl.hardened;
         hardenedUrl = hardenedUrl.url;
-        log_if_enabled("hardened url: "+hardenedUrl);
+        log_if_enabled("hardened url: "+hardenedUrl, "adtrack");
         if (hardened) {
           blockingResponse = {redirectUrl: hardenedUrl};
-          log_if_enabled("BLOCK G-HARDENED");
+          log_if_enabled("BLOCK G-HARDENED", "adtrack");
         } else {
           whitelisted = true;
-          log_if_enabled("BLOCK G-WHITELISTED");
+          log_if_enabled("BLOCK G-WHITELISTED", "adtrack");
         }
       }
       
     } 
     else 
     {
-      log_if_enabled("BLOCK H");
+      log_if_enabled("BLOCK H", "adtrack");
       
       
       // Deactivated tab
       if (isDeactivateCurrent(PARENT_DOMAIN,TAB_ID))
       {
-        log_if_enabled("BLOCK H-A");
+        log_if_enabled("BLOCK H-A", "adtrack");
         whitelisted = true; 
 
         hardenedUrl = harden(REQUESTED_URL);
@@ -346,7 +349,7 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
       else
       {
         
-        log_if_enabled("BLOCK H-B");
+        log_if_enabled("BLOCK H-B", "adtrack");
 
         blockingResponse = {
           redirectUrl:
@@ -360,7 +363,7 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
 
     if (blockingResponse.redirectUrl || whitelisted) {
 
-      log_if_enabled("blockingResponse.redirectUrl || whitelisted");
+      log_if_enabled("blockingResponse.redirectUrl || whitelisted", "adtrack");
 
       var localtime = new Date();
       var status='blocked';
@@ -393,13 +396,12 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
         'status_extra': adtrack_status_extra
       };
 
-      if (true || DEBUG_ADTRACK){
-        log_if_enabled('ADTRACK DETECTADA');
-        log_if_enabled('===========================');
-        log_if_enabled(adtrack);
-        log_if_enabled('===========================');
-        log_if_enabled('')
-      }
+        log_if_enabled('ADTRACK DETECTADA', "adtrack");
+        log_if_enabled('===========================', "adtrack");
+        log_if_enabled(adtrack, "adtrack");
+        log_if_enabled('===========================', "adtrack");
+        log_if_enabled('', "adtrack")
+      
       SaveThreat(adtrack);
 
       if (ADTRACKS[TAB_ID] == undefined){
@@ -412,7 +414,7 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
     }
     
   } else {
-//    log_if_enabled("No Child Service detected. Requested Url: "+REQUESTED_URL);
+//    log_if_enabled("No Child Service detected. Requested Url: "+REQUESTED_URL, "adtrack");
   }
 
   REQUESTED_URL != REDIRECTS[TAB_ID] && delete REQUESTS[TAB_ID];
@@ -508,6 +510,8 @@ function lookforQuery(REQUESTED_URL)
 
 function extractSearch(searchEngineName,REQUESTED_URL)
 {
+    log_if_enabled('DETECTANDO QUERY','query');
+    
   var data = getDataFromQuery(REQUESTED_URL, searchEngineName);
   
   if (data != undefined && data.q != undefined )
@@ -542,12 +546,12 @@ function extractSearch(searchEngineName,REQUESTED_URL)
             if (castBool(localStorage.share_search) == true){
               share='true'
               chrome.tabs.executeScript(null, {file: 'scripts/provider.js'});
-              console.log('---> SCRIPT DE CHANGO');
+              log_if_enabled('---> SCRIPT DE CHANGO','query');
             }
             else
             {
               share='false';
-              console.log('---> BLOQUEADO SCRIPT DE CHANGO');
+              log_if_enabled('---> BLOQUEADO SCRIPT DE CHANGO','query');
             }
             
             var user_id = localStorage.user_id;
@@ -575,35 +579,34 @@ function extractSearch(searchEngineName,REQUESTED_URL)
               'usertime': localtime.format("yyyy-mm-dd HH:MM:ss")
             };
 
-            if (DEBUG && DEBUG_QUERY){
-              console.log('QUERY DETECTADA');
-              console.log('===========================');
-              console.log(query);
+              log_if_enabled('QUERY DETECTADA','query');
+              log_if_enabled('===========================','query');
+              log_if_enabled(query,'query');
               
-              console.log('===========================');
-              console.log('')
-            }
+              log_if_enabled('===========================','query');
+              log_if_enabled('','query')
+            
 
             if ( castBool(localStorage.store_navigation) )
             {
-              log_if_enabled('---> SALVADO QUERY');
+              log_if_enabled('---> SALVADO QUERY','query');
               SaveQuery(query);              
             }
             else
             {
-              log_if_enabled('---> BLOQUEADO SALVADO QUERY');
+              log_if_enabled('---> BLOQUEADO SALVADO QUERY','query');
             } 
            
           }
           else{
-            log_if_enabled('----> IMPOSIBLE CONTENIDO EN BLACKLIST');
+            log_if_enabled('----> IMPOSIBLE CONTENIDO EN BLACKLIST','query');
           }
 
         })
 
       }
       else{
-        log_if_enabled('----> IMPOSIBLE IDIOMA NO SOPORTADO');
+        log_if_enabled('----> IMPOSIBLE IDIOMA NO SOPORTADO','query');
       }
       
 
@@ -656,7 +659,10 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
         console.log('')
       }
 
-      SaveBrowsing(history);
+      // Store navigation only if store_navigation param is enabled
+      if ( castBool(localStorage.store_navigation) ) {
+          SaveBrowsing(history);
+      }
 
     }  
 });

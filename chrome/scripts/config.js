@@ -40,6 +40,10 @@ switch (TGD_ENV) {
       const TGD_API = "http://tgd.heavydots.com/";
       break;
   }
+  case "dev2": {
+      const TGD_API = "http://www.tgd.local/";
+      break;
+  }
   default: {
       const TGD_API = "https://www.thegooddata.org/";
   }
@@ -51,6 +55,10 @@ switch (TGD_ENV) {
       const URL = "http://tgd.heavydots.com/";
       break;
   }
+  case "dev1": {
+      const URL = "http://www.tgd.local/";
+      break;
+  }
   default: {
       const URL = "https://www.thegooddata.org/";
   }
@@ -59,10 +67,18 @@ switch (TGD_ENV) {
 // set extension lang
 const LANG = '_'+'en';
 
+var log_categories={
+    adtrack: false,
+    query: false
+};
+
 // set main debug --------------------------------------------------------------
 switch (TGD_ENV) {
-  case "dev1": {
+  case "dev1":
+  case "dev2": {
       const DEBUG = true;
+      log_categories.adtrack=false;
+      log_categories.query=false;
       break;
   }
   default: {
