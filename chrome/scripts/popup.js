@@ -47,7 +47,8 @@ var TAB_CURRENT;
 TGD = {
   killTooltip: true,
   stopSlide : false,
-  onEventsCalled : false
+  onEventsCalled : false,
+
 }
 
 function renderVersion(){
@@ -101,19 +102,14 @@ function renderAdtracks(tab) {
   console.log(deactivate_current);
 
   //Render Adtracks in GUI
-  for (service in hAdtracks.items) 
+  for (service in hAdtracks.items)
   {
     
     // tip: service contains now adtrack.service_name:adtrack.category
-    
+
     var adtrack = hAdtracks.items[service];
     var data_status = false;
     var data_status_value = 'BLOCKED';
-
-// not looking in whitelist anymore, why do it if we've already got that info in the adtrack?
-//    // name+category?
-//    if (SITE_WHITELIST[service] != undefined)
-//       data_status=SITE_WHITELIST[service];
 
     if (adtrack.status=='allowed') {
       data_status=true;
@@ -150,8 +146,9 @@ function renderAdtracks(tab) {
     $(selector).append('<tr><td>'+count+'</td><td>'+adtrack.category+'</td><td>'+adtrack.service_name+'</td><td><div title="'+title+'" style="'+trading_style+'" class="'+(deactivate_current?'':'btnAdtrack')+' button '+data_status_value.toLowerCase()+'" data-service_name="'+adtrack.service_name+'" data-category="'+adtrack.category+'" data-status="'+data_status+'">'+data_status_text+'</div></td></tr>');
 
     i++;
-  //Sort adtracks
+  }
 
+  //Sort adtracks
   function partialSort(arr, start, end, index) {
       var preSorted = arr.slice(0, start), 
           postSorted = arr.slice(end);
@@ -232,17 +229,9 @@ function renderAdtracks(tab) {
     }
   }
 
-  //$.each(rows, function(index, row) {
-    $('#layer_adtracks tbody').append(rows.reverse());
-  //});
-  }
-  // if (i>0){
-  //   $('#btnExpandAdtracks').show();
-  // }
-  // else{
-  //   $('#btnExpandAdtracks').hide();
-  // }
+  $('#layer_adtracks tbody').append(rows.reverse());
 
+  // show/hide expand button for threats list
   if (i==0){
     $('#layer_adtracks').hide();
   }
@@ -266,19 +255,6 @@ function renderAdtracks(tab) {
 //Write Achievements values
 function writeAchievement(achievements){
   
-  var text = '';
-  $("#layer_achievement_value").empty();
-
-  for(i = 0; i < achievements.length; i++){
-    var achievement = achievements[i];
-    $("#layer_achievement_value").append('<li><p><i></i><a href="'+achievement['link'+LANG]+'" target="_blank">'+achievement['text'+LANG]+'</a></p></li>');
-  }
-
-  var element = $('#layer_achievement_value li'),
-      length = element.length, 
-      current = 0,
-      timeout = 5000;
-
   function changeSlide() {
     if(TGD.stopSlide){
       setTimeout(changeSlide, 1000);
@@ -294,6 +270,19 @@ function writeAchievement(achievements){
       setTimeout(changeSlide, timeout);
     }
   }
+
+  var text = '';
+  $("#layer_achievement_value").empty();
+
+  for(i = 0; i < achievements.length; i++){
+    var achievement = achievements[i];
+    $("#layer_achievement_value").append('<li><p><i></i><a href="'+achievement['link'+LANG]+'" target="_blank">'+achievement['text'+LANG]+'</a></p></li>');
+  }
+
+  var element = $('#layer_achievement_value li'),
+      length = element.length, 
+      current = 0,
+      timeout = 5000;
 
   if(element.length > 1){
     element.slice(1).hide();
@@ -386,7 +375,6 @@ function setButtonOn(id){
 
 function setButtonOff(id){
   $(id).html('OFF');
-
   $(id).removeClass('on');
   $(id).addClass('off');
 }
@@ -477,6 +465,111 @@ function renderLinks(){
   $('#moreAboutYou').attr('href',URL+'userData');
 }
 
+
+function renderExtensionIcon() {
+  if (localStorage.member_id == 0) {
+    // send message to background script
+    chrome.runtime.sendMessage({ "newIconPath" : 'images/19bw.png' });
+  }else{
+    // send message to background script
+    chrome.runtime.sendMessage({ "newIconPath" : 'images/19.png' }); 
+  }
+}
+
+function setSuggestionFormDimensions() {
+  var $suggestion = $('#suggestion'),
+      $content = $('#content'),
+      popupHeight = $content.innerHeight();
+
+  $suggestion.innerHeight(popupHeight);
+}
+
+function setSpinnerDimensions() {
+  var $suggestionBody = $('#suggestion .body'),
+      $suggestionSpinner = $('#suggestion-spinner'),
+      bodyHeight = $suggestionBody.innerHeight(),
+      bodyWidth = $suggestionBody.innerWidth();
+
+  $suggestionSpinner.innerHeight(bodyHeight);
+  $suggestionSpinner.innerWidth(bodyWidth);
+}
+
+function bindSuggestionFormEvents() {
+  $('#suggestion-submit').click(function(event){
+
+    var $form = $('#suggestion-form'),
+        $spinner = $('#suggestion-spinner'),
+        $body = $('#suggestion .body'),
+        postData = $form.serializeArray(),
+        formURL = $form.attr("action");
+
+    postData.push({'name': 'id', 'value': localStorage.member_id});
+
+    if(localStorage.member_id != 0){
+      postData.push({'name': 'username', 'value': localStorage.member_username});
+      postData.push({'name': 'password', 'value': localStorage.member_hash});
+    }
+
+    setSpinnerDimensions();
+
+    $form.remove();
+    $spinner.show();
+
+    $.post(formURL, postData)
+    .done(
+      function(data, textStatus, jqXHR) {
+        $spinner.hide();
+        $body.prepend(data);
+
+        showHideEmailField();
+        bindSuggestionFormEvents();
+      })
+    .fail(
+      function(jqXHR, textStatus, errorThrown){
+        var message = $('<div class="ops">\
+                          <h1>Ops!</h1>\
+                          Something went wrong while trying to fetch the form from our servers.<br/><br/>\
+                          Please send us your suggestion via e-mail to the following address: <span class="email">suggestions@thegooddata.org</span>\
+                        </div>');
+                        
+        $spinner.hide();
+        $body.prepend(message);
+      });
+  });
+}
+
+function showHideEmailField() {
+  if(localStorage.member_id != 0){
+    $('#suggestion-form div.row:first-child').hide();
+    $('#suggestion-form textarea').height(200);
+  }
+  else
+  {
+    $('#suggestion-form div.row:first-child').show();
+    $('#suggestion-form textarea').height(150);
+  }
+}
+
+function buildSuggestionForm() {
+  if($('#suggestion-form').length < 1){
+    $.get( "http://tgd.local/suggestion/ajax")
+    .done(function( data ) {
+      $("#suggestion .body" ).prepend( data );
+      showHideEmailField();
+      bindSuggestionFormEvents();
+    })
+    .fail(function( data ) {
+      var message = $('<div class="ops">\
+                          <h1>Ops!</h1>\
+                          Something went wrong while trying to fetch the form from our servers.<br/><br/>\
+                          Please send us your suggestion via e-mail to the following address: <span class="email">suggestions@thegooddata.org</span>\
+                        </div>');
+      $("#suggestion .body" ).html( message );
+    });
+
+  }
+}
+
 function onLoad(){
     
   const TAB = TAB_CURRENT;
@@ -486,6 +579,7 @@ function onLoad(){
   const WHITELIST = DESERIALIZE(localStorage.whitelist) || {};
   const SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
   
+
   //Render links
   renderLinks();
 
@@ -498,16 +592,16 @@ function onLoad(){
   //Render adtracks in table
   renderAdtracks(TAB);
 
-  // //Render achievement
+  //Render achievement
   renderAchievement();
 
-  // //Render loans counter
+  //Render loans counter
   renderLoans();
 
-  // //Render Queries counter
+  //Render Queries counter
   renderQueries();
 
-  // //Render Contributed counter
+  //Render Contributed counter
   renderContributed();
 
   //Render Options
@@ -515,6 +609,12 @@ function onLoad(){
 
   //Render deactivate current
   renderDeactivateCurrent(DOMAIN,TAB);
+
+  //Render extension icon
+  renderExtensionIcon();
+
+  // Build suggestion form
+  // buildSuggestionForm();
 
   // onEvents is called multiple times during extension execution.
   // This causes event handlers being attached more than once to an element
@@ -525,18 +625,6 @@ function onLoad(){
   }
 }
 
-function changeExtensionIcon(state) {
-  switch(state) {
-    case 'on': 
-      // send message to background script
-      chrome.runtime.sendMessage({ "newIconPath" : 'images/19.png' });
-      break;
-    case 'off':
-      // send message to background script
-      chrome.runtime.sendMessage({ "newIconPath" : 'images/19bw.png' });
-      break;
-  }
-}
 
 function onEvents(DOMAIN, TAB)
 {
@@ -564,22 +652,68 @@ function onEvents(DOMAIN, TAB)
 
     //Event click button "show sign-in form"
     $('#btnLogin').click(function (event) {
+        var $signin = $('#sign-in'),
+            $content = $('#content'),
+            popupHeight = $content.innerHeight();
 
-        if ( $( "#sign-in" ).is( ":hidden" ) ) {
-            $("#content").hide();
-            $( "#sign-in" ).fadeIn( "slow");
-        } else {
-            $( "#sign-in" ).fadeOut("slow", function(){
-              $("#content").show();
+        $signin.innerHeight(popupHeight);
+
+        if ( $signin.is( ":hidden" ) ) 
+        {
+            $content.hide();
+            $signin.fadeIn( "slow");
+        } 
+        else 
+        {
+            $signin.fadeOut("slow", function(){
+              $content.show();
             });
         }
         event.preventDefault();  
     });
 
-    // Event click button "close sign-in form"
+    // Click event on button "close sign-in form"
     $('#sign-in .close').click(function(){
       $('#btnLogin').click();
-    })
+    });
+
+    // Cick event on button "close suggestion form"
+    $('#suggestion .close').click(function(){
+      var $suggestion = $('#suggestion'),
+          $content = $('#content');
+
+      if($('#suggestion > .ops').length > 0){
+        $('#suggestion > .ops').remove();
+      }
+
+      if($('#suggestion > .thanks').length > 0){
+        $('#suggestion > .thanks').remove();
+      }
+
+      $suggestion.fadeOut("slow", function(){
+        $('#suggestion-spinner').hide();
+        $content.show();
+      });
+    });
+
+
+
+    $("#in-love .email-us").click(function(event){
+      var $suggestion = $('#suggestion'),
+          $content = $('#content'),
+          $form = $('#suggestion-form'),
+          memberId = localStorage.member_id;
+
+      setSuggestionFormDimensions();
+      buildSuggestionForm();
+
+      $content.fadeOut("slow", function(){
+        $('#suggestion-spinner').hide();
+        $form.show();
+        $suggestion.show();
+      });
+    });
+
 
     // Event click button "delete stored data"
     $('.deleteQueries').click(function(){
@@ -605,22 +739,23 @@ function onEvents(DOMAIN, TAB)
       if (username == "" || password == "") {
         $('#pError').html("Invalid username or password.");
       } else {
-        loginUser(username,password, 
-          function (){
+        loginUser(
+          username,
+          password, 
+          function (){ // success
             $('#btnLogin').click();
             $('#txtUsername').val('');
             $('#txtUsername').val('');
-            changeExtensionIcon('on');
+            // changeExtensionIcon('on');
             onLoad();
           },
-          function (error){
+          function (error){ // fail
             $('#pError').html("Invalid username or password.");
           }
         );
       }
       event.preventDefault();
     });
-
 
     // Event click button "Deactivate Current"
     $('#not-working').on('click', '.btnDeactivateCurrent', function() { 
@@ -659,14 +794,13 @@ function onEvents(DOMAIN, TAB)
       //Render deactivate current
       renderDeactivateCurrent(DOMAIN,TAB);
 
-//      //Render adtracks in table
-//      renderAdtracks(TAB);
+      //Render adtracks in table
+      //renderAdtracks(TAB);
 
       // Temp fix closing window so it will render new stats when opening again.
       window.close();
 
       event.preventDefault();
-    
     });
 
     // Event click button "Allow Social"
@@ -688,12 +822,11 @@ function onEvents(DOMAIN, TAB)
       
       TABS.reload(ID);
       
-//      //Render adtracks in table
-//      renderAdtracks(TAB);
+      //Render adtracks in table
+      // renderAdtracks(TAB);
       
       // Temp fix closing window so it will render new stats when opening again.
       window.close();
-      
     });
 
     // Event click button "Store Navigation"
@@ -717,15 +850,14 @@ function onEvents(DOMAIN, TAB)
       localStorage.share_search = share_search;
 
       //console.log('visualizar '+share_search);
-//      renderOptions(TAB);
+      //renderOptions(TAB);
       
       const ID = TAB.id;
       
       TABS.reload(ID);
       
       // Temp fix closing window so it will render new stats when opening again.
-      window.close();
-      
+      window.close();   
     });
 
     // Event click button "blocked / allowed"
@@ -745,17 +877,18 @@ function onEvents(DOMAIN, TAB)
       // Temp fix closing window so it will render new stats when opening again.
       window.close();
       
-//      //Render adtracks in table
-//      renderAdtracks(TAB);
+      //Render adtracks in table
+      //renderAdtracks(TAB);
       
-//      //Render
-//      onLoad();
+      //Render
+      //onLoad();
 
       event.preventDefault();
     });
     
     // Reset preferences for all sites / clear whitelist
     $('#reset_site_pref').on('click', function() { 
+
       // if the user had chosen not to receive confirmation
       if(castBool(localStorage.ask_confirmation) == false){
         var $buttons = $('#confirmation .buttons'),
@@ -788,28 +921,8 @@ function onEvents(DOMAIN, TAB)
         return;
       }
 
+      // otherwise, just slide the confirmation div down
       $('#confirmation').slideDown();
-      
-      // if (confirm("Do you want to reset preferences for all the sites?")) {
-      //   resetEntireWhitelist();
-        
-      //   alert("Local whitelist has been reset!");
-        
-      //   const ID = TAB.id;
-      
-      //   syncWhitelist();
-
-      //   TABS.reload(ID);
-
-      //   // Temp fix closing window so it will render new stats when opening again.
-      //   window.close();
-        
-      //   event.preventDefault();
-        
-      //   return false;
-        
-      // }
-      
     });
 
     // cancel resetting preferences
@@ -892,11 +1005,12 @@ function onEvents(DOMAIN, TAB)
     // Event click button "Sign out"
     $('#header').on('click','#btnLogout', function(){
       localStorage.member_id = 0;
-      localStorage.member_username='';
+      localStorage.member_username='',
+      localStorage.member_hash='';
     
       $.get( URL+"/user/logout", function( data ) {
       });
-      changeExtensionIcon('off');
+
       onLoad();
     });
 

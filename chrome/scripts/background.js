@@ -63,9 +63,9 @@ function updateCounter(tabId, count, deactivated) {
   //       deserialize(localStorage.blogOpened)
   // ) {
   
-//    deactivated && BROWSER_ACTION.setBadgeBackgroundColor({
-//      tabId: tabId, color: [136, 136, 136, 255]
-//    });
+    //    deactivated && BROWSER_ACTION.setBadgeBackgroundColor({
+    //      tabId: tabId, color: [136, 136, 136, 255]
+    //    });
   
     BROWSER_ACTION.setBadgeBackgroundColor({
       tabId: tabId, color: [136, 136, 136, 255]
@@ -91,15 +91,15 @@ function safelyUpdateCounter(tabId, count, deactivated) {
 
 /* Tallies and indicates the number of tracking requests. */
 function incrementCounter(tabId, service, blocked) {
-//  const TAB_REQUESTS = REQUEST_COUNTS[tabId] || (REQUEST_COUNTS[tabId] = {});
-//  const CATEGORY = service.category;
-//  const CATEGORY_REQUESTS =
-//      TAB_REQUESTS[CATEGORY] || (TAB_REQUESTS[CATEGORY] = {});
-//  const SERVICE = service.name;
-//  const SERVICE_REQUESTS =
-//      CATEGORY_REQUESTS[SERVICE] ||
-//          (CATEGORY_REQUESTS[SERVICE] = {url: service.url, count: 0});
-//  SERVICE_REQUESTS.count++;
+  //  const TAB_REQUESTS = REQUEST_COUNTS[tabId] || (REQUEST_COUNTS[tabId] = {});
+  //  const CATEGORY = service.category;
+  //  const CATEGORY_REQUESTS =
+  //      TAB_REQUESTS[CATEGORY] || (TAB_REQUESTS[CATEGORY] = {});
+  //  const SERVICE = service.name;
+  //  const SERVICE_REQUESTS =
+  //      CATEGORY_REQUESTS[SERVICE] ||
+  //          (CATEGORY_REQUESTS[SERVICE] = {url: service.url, count: 0});
+  //  SERVICE_REQUESTS.count++;
 
   if (ADTRACKS_BADGE_COUNTER[tabId] == undefined){
     ADTRACKS_BADGE_COUNTER[tabId]= 0;
@@ -150,7 +150,7 @@ const TABS = chrome.tabs;
 if (false) const PRIVACY = chrome.privacy.services;
 
 /* The "cookies" API. */
-const COOKIES = chrome.cookies;
+const COOKIES = chrome.cookies; 
 
 /* The "browserAction" API. */
 const BROWSER_ACTION = chrome.browserAction;
@@ -414,7 +414,7 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
     }
     
   } else {
-//    log_if_enabled("No Child Service detected. Requested Url: "+REQUESTED_URL, "adtrack");
+    //    log_if_enabled("No Child Service detected. Requested Url: "+REQUESTED_URL, "adtrack");
   }
 
   REQUESTED_URL != REDIRECTS[TAB_ID] && delete REQUESTS[TAB_ID];
@@ -510,7 +510,7 @@ function lookforQuery(REQUESTED_URL)
 
 function extractSearch(searchEngineName,REQUESTED_URL)
 {
-    log_if_enabled('DETECTANDO QUERY','query');
+  log_if_enabled('DETECTANDO QUERY','query');
     
   var data = getDataFromQuery(REQUESTED_URL, searchEngineName);
   
@@ -615,6 +615,14 @@ function extractSearch(searchEngineName,REQUESTED_URL)
   }
 }
 
+chrome.runtime.onInstalled.addListener(function(details){
+  if (localStorage.member_id == 0) {
+    chrome.browserAction.setIcon({path: 'images/19bw.png'});
+  }else{
+    chrome.browserAction.setIcon({path: 'images/19.png'});
+  }
+});
+
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
     if ( tab.status=="complete" ){
@@ -628,13 +636,13 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
       CHILD_DOMAIN = GET(tab.url);
 
-//      var domain_clear = tab.url;
-//      var n = domain_clear.indexOf('?');
-//
-//      if (n != -1){
-//        var erase = domain_clear.substr(n);
-//        domain_clear=domain_clear.replace(erase,"");
-//      }
+      //      var domain_clear = tab.url;
+      //      var n = domain_clear.indexOf('?');
+      //
+      //      if (n != -1){
+      //        var erase = domain_clear.substr(n);
+      //        domain_clear=domain_clear.replace(erase,"");
+      //      }
       
       var user_id = localStorage.user_id;
       
@@ -654,7 +662,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
           'member_id':localStorage.member_id,
           'user_id': user_id,
           'domain':CHILD_DOMAIN,
-//          'url':domain_clear,
+          //          'url':domain_clear,
           'url': url_to_log, // disabled sending the original url, now sending only '/' (issue #14)
           'usertime': localtime.format("yyyy-mm-dd HH:MM:ss")
         };
@@ -730,7 +738,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
         path: request.newIconPath,
         //tabId: chromesender.tab.id
     });
-
 });
 
 /* Launch when extension is installed */

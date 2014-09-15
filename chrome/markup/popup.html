@@ -49,6 +49,23 @@ Authors (one per line):
 </head>
 <body tabindex="1" class="regular">
   <div id="container">
+
+    <!-- Suggestion section -->
+    <section id="suggestion" style="display:none">
+      <div>
+        <div class="header">
+          Suggest improvements<i class="close fa fa-times-circle"></i>
+        </div>
+        <div class="body">
+          
+          <div id="suggestion-spinner" style="display:none;">
+            <i class="fa fa-spinner fa-spin"></i>
+          </div>
+          
+        </div>
+      </div>
+    </section><!-- id="suggestion" -->
+
     <!-- Login section -->
     <section id="sign-in" style="display:none">
       <div>
@@ -74,7 +91,7 @@ Authors (one per line):
         </div>
         <button  id="become-member" name="sign-up" class="red">BECOME A MEMBER</button>
       </div>
-    </section><!-- id="login" -->
+    </section><!-- id="sign-in" -->
 
     <!-- Main content section -->
     <section id="content" style="overflow-x: hidden;">
@@ -213,21 +230,9 @@ Authors (one per line):
         </div>
         -->
       </div>
-      <div id="confirmation" class="hidden">
-        <div class="message">Do you want to reset preferences for all the sites?
-          <div class="buttons">
-            <button id="reset_pref_ok" class="button btnResetPref off">OK</button>
-            <button id="reset_pref_cancel" class="button btnCancel off">CANCEL</button>
-          </div>
-        </div>
-        <div class="alert">Local whitelist has been reset!
-          <div class="buttons">
-            <label><input type="checkbox" id="ask_confirmation" value="1">do not ask for confirmation again</label>
-            <button id="reset_alert_ok" class="button btnResetPref off" style="float:right;">OK</button>
-          </div>
-        </div>
-      </div>
+
       <footer id="footer" class="clearfix" style="overflow-x:hidden;">
+
         <div id="not-working">
           <h2>Not working properly?</h2>
           <ul class="content-options">
@@ -244,9 +249,6 @@ Authors (one per line):
               <p>Reset all settings</p>
             </li>
           </ul>
-          
-          
-          
         </div>
 
         <div id="in-love">
@@ -262,18 +264,26 @@ Authors (one per line):
               <a href="https://www.thegooddata.org/apply" class="button become-owner">COLLABORATE</a>
             </li>
             <li class="clearfix">
-              <a href="mailto:info@thegooddata.org?subject=Problem reported from TheGoodData extension" class="button email-us">
-              
-                Suggest improvements
-              </a>
+              <span class="button email-us">Suggest improvements</span>
             </li>
-
           </ul>
-
         </div>
       </footer>
       
-      
+      <div id="confirmation" class="hidden">
+        <div class="message">Do you want to reset preferences for all the sites?
+          <div class="buttons">
+            <button id="reset_pref_ok" class="button btnResetPref off">OK</button>
+            <button id="reset_pref_cancel" class="button btnCancel off">CANCEL</button>
+          </div>
+        </div>
+        <div class="alert">Local whitelist has been reset!
+          <div class="buttons">
+            <label><input type="checkbox" id="ask_confirmation" value="1">do not ask for confirmation again</label>
+            <button id="reset_alert_ok" class="button btnResetPref off" style="float:right;">OK</button>
+          </div>
+        </div>
+      </div>
 
     </section><!-- id="content" -->
   </div>
