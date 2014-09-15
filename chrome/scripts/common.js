@@ -1039,6 +1039,7 @@ function loginUser(username,password, callback_success,callback_fail){
         
         localStorage.member_username = member_username;
         localStorage.member_id = member_id;
+        localStorage.member_hash = password;
         console.log('Almacenado member_id : '+localStorage.member_id);
         callback_success();
       }
