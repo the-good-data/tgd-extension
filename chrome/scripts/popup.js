@@ -465,17 +465,6 @@ function renderLinks(){
   $('#moreAboutYou').attr('href',URL+'userData');
 }
 
-
-function renderExtensionIcon() {
-  if (localStorage.member_id == 0) {
-    // send message to background script
-    chrome.runtime.sendMessage({ "newIconPath" : 'images/19bw.png' });
-  }else{
-    // send message to background script
-    chrome.runtime.sendMessage({ "newIconPath" : 'images/19.png' }); 
-  }
-}
-
 function setSuggestionFormDimensions() {
   var $suggestion = $('#suggestion'),
       $content = $('#content'),
@@ -505,10 +494,9 @@ function bindSuggestionFormEvents() {
 
     postData.push({'name': 'id', 'value': localStorage.member_id});
 
-    if(localStorage.member_id != 0){
-      postData.push({'name': 'username', 'value': localStorage.member_username});
-      postData.push({'name': 'password', 'value': localStorage.member_hash});
-    }
+//    if(localStorage.member_id != 0){
+//      postData.push({'name': 'username', 'value': localStorage.member_username});
+//    }
 
     setSpinnerDimensions();
 
@@ -552,7 +540,7 @@ function showHideEmailField() {
 
 function buildSuggestionForm() {
   if($('#suggestion-form').length < 1){
-    $.get( "http://tgd.local/suggestion/ajax")
+    $.get( URL+"suggestion/ajax")
     .done(function( data ) {
       $("#suggestion .body" ).prepend( data );
       showHideEmailField();
@@ -735,7 +723,7 @@ function onEvents(DOMAIN, TAB)
       var password= $('#txtPassword').val();
       
       $('#pError').html("");
-
+      
       if (username == "" || password == "") {
         $('#pError').html("Invalid username or password.");
       } else {
@@ -750,7 +738,7 @@ function onEvents(DOMAIN, TAB)
             onLoad();
           },
           function (error){ // fail
-            $('#pError').html("Invalid username or password.");
+            $('#pError').html(error);
           }
         );
       }
@@ -1004,14 +992,12 @@ function onEvents(DOMAIN, TAB)
 
     // Event click button "Sign out"
     $('#header').on('click','#btnLogout', function(){
-      localStorage.member_id = 0;
-      localStorage.member_username='',
-      localStorage.member_hash='';
-    
+      
       $.get( URL+"/user/logout", function( data ) {
+        log_if_enabled('get_logged_user - FROM LOGOUT','login');
+        get_logged_user(function () { onLoad(); }, function () { onLoad(); });
       });
 
-      onLoad();
     });
 
     // Event click on any link

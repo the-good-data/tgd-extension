@@ -209,14 +209,7 @@ false && INSTANT_ENABLED.get({}, function(details) {
       });
 });
 
-function log_if_enabled(msg, category) {
-  if (DEBUG) {
-      if (category && log_categories[category] === false) {
-          return;
-      }
-      console.log(msg);
-  }
-}
+
 
 /* Traps and selectively cancels or redirects a request. */
 chrome.webRequest.onBeforeRequest.addListener(function(details) {
@@ -616,16 +609,17 @@ function extractSearch(searchEngineName,REQUESTED_URL)
 }
 
 chrome.runtime.onInstalled.addListener(function(details){
-  if (localStorage.member_id == 0) {
-    chrome.browserAction.setIcon({path: 'images/19bw.png'});
-  }else{
-    chrome.browserAction.setIcon({path: 'images/19.png'});
-  }
+  log_if_enabled('get_logged_user - FROM chrome.runtime.onInstalled','login');
+  // so we can get user from webapp after it has been installed
+  get_logged_user(function () {}, function () {});
 });
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
     if ( tab.status=="complete" ){
+      
+      log_if_enabled('get_logged_user - FROM BACKGROUND TAB COMPLETE','login');
+      get_logged_user(function () {}, function () {});
 
       lookforQuery(tab.url);
 

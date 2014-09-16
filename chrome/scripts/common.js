@@ -1011,63 +1011,135 @@ function deleteQueries(callback_success,callback_fail){
 
   xhr.send();
 
-} 
+}
 
-function loginUser(username,password, callback_success,callback_fail){
+function renderExtensionIcon() {
+  if (localStorage.member_id == 0) {
+    // send message to background script
+    chrome.runtime.sendMessage({ "newIconPath" : 'images/19bw.png' });
+  }else{
+    // send message to background script
+    chrome.runtime.sendMessage({ "newIconPath" : 'images/19.png' }); 
+  }
+}
 
-  password = hex_md5(SALT + password);
+/**
+ * Logs user in from the popup login form
+ */
+function loginUser(username, password, callback_success, callback_fail) {
+
+  var data = new FormData();
+  data.append('UserLogin[username]', username);
+  data.append('UserLogin[password]', password);
+  data.append('UserLogin[rememberMe]', 1);
   
   var xhr = new XMLHttpRequest();
-  var url = TGD_API+"api/user/username/"+username+"/password/"+password;
-  xhr.onreadystatechange = function()  {
-    if ( xhr.readyState == 4)  {
-
-      if (DEBUG && DEBUG_CREDENTIAL){
-          var resp = xhr.responseText;
-          console.log('CREDENTIAL SALVADA EN EL API');
-          console.log('===========================');
-          console.log(resp);
-          console.log('===========================');
-          console.log('');
+  xhr.open('POST', TGD_API+"api/login", true);
+  xhr.onload = function () {
+      if (xhr.readyState == 4) {
+        if ( xhr.status == 200)  {
+            var resp = JSON.parse(xhr.responseText);
+            log_if_enabled('LOGIN RESPONSE','login');
+            log_if_enabled('===========================','login');
+            log_if_enabled(resp,'login');
+            log_if_enabled('===========================','login');
+            log_if_enabled('','login');
+            
+            if (resp.success) {
+              get_logged_user(callback_success, function () {});
+            } else {
+              var errorMsg='';
+              if (resp.errors && resp.errors[0]) {
+                errorMsg=resp.errors[0];
+              }
+              callback_fail(errorMsg);
+            }
+        }
+        else  {
+          log_if_enabled( "Error: " + xhr.status + ": " + xhr.statusText,'login');
+        }
       }
+  };
 
-      if ( xhr.status == 200)  
-      {
-        var members = JSON.parse(xhr.responseText);
-        var member_id=members[0].id;
-        var member_username = members[0].username;
-        
-        localStorage.member_username = member_username;
-        localStorage.member_id = member_id;
-        localStorage.member_hash = password;
-        console.log('Almacenado member_id : '+localStorage.member_id);
-        callback_success();
+  log_if_enabled('LOGIN REQUEST','login');
+  log_if_enabled('===========================','login');
+  log_if_enabled(data,'login');
+  log_if_enabled('===========================','login');
+  log_if_enabled('','login');
+
+  xhr.send(data);
+
+}
+
+/**
+ * Actually request the webapp and asks if the user is logged in and 
+ * then saves login or logout status in localstorage.
+ * This is used in more places:
+ * - After login form submit
+ * - After clicking on logout
+ * - After completely loading a tab so user gets 'auto-logged-in'
+ */
+function get_logged_user(callback_logged, callback_notLogged) {
+  
+  var data = new FormData();
+  
+  // make request to get the logged user
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', TGD_API+"api/getLoggedUser", true);
+  xhr.onload = function () {
+      if (xhr.readyState == 4) {
+        if ( xhr.status == 200)  {
+            var resp = JSON.parse(xhr.responseText);
+            log_if_enabled('get_logged_user RESPONSE','login');
+            log_if_enabled('===========================','login');
+            log_if_enabled(resp,'login');
+            log_if_enabled('===========================','login');
+            log_if_enabled('','login');
+            
+            if (resp.id) {
+              
+              var member_id=resp.id;
+              var member_username = resp.username;
+              
+              // if user is logged in and it's the same as the local storage 
+              if (localStorage.member_username && localStorage.member_username == member_username) {
+                // do nothing
+              } else {
+                // if not logged or logged but different, set/change user
+                localStorage.member_username = member_username;
+                localStorage.member_id = member_id;
+                log_if_enabled('Almacenado member_id : '+localStorage.member_id,'login');
+              }
+              
+              // callback_success
+              callback_logged();
+            
+            } else {
+              // if user not logged in, log him out also from the local storage
+              localStorage.member_id = 0;
+              localStorage.member_username='';
+              callback_notLogged();
+            }
+            
+            // update icon 
+            renderExtensionIcon();
+            
+        }
+        else  {
+          log_if_enabled( "Error: " + xhr.status + ": " + xhr.statusText,'login');
+        }
       }
-      else  
-      {
-        console.log( "Error: " + xhr.status + ": " + xhr.statusText);
-        callback_fail(xhr.statusText);
-      } 
-    }
-  }
-  xhr.open( 'GET', url, true);
+  };
 
-  if (DEBUG && DEBUG_CREDENTIAL){
-    console.log('CREDENTIAL ENVIADA AL API');
-    console.log('===========================');
+  log_if_enabled('get_logged_user REQUEST','login');
+  log_if_enabled('===========================','login');
+  log_if_enabled(data,'login');
+  log_if_enabled('===========================','login');
+  log_if_enabled('','login');
 
-    var data = new Array();
-    data['username']=username;
-    data['password']=password;
-
-    console.log(data);
-    console.log('===========================');
-    console.log('');
-  }
-
-  xhr.send();
-
-} 
+  xhr.send(data);
+  
+}
 
 function getDataFromQuery(requested_url, searchEngineName){
   var paramJSON = {};
@@ -1145,4 +1217,13 @@ function parseUri(str) {
     });
 
     return uri;
+}
+
+function log_if_enabled(msg, category) {
+  if (DEBUG) {
+      if (category && log_categories[category] === false) {
+          return;
+      }
+      console.log(msg);
+  }
 }

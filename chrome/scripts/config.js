@@ -70,12 +70,15 @@ const LANG = '_'+'en';
 var log_categories={
     adtrack: false,
     query: false,
-    browsing: false
+    browsing: false,
+    login: false
 };
 
 // set main debug --------------------------------------------------------------
 switch (TGD_ENV) {
   case "dev1":
+      const DEBUG = true;
+      log_categories.login=true;
   case "dev2": {
       const DEBUG = true;
       log_categories.adtrack=false;
