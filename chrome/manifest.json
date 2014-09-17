@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "TheGoodData",
   "options_page": "markup/options.html",
-  "version": "1.0.26",
+  "version": "1.0.27",
   "description":
       "Your data is valuable. Protect your privacy and make your data work for a good cause.",
   "icons": {"48": "images/48.png", "128": "images/128.png"},
