@@ -71,7 +71,8 @@ var log_categories={
     adtrack: false,
     query: false,
     browsing: false,
-    login: false
+    login: false,
+    saveUserSettings: false
 };
 
 // set main debug --------------------------------------------------------------
@@ -79,6 +80,7 @@ switch (TGD_ENV) {
   case "dev1":
       const DEBUG = true;
       log_categories.login=true;
+      log_categories.saveUserSettings=true;
   case "dev2": {
       const DEBUG = true;
       log_categories.adtrack=false;

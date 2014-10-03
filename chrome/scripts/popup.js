@@ -824,6 +824,9 @@ function onEvents(DOMAIN, TAB)
       store_navigation=!store_navigation;
 
       localStorage.store_navigation = store_navigation;
+      
+      // Save to API
+      saveUserSettingsToAPI();
 
       //console.log('visualizar '+store_navigation);
       renderOptions(TAB);

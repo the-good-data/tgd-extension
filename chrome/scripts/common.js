@@ -1111,6 +1111,9 @@ function get_logged_user(callback_logged, callback_notLogged) {
                 log_if_enabled('Almacenado member_id : '+localStorage.member_id,'login');
               }
               
+              // restore user settings
+              restoreUserSettingsFromApi(resp.settings);
+              
               // callback_success
               callback_logged();
             
@@ -1139,6 +1142,105 @@ function get_logged_user(callback_logged, callback_notLogged) {
 
   xhr.send(data);
   
+}
+
+
+/**
+ * Saves user settings to API
+ */
+function saveUserSettingsToAPI() {
+
+  var data = new FormData();
+  
+  var keys = saveUserSettings_getKeys();
+  
+  for (var key in keys) {
+    if (keys.hasOwnProperty(key)) {
+      if (typeof(localStorage[key])!='undefined') {
+        data.append(key, localStorage[key]);
+      }
+    }
+  }
+  
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', TGD_API+"api/saveUserSettings", true);
+  xhr.onload = function () {
+      if (xhr.readyState == 4) {
+        if ( xhr.status == 200)  {
+            var resp = JSON.parse(xhr.responseText);
+            log_if_enabled('saveUserSettings RESPONSE','saveUserSettings');
+            log_if_enabled('===========================','saveUserSettings');
+            log_if_enabled(resp,'saveUserSettings');
+            log_if_enabled('===========================','saveUserSettings');
+            log_if_enabled('','saveUserSettings');
+            
+            if (resp.success) {
+              log_if_enabled('SAVED!','saveUserSettings');
+            } else {
+              log_if_enabled('NOT SAVED!','saveUserSettings');
+              if (resp.errors) {
+                for (i_e = 0; i_e < resp.errors.length; i_e++) {
+                  log_if_enabled('Error: '+resp.errors[i_e],'saveUserSettings');
+                }
+              }
+            }
+        }
+        else  {
+          log_if_enabled( "Error: " + xhr.status + ": " + xhr.statusText,'saveUserSettings');
+        }
+      }
+  };
+
+  log_if_enabled('saveUserSettings REQUEST','saveUserSettings');
+  log_if_enabled('===========================','saveUserSettings');
+  log_if_enabled(data,'saveUserSettings');
+  log_if_enabled('===========================','saveUserSettings');
+  log_if_enabled('','saveUserSettings');
+
+  xhr.send(data);
+
+}
+
+// Add here to this array any new configuration key that will be required
+// and don't forget to add it also in the webapp's list of ExtensionSettings::$_allowed_keys
+// please define them as 'name' => 'type', you should specify a type to make sure the restore 
+// command will bring them back to their original state
+function saveUserSettings_getKeys() {
+  return {
+    'store_navigation':'bool'
+//    ,'number_test':'int'
+//    ,'string_test':'text'
+  };
+}
+
+/**
+ * Restores the user settings got from the API back into the localStorage
+ */
+function restoreUserSettingsFromApi(settings) {
+  log_if_enabled('restoreUserSettingsFromApi','saveUserSettings');
+  var keys = saveUserSettings_getKeys();
+  for (var key in keys) {
+    if (keys.hasOwnProperty(key)) {
+      if (settings[key]) {
+        var value=settings[key];
+        var type=keys[key];
+        switch (type) {
+          case 'bool':
+            value=castBool(value);
+            break;
+          case 'int':
+            value=parseInt(value);
+            break;
+          case 'text':
+            value=String(value);
+            break;
+        }
+        log_if_enabled('key: '+key+' type: '+type,'saveUserSettings');
+        log_if_enabled(value,'saveUserSettings');
+        localStorage[key]=value;
+      }
+    }
+  }
 }
 
 function getDataFromQuery(requested_url, searchEngineName){
