@@ -488,7 +488,7 @@ function bindSuggestionFormEvents() {
 
     var $form = $('#suggestion-form'),
         $spinner = $('#suggestion-spinner'),
-        $body = $('#suggestion .body'),
+        $formContainer = $('#suggestion-form-container'),
         postData = $form.serializeArray(),
         formURL = $form.attr("action");
 
@@ -507,7 +507,7 @@ function bindSuggestionFormEvents() {
     .done(
       function(data, textStatus, jqXHR) {
         $spinner.hide();
-        $body.prepend(data);
+        $formContainer.html(data);
 
         showHideEmailField();
         bindSuggestionFormEvents();
@@ -521,7 +521,7 @@ function bindSuggestionFormEvents() {
                         </div>');
                         
         $spinner.hide();
-        $body.prepend(message);
+        $formContainer.html(message);
       });
   });
 }
@@ -542,7 +542,7 @@ function buildSuggestionForm() {
   if($('#suggestion-form').length < 1){
     $.get( URL+"suggestion/ajax")
     .done(function( data ) {
-      $("#suggestion .body" ).prepend( data );
+      $("#suggestion-form-container" ).html( data );
       showHideEmailField();
       bindSuggestionFormEvents();
     })
@@ -552,7 +552,7 @@ function buildSuggestionForm() {
                           Something went wrong while trying to fetch the form from our servers.<br/><br/>\
                           Please send us your suggestion via e-mail to the following address: <span class="email">suggestions@thegooddata.org</span>\
                         </div>');
-      $("#suggestion .body" ).html( message );
+      $("#suggestion-form-container" ).html( message );
     });
 
   }
@@ -681,6 +681,7 @@ function onEvents(DOMAIN, TAB)
       $suggestion.fadeOut("slow", function(){
         $('#suggestion-spinner').hide();
         $content.show();
+        $('#suggestion_title').show();
       });
     });
 
