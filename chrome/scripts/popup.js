@@ -953,7 +953,7 @@ function onEvents(DOMAIN, TAB)
                 complete: function() {
                   $wrapper.css({left: "0px"});
 
-                  const ID = TAB.id;
+                  var ID = TAB.id;
                   syncWhitelist();
                   TABS.reload(ID);
                 }
