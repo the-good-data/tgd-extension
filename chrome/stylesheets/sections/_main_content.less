@@ -314,62 +314,6 @@ section#content {
       }
     }
   }
-
-  #confirmation{
-    display: none;
-    background-color:@gray;
-    width:200%;
-    font-size:12px;
-    position: relative;
-    &.toLeft{
-      left: -100%;
-    }
-
-    .message, .alert{
-      display: inline-block;
-      width: 49%;
-      color:#eee;
-      padding:10px;
-      box-sizing:border-box;
-      text-align: center;
-    }
-
-    .buttons{
-      text-align: center;
-      margin-top: 10px;
-      .btnResetPref{
-        .transition();
-        &:hover{
-          color: white;
-          background-color: @tgd-green;
-        }
-      }
-      .btnCancel{
-        .transition();
-        &:hover{
-          color: white;
-          background-color: @tgd-red;
-        }
-      }
-      .btnCloseAlert{
-        .transition();
-        &:hover{
-          color: white;
-          background-color: @tgd-red;
-        }
-      }
-    }
-    .alert{
-      .buttons{
-        text-align: left;
-        input[type='checkbox']{
-          position: relative;
-          top: 3px;
-          margin-right: 5px;
-        }
-      }
-    }
-  }
   &.authenticated {
     div#body {
       .title-more {
