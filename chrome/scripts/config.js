@@ -55,7 +55,7 @@ switch (TGD_ENV) {
       const URL = "http://tgd.heavydots.com/";
       break;
   }
-  case "dev1": {
+  case "dev2": {
       const URL = "http://www.tgd.local/";
       break;
   }
