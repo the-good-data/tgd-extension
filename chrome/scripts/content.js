@@ -24,7 +24,7 @@
 
 /* Picks out which of a bucket of domains is part of a URL, regex free. */
 function index(url, services) {
-  const SERVICE_COUNT = services.length;
+  var SERVICE_COUNT = services.length;
 
   services:
   for (var i = 0; i < SERVICE_COUNT; i++) {
@@ -39,15 +39,15 @@ function index(url, services) {
 }
 
 /* The "extension" API. */
-const EXTENSION = chrome.extension;
+var EXTENSION = chrome.extension;
 
 /* Traps and selectively cancels a request and messages such. */
 EXTENSION.sendRequest({initialized: true}, function(response) {
-  const BLACKLIST = response.blacklist;
+  var BLACKLIST = response.blacklist;
   var serviceIndex;
   if ((serviceIndex = index(response.url, BLACKLIST)) >= 0)
       BLACKLIST.splice(serviceIndex, 1);
-  const SERVICE_COUNT = BLACKLIST.length;
+  var SERVICE_COUNT = BLACKLIST.length;
 
   for (var i = 0; i < SERVICE_COUNT; i++) {
     var service = BLACKLIST[i];
@@ -56,7 +56,7 @@ EXTENSION.sendRequest({initialized: true}, function(response) {
 
   document.addEventListener('beforeload', function(event) {
     if ((serviceIndex = index(event.url, BLACKLIST)) >= 0) {
-      const BLOCKED = BLACKLIST[serviceIndex][2];
+      var BLOCKED = BLACKLIST[serviceIndex][2];
 
       if (BLOCKED) {
         SAFARI && event.preventDefault();

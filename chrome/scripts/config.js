@@ -35,34 +35,39 @@ const C_MN = "d2hhdGlmaWRpZHRoaXMx";
 const SALT = "";
 
 // set api url ----------------------------------------------------------------
+var CONST_TGD_API;
 switch (TGD_ENV) {
   case "dev1": {
-      const TGD_API = "http://tgd.heavydots.com/";
+      CONST_TGD_API = "http://tgd.heavydots.com/";
       break;
   }
   case "dev2": {
-      const TGD_API = "http://www.tgd.local/";
+      CONST_TGD_API = "http://www.tgd.local/";
       break;
   }
   default: {
-      const TGD_API = "https://www.thegooddata.org/";
+      CONST_TGD_API = "https://www.thegooddata.org/";
   }
 }
 
+const TGD_API=CONST_TGD_API;
+
 // set website url -------------------------------------------------------------
+var CONST_URL;
 switch (TGD_ENV) {
   case "dev1": {
-      const URL = "http://tgd.heavydots.com/";
+      CONST_URL = "http://tgd.heavydots.com/";
       break;
   }
   case "dev2": {
-      const URL = "http://www.tgd.local/";
+      CONST_URL = "http://www.tgd.local/";
       break;
   }
   default: {
-      const URL = "https://www.thegooddata.org/";
+      CONST_URL = "https://www.thegooddata.org/";
   }
 }
+const TGD_URL=CONST_URL;
 
 // set extension lang
 const LANG = '_'+'en';
@@ -76,22 +81,24 @@ var log_categories={
 };
 
 // set main debug --------------------------------------------------------------
+var CONST_DEBUG;
 switch (TGD_ENV) {
   case "dev1":
-      const DEBUG = true;
+      CONST_DEBUG = true;
       log_categories.login=true;
       log_categories.saveUserSettings=true;
   case "dev2": {
-      const DEBUG = true;
+      CONST_DEBUG = true;
       log_categories.adtrack=false;
       log_categories.query=true;
       log_categories.browsing=true;
       break;
   }
   default: {
-      const DEBUG = false;
+      CONST_DEBUG = false;
   }
 }
+const DEBUG=CONST_DEBUG;
 
 // other debug
 const DEBUG_ADTRACK = false;
