@@ -844,12 +844,14 @@ function onEvents(DOMAIN, TAB)
       //console.log('visualizar '+share_search);
       //renderOptions(TAB);
       
+      setButton(castBool(localStorage.share_search),'#layer_config_share_search');
+      
       const ID = TAB.id;
       
       TABS.reload(ID);
       
       // Temp fix closing window so it will render new stats when opening again.
-      window.close();   
+      // window.close(); // disabled window close for now.
     });
 
     // Event click button "blocked / allowed"
@@ -961,7 +963,7 @@ function onEvents(DOMAIN, TAB)
 
     // Event click button "BECOME A MEMBER"
     $('#become-member').click(function(){
-      TABS.create({url: URL + '/apply'});
+      TABS.create({url: URL + 'apply'});
     });
 
     // Event click button "Email us"
