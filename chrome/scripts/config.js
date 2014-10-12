@@ -84,7 +84,7 @@ switch (TGD_ENV) {
   case "dev2": {
       const DEBUG = true;
       log_categories.adtrack=false;
-      log_categories.query=false;
+      log_categories.query=true;
       log_categories.browsing=true;
       break;
   }

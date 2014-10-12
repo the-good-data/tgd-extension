@@ -1083,6 +1083,8 @@ function get_logged_user(callback_logged, callback_notLogged) {
   
   var data = new FormData();
   
+  data.append('user_id', localStorage.user_id);
+  
   // make request to get the logged user
   var xhr = new XMLHttpRequest();
   xhr.open('POST', TGD_API+"api/getLoggedUser", true);
