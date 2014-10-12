@@ -882,25 +882,34 @@ function onEvents(DOMAIN, TAB)
     
     // Reset preferences for all sites / clear whitelist
     $('#reset_site_pref').on('click', function() { 
+      var $buttons = $('#confirmation .buttons'),
+          $confirmation = $('#confirmation'),
+          $wrapper = $('#confirmation .wrapper'),
+          $message = $('#confirmation .message');
+
+      if($confirmation.is(':visible')){
+        $confirmation.slideUp();
+        return;
+      }
 
       // if the user had chosen not to receive confirmation
       if(castBool(localStorage.ask_confirmation) == false){
-        var $buttons = $('#confirmation .buttons'),
-            $confirmation = $('#confirmation');
 
         resetEntireWhitelist();
 
         // hide the buttons divs and move the confirmation to the left
         $buttons.hide();
-        $confirmation.css({left: "-314px"}).slideDown({
+        $wrapper.css({left: "-320px"})
+        $confirmation.slideDown({
           complete: function() {
+
             setTimeout(function(){
               // slide up and restore
               $confirmation.slideUp({
                 complete: function() {
                   // restore buttons div an confirmation div to their original state
                   $buttons.show();
-                  $confirmation.css({left: "0px"});
+                  $wrapper.css({left: "0px"});
                 }
               });
             },2000);
@@ -926,40 +935,34 @@ function onEvents(DOMAIN, TAB)
 
     // accept resetting preferences
     $('#reset_pref_ok').on('click', function() {
+      var $confirmation = $('#confirmation'),
+          $wrapper = $('#confirmation .wrapper'),
+          $message = $('#confirmation .message'),
+          $alert = $('#confirmation .alert');
+
+      if($('#ask_confirmation').is(':checked')){
+        localStorage.ask_confirmation = false;
+      }
+
       resetEntireWhitelist();
-      $('#confirmation').animate({left: "-314px"});
-    });
-    
-
-    $('#reset_alert_ok').on('click', function() {
-      localStorage.ask_confirmation = ($('#ask_confirmation:checked').val() == 1)?false:true;
-
-      $('#confirmation').slideUp({
+      $wrapper.animate({left: "-320px"}, {
         complete: function() {
-           $('#confirmation').animate({left: "0px"});
-        }
-      });
-     
-      const ID = TAB.id;
-      syncWhitelist();
-      TABS.reload(ID);
-      // window.close(); TODO: necessary?
-    });
+            setTimeout(function(){
+              // slide up and restore
+              $confirmation.slideUp({
+                complete: function() {
+                  $wrapper.css({left: "0px"});
 
-    // $('#btnAdvancedSettings').on('click', function() { 
-    //   $('#body .body_main').hide();
-    //   $('#footer').hide();
-    //   $('#body .body_advanced_settings').show();
-    //   event.preventDefault();
-    //   return false;
-    // });
-    // $('#btnAdvancedSettings_return').on('click', function() { 
-    //   $('#body .body_main').show();
-    //   $('#footer').show();
-    //   $('#body .body_advanced_settings').hide();
-    //   event.preventDefault();
-    //   return false;
-    // });
+                  const ID = TAB.id;
+                  syncWhitelist();
+                  TABS.reload(ID);
+                }
+              });
+            },2000);
+          }
+      });
+      
+    });
 
     // Event click button "BECOME A MEMBER"
     $('#become-member').click(function(){

@@ -1,0 +1,59 @@
+
+#confirmation{
+  display: none;
+  background-color:@gray;
+  font-size:12px;
+  position: relative;
+  
+
+  &.toLeft{
+    left: -100%;
+  }
+
+  .wrapper{
+    position: relative;
+    background-color:@gray;
+    width: 200%;
+    display: table;
+  }
+
+  .message, .alert{
+    background-color:@gray;
+    display: table-cell;
+    width: 50%;
+    color:#eee;
+    padding:10px;
+    box-sizing:border-box;
+    text-align: center;
+  }
+
+  .buttons{
+    text-align: center;
+    margin-top: 5px;
+    .btnResetPref{
+      .transition();
+      margin-top: 10px;
+      &:hover{
+        color: white;
+        background-color: @tgd-green;
+      }
+    }
+    .btnCancel{
+      .transition();
+      margin-top: 10px;
+      &:hover{
+        color: white;
+        background-color: @tgd-red;
+      }
+    }
+
+    input[type='checkbox']{
+      position: relative;
+      top: 3px;
+      margin-right: 5px;
+    }
+  }
+  .alert{
+    vertical-align: middle;
+  }
+}

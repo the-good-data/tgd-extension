@@ -209,30 +209,6 @@ Authors (one per line):
             </ul>
           </section><!-- id="level" -->
         </div>
-        
-        <!--
-        <div class="body_advanced_settings" style="display: none;">
-          <section id="advanced-settings">
-            <div class="title-more">
-              <div class="title"><span style="background: #fff;">ADVANCED SETTINGS</span></div>
-            </div>
-
-            <div class="content">
-              <p>
-                Site preferences
-                <button class="button off" id="reset_site_pref">Reset all preferences</button>
-              </p>
-              <p style="text-align: center; padding: 30px 0">
-                
-                <button id="btnAdvancedSettings_return" class="button off" style="width: auto;">
-                  Return to main panel
-                </button>
-                
-              </p>
-            </div>
-          </section>
-        </div>
-        -->
       </div>
 
       <footer id="footer" class="clearfix" style="overflow-x:hidden;">
@@ -274,18 +250,18 @@ Authors (one per line):
         </div>
       </footer>
       
-      <div id="confirmation" class="hidden">
-        <div class="message">Do you want to reset preferences for all the sites?
-          <div class="buttons">
-            <button id="reset_pref_ok" class="button btnResetPref off">OK</button>
-            <button id="reset_pref_cancel" class="button btnCancel off">CANCEL</button>
+      <div id="confirmation" class="clearfix">
+      
+        <div class="wrapper">
+
+          <div class="message">Do you want to reset preferences for all the sites?
+            <div class="buttons">
+              <label><input type="checkbox" id="ask_confirmation" value="1">do not ask for confirmation again</label><br/>
+              <button id="reset_pref_ok" class="button btnResetPref off">OK</button>
+              <button id="reset_pref_cancel" class="button btnCancel off">CANCEL</button>
+            </div>
           </div>
-        </div>
-        <div class="alert">Local whitelist has been reset!
-          <div class="buttons">
-            <label><input type="checkbox" id="ask_confirmation" value="1">do not ask for confirmation again</label>
-            <button id="reset_alert_ok" class="button btnResetPref off" style="float:right;">OK</button>
-          </div>
+          <div class="alert">Local whitelist has been reset!</div>
         </div>
       </div>
 
