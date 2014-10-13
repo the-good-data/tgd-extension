@@ -23,22 +23,22 @@
   
 */
 
-const BACKGROUND = chrome.extension.getBackgroundPage();
+var BACKGROUND = chrome.extension.getBackgroundPage();
 
 /* The domain getter. */
-const GET = BACKGROUND.GET;
+var GET = BACKGROUND.GET;
 
 /* The object deserializer. */
-const DESERIALIZE = BACKGROUND.deserialize;
+var DESERIALIZE = BACKGROUND.deserialize;
 
 /* The third parties. */
-const SERVICES = ['Facebook', 'Google', 'Twitter', 'Yahoo!'];
+var SERVICES = ['Facebook', 'Google', 'Twitter', 'Yahoo!'];
 
 /* The number of third parties. */
-const SERVICE_COUNT = SERVICES.length;
+var SERVICE_COUNT = SERVICES.length;
 
 /* The "tabs" API. */
-const TABS = BACKGROUND.TABS;
+var TABS = BACKGROUND.TABS;
 
 /* The "tabs" API. */
 var TAB_CURRENT;
@@ -59,14 +59,14 @@ function renderVersion(){
 //Render adtracks in table
 function renderAdtracks(tab) {  
   
-  const TAB = tab;
-  const ID = TAB.id;
+  var TAB = tab;
+  var ID = TAB.id;
 
-  const CATEGORY_REQUESTS = (BACKGROUND.REQUEST_COUNTS[ID] || {}).Disconnect || {};
-  const DOMAIN = GET(TAB.url);
+  var CATEGORY_REQUESTS = (BACKGROUND.REQUEST_COUNTS[ID] || {}).Disconnect || {};
+  var DOMAIN = GET(TAB.url);
 
-  const WHITELIST = DESERIALIZE(localStorage.whitelist) || {};
-  const SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
+  var WHITELIST = DESERIALIZE(localStorage.whitelist) || {};
+  var SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
 
   //Clear
   //$("#layer_adtracks > tbody").html("");
@@ -405,9 +405,9 @@ function renderDeactivateCurrent(DOMAIN,tab){
 
 // TODO: is this function used by any one?
 function deactivateCurrent(tab){
-  const TAB = tab;
-  const ID = TAB.id;
-  const DOMAIN = GET(TAB.url);
+  var TAB = tab;
+  var ID = TAB.id;
+  var DOMAIN = GET(TAB.url);
 
   var status=false;
   
@@ -438,11 +438,11 @@ function renderHeader(){
 }
 
 function renderLinks(){
-  $('#forgotPassword').attr('href',URL+'user/recovery');
-  $('#moreStats').attr('href',URL+'evil-data');
-  $('#moreAchievements').attr('href',URL+'good-data');
-  $('#moreProjects').attr('href',URL+'good-data');
-  $('#moreAboutYou').attr('href',URL+'your-data');
+  $('#forgotPassword').attr('href',TGD_URL+'user/recovery');
+  $('#moreStats').attr('href',TGD_URL+'evil-data');
+  $('#moreAchievements').attr('href',TGD_URL+'good-data');
+  $('#moreProjects').attr('href',TGD_URL+'good-data');
+  $('#moreAboutYou').attr('href',TGD_URL+'user-data'); // todo change this to your-data after deploying webapp to prod
 }
 
 function setSuggestionFormDimensions() {
@@ -520,7 +520,7 @@ function showHideEmailField() {
 
 function buildSuggestionForm() {
   if($('#suggestion-form').length < 1){
-    $.get( URL+"suggestion/ajax")
+    $.get( TGD_URL+"suggestion/ajax")
     .done(function( data ) {
       $("#suggestion-form-container" ).html( data );
       showHideEmailField();
@@ -540,12 +540,12 @@ function buildSuggestionForm() {
 
 function onLoad(){
     
-  const TAB = TAB_CURRENT;
-  const ID = TAB.id;
-  const CATEGORY_REQUESTS = (BACKGROUND.REQUEST_COUNTS[ID] || {}).Disconnect || {};
-  const DOMAIN = GET(TAB.url);
-  const WHITELIST = DESERIALIZE(localStorage.whitelist) || {};
-  const SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
+  var TAB = TAB_CURRENT;
+  var ID = TAB.id;
+  var CATEGORY_REQUESTS = (BACKGROUND.REQUEST_COUNTS[ID] || {}).Disconnect || {};
+  var DOMAIN = GET(TAB.url);
+  var WHITELIST = DESERIALIZE(localStorage.whitelist) || {};
+  var SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
   
 
   //Render links
@@ -729,7 +729,7 @@ function onEvents(DOMAIN, TAB)
     // Event click button "Deactivate Current"
     $('#not-working').on('click', '.btnDeactivateCurrent', function() { 
 
-      const ID = TAB.id;
+      var ID = TAB.id;
 
       var sStatus=$(this).html();
       var status=false;
@@ -775,7 +775,7 @@ function onEvents(DOMAIN, TAB)
     // Event click button "Allow Social"
     $('#not-working').on('click', '.btnAllowSocial', function() { 
       var allow_social = castBool(localStorage.allow_social);
-      const ID = TAB.id;
+      var ID = TAB.id;
 
       allow_social = !allow_social;
 
@@ -826,7 +826,7 @@ function onEvents(DOMAIN, TAB)
       
       setButton(castBool(localStorage.share_search),'#layer_config_share_search');
       
-      const ID = TAB.id;
+      var ID = TAB.id;
       
       TABS.reload(ID);
       
@@ -836,7 +836,7 @@ function onEvents(DOMAIN, TAB)
 
     // Event click button "blocked / allowed"
     $('#layer_adtracks').on('click', '.btnAdtrack', function() { 
-      const ID = TAB.id;
+      var ID = TAB.id;
 
       var service_name=$(this).data("service_name");
       var status=$(this).data("status");
@@ -897,7 +897,7 @@ function onEvents(DOMAIN, TAB)
         });
 
 
-        const ID = TAB.id;
+        var ID = TAB.id;
         syncWhitelist();
         TABS.reload(ID);
         // window.close(); TODO: necessary?
@@ -933,7 +933,7 @@ function onEvents(DOMAIN, TAB)
                 complete: function() {
                   $wrapper.css({left: "0px"});
 
-                  const ID = TAB.id;
+                  var ID = TAB.id;
                   syncWhitelist();
                   TABS.reload(ID);
                 }
@@ -946,7 +946,7 @@ function onEvents(DOMAIN, TAB)
 
     // Event click button "BECOME A MEMBER"
     $('#become-member').click(function(){
-      TABS.create({url: URL + 'apply'});
+      TABS.create({url: TGD_URL + 'apply'});
     });
 
     // Event click button "Email us"
@@ -955,7 +955,7 @@ function onEvents(DOMAIN, TAB)
 
     // Event click button "Become owner"
     $('#in-love').on('click','.become-owner', function(){
-      TABS.create({url: URL + '/user/registration'});
+      TABS.create({url: TGD_URL + '/user/registration'});
       return false;
     });
 
@@ -965,7 +965,7 @@ function onEvents(DOMAIN, TAB)
 
     // Event click button "Donate"
     $('#in-love').on('click','.donate', function(){
-      TABS.create({url: URL + '/donate'});
+      TABS.create({url: TGD_URL + '/donate'});
       return false;
     });
 
@@ -982,7 +982,7 @@ function onEvents(DOMAIN, TAB)
     // Event click button "Sign out"
     $('#header').on('click','#btnLogout', function(){
       
-      $.get( URL+"/user/logout", function( data ) {
+      $.get( TGD_URL+"/user/logout", function( data ) {
         log_if_enabled('get_logged_user - FROM LOGOUT','login');
         get_logged_user(function () { onLoad(); }, function () { onLoad(); });
       });

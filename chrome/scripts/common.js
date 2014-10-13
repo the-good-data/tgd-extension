@@ -208,15 +208,15 @@ function getDomainName(data)
 
 // Reset entire whitelist
 function resetEntireWhitelist(){
-  const WHITELIST = {};
-  const SITE_WHITELIST = {};
+  var WHITELIST = {};
+  var SITE_WHITELIST = {};
   localStorage.whitelist = JSON.stringify(WHITELIST);
 }
 
 //Add services to whitelist
 function addWhitelist(DOMAIN,service_name, category, status){
-  const WHITELIST = deserialize(localStorage.whitelist) || {};
-  const SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
+  var WHITELIST = deserialize(localStorage.whitelist) || {};
+  var SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
 
   WHITELIST[DOMAIN][service_name+':'+category]=!status;
   localStorage.whitelist = JSON.stringify(WHITELIST);
@@ -224,8 +224,8 @@ function addWhitelist(DOMAIN,service_name, category, status){
 
 //Get status whitelisted service
 function getWhitelistStatus(DOMAIN,tab,service_name,category){
-  const WHITELIST = deserialize(localStorage.whitelist) || {};
-  const SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
+  var WHITELIST = deserialize(localStorage.whitelist) || {};
+  var SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
   
   if (SITE_WHITELIST[service_name+':'+category]==undefined)
   {
@@ -239,8 +239,8 @@ function getWhitelistStatus(DOMAIN,tab,service_name,category){
 
 //Set status whitelisted service
 function setWhitelistStatus(DOMAIN,tab,service_name,category,status){
-  const WHITELIST = deserialize(localStorage.whitelist) || {};
-  const SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
+  var WHITELIST = deserialize(localStorage.whitelist) || {};
+  var SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
   
   SITE_WHITELIST[service_name+':'+category]=status;
   localStorage.whitelist = JSON.stringify(WHITELIST);
@@ -262,8 +262,8 @@ function isDeactivateCurrent(DOMAIN,ID){
 
   var status=false;
   //return true;
-  const WHITELIST = deserialize(localStorage.whitelist) || {};
-  const SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
+  var WHITELIST = deserialize(localStorage.whitelist) || {};
+  var SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
 
   //Render Adtracks in GUI
   try
@@ -302,7 +302,7 @@ function createUUID() {
 
 /* Populates an array of a given length with a default value. */
 function initializeArray(length, defaultValue) {
-  const ARRAY = [];
+  var ARRAY = [];
   for (var i = 0; i < length; i++) ARRAY[i] = defaultValue;
   return ARRAY;
 }
@@ -314,12 +314,12 @@ function deserialize(object) {
 
 /* Rewrites a generic cookie with specific domains and paths. */
 function mapCookie(cookie, storeId, url, domain, subdomains, paths) {
-  const MINIMIZE = Math.min;
-  const SUBDOMAIN_COUNT = MINIMIZE(subdomains.length, 20);
+  var MINIMIZE = Math.min;
+  var SUBDOMAIN_COUNT = MINIMIZE(subdomains.length, 20);
       // Chrome won't persist more than 22 domains because of cookie limits.
   delete cookie.hostOnly;
   delete cookie.session;
-  const DOMAIN = cookie.domain;
+  var DOMAIN = cookie.domain;
 
   for (var i = 0; i < SUBDOMAIN_COUNT; i++) {
     var subdomain = subdomains[i];
@@ -328,7 +328,7 @@ function mapCookie(cookie, storeId, url, domain, subdomains, paths) {
     COOKIES.set(cookie);
   }
 
-  const PATH_COUNT = MINIMIZE(paths.length, 10);
+  var PATH_COUNT = MINIMIZE(paths.length, 10);
       // Chrome won't persist more than 11 paths.
   cookie.domain = DOMAIN;
 
@@ -345,16 +345,16 @@ function mapCookie(cookie, storeId, url, domain, subdomains, paths) {
 /* Rewrites a batch of generic cookies with specific domains and paths. */
 function mapCookies(url, service) {
   COOKIES.getAllCookieStores(function(cookieStores) {
-    const STORE_COUNT = cookieStores.length;
-    const DOMAIN = '.' + service[1][0];
-    const SUBDOMAINS = service[2];
-    const PATHS = service[3];
+    var STORE_COUNT = cookieStores.length;
+    var DOMAIN = '.' + service[1][0];
+    var SUBDOMAINS = service[2];
+    var PATHS = service[3];
 
     for (var i = 0; i < STORE_COUNT; i++) {
       var storeId = cookieStores[i].id;
 
       COOKIES.getAll({url: url, storeId: storeId}, function(cookies) {
-        const COOKIE_COUNT = cookies.length;
+        var COOKIE_COUNT = cookies.length;
         for (var j = 0; j < COOKIE_COUNT; j++)
             mapCookie(cookies[j], storeId, url, DOMAIN, SUBDOMAINS, PATHS);
       });
@@ -364,11 +364,11 @@ function mapCookies(url, service) {
 
 /* Erases a batch of cookies. */
 function deleteCookies(url, domain, path, storeId, name) {
-  const DETAILS = {url: url, storeId: storeId};
+  var DETAILS = {url: url, storeId: storeId};
   if (name) DETAILS.name = name;
 
   COOKIES.getAll(DETAILS, function(cookies) {
-    const COOKIE_COUNT = cookies.length;
+    var COOKIE_COUNT = cookies.length;
 
     for (var i = 0; i < COOKIE_COUNT; i++) {
       var cookie = cookies[i];
@@ -383,12 +383,12 @@ function deleteCookies(url, domain, path, storeId, name) {
 /* Rewrites a batch of specific cookies with a generic domain and path. */
 function reduceCookies(url, service, name) {
   COOKIES.getAllCookieStores(function(cookieStores) {
-    const STORE_COUNT = cookieStores.length;
-    const SUBDOMAINS = service[2];
-    const SUBDOMAIN_COUNT = SUBDOMAINS.length;
-    const DOMAIN = '.' + service[1][0];
-    const PATHS = service[3];
-    const PATH_COUNT = PATHS.length;
+    var STORE_COUNT = cookieStores.length;
+    var SUBDOMAINS = service[2];
+    var SUBDOMAIN_COUNT = SUBDOMAINS.length;
+    var DOMAIN = '.' + service[1][0];
+    var PATHS = service[3];
+    var PATH_COUNT = PATHS.length;
 
     for (var i = 0; i < STORE_COUNT; i++) {
       var storeId = cookieStores[i].id;
@@ -400,7 +400,7 @@ function reduceCookies(url, service, name) {
 
         if (!name && !j) {
           COOKIES.getAll({url: mappedUrl, storeId: storeId}, function(cookies) {
-            const COOKIE_COUNT = cookies.length;
+            var COOKIE_COUNT = cookies.length;
 
             for (var i = 0; i < COOKIE_COUNT; i++) {
               var details = cookies[i];

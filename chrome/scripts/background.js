@@ -32,7 +32,7 @@ function editSettings(state) {
 /* Preps the browser action. */
 function initializeToolbar() {
   BROWSER_ACTION.setBadgeBackgroundColor({color: [85, 144, 210, 255]});
-  const DETAILS = {popup: (SAFARI ? 'chrome' : '') + '/markup/popup.html'};
+  var DETAILS = {popup: (SAFARI ? 'chrome' : '') + '/markup/popup.html'};
 
   if (SAFARI) {
     DETAILS.width = 148;
@@ -78,7 +78,7 @@ function updateCounter(tabId, count, deactivated) {
 /* Indicates the number of tracking requests, if the tab is rendered. */
 function safelyUpdateCounter(tabId, count, deactivated) {
   TABS.query({}, function(tabs) {
-    const TAB_COUNT = tabs.length;
+    var TAB_COUNT = tabs.length;
 
     for (var i = 0; i < TAB_COUNT; i++) {
       if (tabId == tabs[i].id) {
@@ -91,12 +91,12 @@ function safelyUpdateCounter(tabId, count, deactivated) {
 
 /* Tallies and indicates the number of tracking requests. */
 function incrementCounter(tabId, service, blocked) {
-  //  const TAB_REQUESTS = REQUEST_COUNTS[tabId] || (REQUEST_COUNTS[tabId] = {});
-  //  const CATEGORY = service.category;
-  //  const CATEGORY_REQUESTS =
+  //  var TAB_REQUESTS = REQUEST_COUNTS[tabId] || (REQUEST_COUNTS[tabId] = {});
+  //  var CATEGORY = service.category;
+  //  var CATEGORY_REQUESTS =
   //      TAB_REQUESTS[CATEGORY] || (TAB_REQUESTS[CATEGORY] = {});
-  //  const SERVICE = service.name;
-  //  const SERVICE_REQUESTS =
+  //  var SERVICE = service.name;
+  //  var SERVICE_REQUESTS =
   //      CATEGORY_REQUESTS[SERVICE] ||
   //          (CATEGORY_REQUESTS[SERVICE] = {url: service.url, count: 0});
   //  SERVICE_REQUESTS.count++;
@@ -109,69 +109,69 @@ function incrementCounter(tabId, service, blocked) {
   safelyUpdateCounter(tabId, ADTRACKS_BADGE_COUNTER[tabId], !blocked);
 }
 
-const SOCIAL_SERVICES = ['Facebook','Twitter'];
-const TRADED_SERVICES = ['Doubleclick','Chango','Pubmatic','adxhm','eBay','Fox One Stop Media','Federated Media','eXelate','Casale Media','LiveIntent','Improve Digital','Criteo','Rapleaf','AudienceManager','OpenX','AOL','AddThis','AppNexus','LiveRail','BrightRoll','Skimlinks','SpotXchange','adBrite','CONTEXTWEB','rmxregateKnowledge','Adap.tv'];
-const SEARCHS_DOMAINS = ['google.com','bing.com','yahoo.com'];
+var SOCIAL_SERVICES = ['Facebook','Twitter'];
+var TRADED_SERVICES = ['Doubleclick','Chango','Pubmatic','adxhm','eBay','Fox One Stop Media','Federated Media','eXelate','Casale Media','LiveIntent','Improve Digital','Criteo','Rapleaf','AudienceManager','OpenX','AOL','AddThis','AppNexus','LiveRail','BrightRoll','Skimlinks','SpotXchange','adBrite','CONTEXTWEB','rmxregateKnowledge','Adap.tv'];
+var SEARCHS_DOMAINS = ['google.com','bing.com','yahoo.com'];
 
-const ADTRACKS = {};
-const ADTRACKS_BADGE_COUNTER = {};
+var ADTRACKS = {};
+var ADTRACKS_BADGE_COUNTER = {};
 
 /* The current build number. */
-const CURRENT_BUILD = 42;
+var CURRENT_BUILD = 42;
 
 /* The previous build number. */
-const PREVIOUS_BUILD = localStorage.build;
+var PREVIOUS_BUILD = localStorage.build;
 
 /* The domain name of the tabs. */
-const DOMAINS = {};
+var DOMAINS = {};
 
 /* The WHITELISTed services per domain name. */
-const WHITELIST = deserialize(localStorage.whitelist) || {};
+var WHITELIST = deserialize(localStorage.whitelist) || {};
 
 /* The previous requested URL of the tabs. */
-const REQUESTS = {};
+var REQUESTS = {};
 
 /* The previous redirected URL of the tabs. */
-const REDIRECTS = {};
+var REDIRECTS = {};
 
 /* The number of tracking requests per tab, overall and by third party. */
-const REQUEST_COUNTS = {};
+var REQUEST_COUNTS = {};
 
 /* The content key. */
-const CONTENT_NAME = 'Content';
+var CONTENT_NAME = 'Content';
 
 /* The content key. */
-const SOCIAL_NAME = 'Social';
+var SOCIAL_NAME = 'Social';
 
 /* The "tabs" API. */
-const TABS = chrome.tabs;
+var TABS = chrome.tabs;
 
 /* The "privacy" API. */
-if (false) const PRIVACY = chrome.privacy.services;
+if (false) var PRIVACY = chrome.privacy.services;
 
 /* The "cookies" API. */
-const COOKIES = chrome.cookies; 
+var COOKIES = chrome.cookies; 
 
 /* The "browserAction" API. */
-const BROWSER_ACTION = chrome.browserAction;
+var BROWSER_ACTION = chrome.browserAction;
 
 /* The "instantEnabled" property. */
-if (false) const INSTANT_ENABLED = PRIVACY.instantEnabled;
+if (false) var INSTANT_ENABLED = PRIVACY.instantEnabled;
 
 /* The "searchSuggestEnabled" property. */
-if (false) const SUGGEST_ENABLED = PRIVACY.searchSuggestEnabled;
+if (false) var SUGGEST_ENABLED = PRIVACY.searchSuggestEnabled;
 
 /* The experimental value of the "levelOfControl" property. */
-const EDITABLE = 'controllable_by_this_extension';
+var EDITABLE = 'controllable_by_this_extension';
 
 /* The domain object. */
-const SITENAME = new Sitename;
+var SITENAME = new Sitename;
 
 /* The domain initialization. */
-const IS_INITIALIZED = SITENAME.isInitialized;
+var IS_INITIALIZED = SITENAME.isInitialized;
 
 /* The domain getter. */
-const GET = SITENAME.get;
+var GET = SITENAME.get;
 
 /* Last query search */
 var lastQuerySearch='';
@@ -179,16 +179,16 @@ var lastQuerySearch='';
 initializeToolbar();
 
 /* Prepopulates the store of tab domain names. */
-const ID = setInterval(function() {
+var ID = setInterval(function() {
   if (IS_INITIALIZED()) {
     clearInterval(ID);
-    const TLDS = deserialize(localStorage.tlds);
+    var TLDS = deserialize(localStorage.tlds);
     TLDS['google.com'] = true;
     TLDS['yahoo.com'] = true;
     localStorage.tlds = JSON.stringify(TLDS);
 
     TABS.query({}, function(tabs) {
-      const TAB_COUNT = tabs.length;
+      var TAB_COUNT = tabs.length;
 
       for (var i = 0; i < TAB_COUNT; i++) {
         var tab = tabs[i];
@@ -214,11 +214,11 @@ false && INSTANT_ENABLED.get({}, function(details) {
 /* Traps and selectively cancels or redirects a request. */
 chrome.webRequest.onBeforeRequest.addListener(function(details) {
   
-  const TYPE = details.type;
-  const PARENT = TYPE == 'main_frame';
-  const TAB_ID = details.tabId;
-  const REQUESTED_URL = details.url;
-  const CHILD_DOMAIN = GET(REQUESTED_URL);
+  var TYPE = details.type;
+  var PARENT = TYPE == 'main_frame';
+  var TAB_ID = details.tabId;
+  var REQUESTED_URL = details.url;
+  var CHILD_DOMAIN = GET(REQUESTED_URL);
   
   if (PARENT) DOMAINS[TAB_ID] = CHILD_DOMAIN;
   var childService = getService(CHILD_DOMAIN);
@@ -236,10 +236,10 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
     log_if_enabled(REQUESTED_URL, "adtrack");
     
     // Set up our provider    
-    const PARENT_DOMAIN = DOMAINS[TAB_ID];
-    const PARENT_SERVICE = getService(PARENT_DOMAIN);
-    const CHILD_NAME = childService.name;
-    const REDIRECT_SAFE = REQUESTED_URL != REQUESTS[TAB_ID];
+    var PARENT_DOMAIN = DOMAINS[TAB_ID];
+    var PARENT_SERVICE = getService(PARENT_DOMAIN);
+    var CHILD_NAME = childService.name;
+    var REDIRECT_SAFE = REQUESTED_URL != REQUESTS[TAB_ID];
     
     log_if_enabled("Parent [Domain: "+PARENT_DOMAIN+"] "+(PARENT_SERVICE?"category: "+PARENT_SERVICE.category+" name: "+PARENT_SERVICE.name+" url: "+PARENT_SERVICE.url+ "]":" - unknown parent service"), "adtrack");
     log_if_enabled("Child [Domain: "+CHILD_DOMAIN+" category: "+childService.category+" name: "+childService.name+" url: "+childService.url+ "]", "adtrack");
@@ -424,16 +424,16 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
 function lookforQuery(REQUESTED_URL)
 {
 
-  const CHILD_DOMAIN = GET(REQUESTED_URL);
-  //const PROXY_REDIRECT_BY_PRESETTING = "https://" + bgPlusOne.C_PROXY_PRESETTING;
-  //const PROXY_REDIRECT = "https://" + bgPlusOne.C_PROXY_SEARCH + "/search";
-  const REGEX_URL = /[?|&]q=(.+?)(&|$)/;
-  const REGEX_URL_YAHOO = /[?|&]p=(.+?)(&|$)/;
-  //const TYPE = details.type;
-  // const T_MAIN_FRAME = (TYPE == 'main_frame');
-  // const T_XMLHTTPREQUEST = (TYPE == 'xmlhttprequest');
+  var CHILD_DOMAIN = GET(REQUESTED_URL);
+  //var PROXY_REDIRECT_BY_PRESETTING = "https://" + bgPlusOne.C_PROXY_PRESETTING;
+  //var PROXY_REDIRECT = "https://" + bgPlusOne.C_PROXY_SEARCH + "/search";
+  var REGEX_URL = /[?|&]q=(.+?)(&|$)/;
+  var REGEX_URL_YAHOO = /[?|&]p=(.+?)(&|$)/;
+  //var TYPE = details.type;
+  // var T_MAIN_FRAME = (TYPE == 'main_frame');
+  // var T_XMLHTTPREQUEST = (TYPE == 'xmlhttprequest');
   //var REQUESTED_URL = details.url;
-  //const CHILD_DOMAIN = getHostname(REQUESTED_URL);
+  //var CHILD_DOMAIN = getHostname(REQUESTED_URL);
 
   //var blockingResponse = {cancel: false};
   var blocking = presetting = false;
@@ -680,7 +680,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
 /* Resets the number of tracking requests for a tab. */
 chrome.webNavigation.onCommitted.addListener(function(details) {
-  const TAB_ID = details.tabId;
+  var TAB_ID = details.tabId;
 
   if (!details.frameId) {
     delete ADTRACKS[TAB_ID];
@@ -692,7 +692,7 @@ chrome.webNavigation.onCommitted.addListener(function(details) {
 
 /* Builds a block list or adds to the number of blocked requests. */
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-  const TAB = sender.tab;
+  var TAB = sender.tab;
   
   if (request.sendEvent) {
     if (request.sendEvent == 'blimp-change-state' && request.data.hardenedState) {
@@ -706,10 +706,9 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
   
   /* TODO: What is going on here? */
   if (TAB != undefined && TAB.url != undefined && request.initialized) {
-    const URL = TAB.url;
-    const BLACKLIST = [];
-    const SITE_WHITELIST =
-        (deserialize(localStorage.whitelist) || {})[GET(URL)] || {};
+    var BLACKLIST = [];
+    var SITE_WHITELIST =
+        (deserialize(localStorage.whitelist) || {})[GET(TAB.url)] || {};
     
     // PROC_WHITELIST
     for (var i = 0; i < 0; i++) {
@@ -718,7 +717,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
       BLACKLIST[i] = [service[1], !!service[2], !SITE_WHITELIST[service[0]]];
     }
 
-    sendResponse({url: URL, blacklist: BLACKLIST});
+    sendResponse({url: TAB.url, blacklist: BLACKLIST});
   } else {
     SAFARI && incrementCounter(TAB.id, request.serviceIndex, request.blocked);
     sendResponse({});
