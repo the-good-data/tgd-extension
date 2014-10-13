@@ -313,15 +313,15 @@ function renderLoans(){
   LoadLoans(writeLoans);
 }
 
-function writeContributed(percentil){
+function writeContributed(percentileData){
 
   // Apprentice: users that are in the bottom 5% in terms of data items shared last month (unless they are cooperative members)
   // Journeyman: users that are not apprentices nor cooperative members
   // Owner: cooperative members that are in the bottom 20% in terms of data items shared last month (unless they are managers)
   // Expert: cooperative members that are not owners nor managers
   // Collaborator: cooperative members that have participated in the collaboration platform in the last month. Participation includes any kind of activity (posting content or commentaries, voting, setting up or completing tasks, etc)
-
-  var value=parseInt(percentil);
+  console.log(percentileData);
+  var value=parseInt(percentileData.value);
   var is_member=false;
 
   if (localStorage.member_id != 0){
@@ -329,32 +329,12 @@ function writeContributed(percentil){
     is_member=true;
   }
   
-  var text='',img='';
-
-  if (is_member && value < 20)
-  {
-    img="owner.png";
-    text='OWNER';
-  }
-  else if (is_member && value >= 20)
-  {
-    img="expert.png";
-    text='EXPERT';
-  }
-  else if (is_member == false && value < 5)
-  {
-    img="apprentice.png";
-    text='APPRENTICE';
-  }
-  else
-  {
-    img="journeyman.png";
-    text='JOURNEYMAN';
-  }
-
-  $('#layer_usertype_title').html(text);
+  var text = percentileData.level,
+      img = text.toLowerCase() + '.png';
+  
+  $('#layer_usertype_title').html(text.toUpperCase());
   $('#layer_usertype_image').attr("src","../images/"+img)
-    .addClass('icon '+text.toLowerCase());// not every icon is te same so some css styling must be applied.
+    .addClass('icon ' + text.toLowerCase());// not every icon is te same so some css styling must be applied.
 }
 
 //Render Contributed pieces counter in extension
