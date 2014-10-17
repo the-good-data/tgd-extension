@@ -716,6 +716,7 @@ function onEvents(DOMAIN, TAB)
             $('#txtUsername').val('');
             $('#txtUsername').val('');
             // changeExtensionIcon('on');
+            $('#sign-in').hide();
             onLoad();
           },
           function (error){ // fail
