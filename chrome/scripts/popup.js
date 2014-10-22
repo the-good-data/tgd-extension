@@ -716,7 +716,7 @@ function onEvents(DOMAIN, TAB)
             $('#txtUsername').val('');
             $('#txtUsername').val('');
             // changeExtensionIcon('on');
-            $('#sign-in').hide();
+            $('#sign-in').fadeOut('slow');
             onLoad();
           },
           function (error){ // fail
@@ -725,6 +725,13 @@ function onEvents(DOMAIN, TAB)
         );
       }
       event.preventDefault();
+    });
+
+    // submit on cicking "enter"
+    $("#login-form input").keypress(function(event) {
+      if (event.which == 13) {
+          $('#btnSignIn').click();
+      }
     });
 
     // Event click button "Deactivate Current"
