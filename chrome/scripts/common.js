@@ -983,6 +983,10 @@ function syncQueriesBlacklist(){
 
 function syncWhitelist(){
 
+  /**
+   * This feature gets disabled for now until future optimization.
+   */ 
+  return false;
   
   var whitelist=localStorage.whitelist;
   var user_id=localStorage.user_id;
