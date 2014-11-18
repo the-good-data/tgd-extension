@@ -93,7 +93,7 @@ switch (TGD_ENV) {
       log_categories.adtrack=false;
       log_categories.adtrack_batch=true;
       log_categories.query=true;
-      log_categories.browsing=true;
+      log_categories.browsing=false;
       break;
   }
   default: {

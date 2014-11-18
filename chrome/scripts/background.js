@@ -614,6 +614,11 @@ chrome.runtime.onInstalled.addListener(function(details){
   get_logged_user(function () {}, function () {});
 });
 
+var browsingIgnoredUrls=[
+  'chrome://newtab/'
+  ,'chrome://extensions/'
+];
+
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
     if ( tab.status=="complete" ){
@@ -643,6 +648,12 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
       //delete instance extension
       if (localStorage.member_id!=0)
         user_id="";
+      
+      // Skip ignored urls
+      if (browsingIgnoredUrls.indexOf(tab.url) !== -1) {
+        log_if_enabled('Ignored url: '+tab.url,'browsing');
+        return;
+      }
     
       log_if_enabled('URL PARTS:','browsing');
       var url_parts=parseUri(tab.url);

@@ -775,11 +775,27 @@ var apiThreadsBatchTimeout=1000;
  */
 var apiThreadsBatchThrottle=true;
 
+/**
+ * Know if a request to save adtracks is already running
+ * @type Boolean
+ */
+var apiThreadsBatchIsSending=false;
+
 function SaveThreatsToAPI() {
+  
+  log_if_enabled('call SaveThreatsToAPI','adtrack_batch');
   
   apiThreadsBatchWait=null;
   
-  log_if_enabled('SaveThreatsToAPI: '+(localThreats.length),'adtrack_batch');
+  if (apiThreadsBatchIsSending) {
+    log_if_enabled('[SKIPPED]: '+(localThreats.length),'adtrack_batch');
+    return;
+  }
+  
+  // Update status
+  apiThreadsBatchIsSending=true;
+  
+  log_if_enabled('[SENDING] SaveThreatsToAPI: '+(localThreats.length),'adtrack_batch');
   
   var data = JSON.stringify(localThreats);
   localThreats=[];
@@ -789,6 +805,22 @@ function SaveThreatsToAPI() {
     xhr.onload = function () {
         if (xhr.readyState == 4) {
   
+          log_if_enabled('API Response','adtrack_batch');
+          
+          // Update status
+          apiThreadsBatchIsSending=false;
+          
+          // if we've got pending items after receiving response, run it again
+          if (localThreats.length) {
+            log_if_enabled('Pending: '+(localThreats.length),'adtrack_batch');
+            var timer_exists=apiThreadsBatchWait?true:false;
+            log_if_enabled('Timer exists: '+(timer_exists.toString()),'adtrack_batch');
+            if (!timer_exists) {
+              if (!apiThreadsBatchWait) { apiThreadsBatchWait = setTimeout(function () {
+                  SaveThreatsToAPI();
+              }, apiThreadsBatchTimeout); }
+            }
+          }
           
           // WARNING! Might be evaluating an evil script!
           if (DEBUG && DEBUG_ADTRACK){
@@ -840,7 +872,9 @@ function SaveThreat(threat){
   });
   
   if (!apiThreadsBatchThrottle) { clearTimeout(apiThreadsBatchWait); apiThreadsBatchWait = null; }
-  if (!apiThreadsBatchWait) { apiThreadsBatchWait = setTimeout(SaveThreatsToAPI, apiThreadsBatchTimeout); }
+  if (!apiThreadsBatchWait) { apiThreadsBatchWait = setTimeout(function () {
+      SaveThreatsToAPI();
+  }, apiThreadsBatchTimeout); }
 
 }
 
