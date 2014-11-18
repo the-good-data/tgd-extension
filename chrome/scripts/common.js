@@ -750,56 +750,97 @@ function SaveBrowsing(browsing){
 
 }
 
+/**
+ * Variable where we store temporary local threats
+ * @type Array
+ */
+var localThreats=[];
+
+/**
+ * The timeout object
+ * @type setTimeout
+ */
+var apiThreadsBatchWait=null;
+
+/**
+ * The time to wait in miliseconds
+ * @type Number
+ */
+var apiThreadsBatchTimeout=1000;
+
+/**
+ * Throttle or not the batch, true means every time apiThreadsBatchTimeout 
+ * passes then it will be run once while false means it will only run one time.
+ * @type Boolean
+ */
+var apiThreadsBatchThrottle=true;
+
+function SaveThreatsToAPI() {
+  
+  apiThreadsBatchWait=null;
+  
+  log_if_enabled('SaveThreatsToAPI: '+(localThreats.length),'adtrack_batch');
+  
+  var data = JSON.stringify(localThreats);
+  localThreats=[];
+  
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', TGD_API+"api/adtracks", true);
+    xhr.onload = function () {
+        if (xhr.readyState == 4) {
+  
+          
+          // WARNING! Might be evaluating an evil script!
+          if (DEBUG && DEBUG_ADTRACK){
+            var resp = JSON.parse(xhr.responseText);
+            console.log('ADTRACK SALVADA EN EL API');
+            console.log('===========================');
+            console.log(resp);
+            console.log('===========================');
+            console.log('');
+          }
+  
+          if ( xhr.status == 200)  {
+            if (DEBUG && DEBUG_ADTRACK)
+              console.log(xhr.responseText);
+          }
+          else  {
+            console.log( "Error: " + xhr.status + ": " + xhr.statusText);
+          }
+  
+        }
+    };
+  
+    if (DEBUG && DEBUG_ADTRACK){
+      console.log('ADTRACK ENVIADA AL API');
+      console.log('===========================');
+      console.log(data);
+      console.log('===========================');
+      console.log('');
+    }
+  
+    xhr.send(data);
+}
+
 function SaveThreat(threat){
-
-  var data = new FormData();
-  data.append('member_id', threat.member_id);
-  data.append('user_id', threat.user_id);
-  data.append('category', threat.category);
-  data.append('service_name', threat.service_name);
-  data.append('service_url', threat.service_url);
-  data.append('url', threat.url);
-  data.append('domain', threat.domain);
-  data.append('usertime', threat.usertime);
-  data.append('status', threat.status);
-  data.append('language_support',threat.language_support)
-
-  var xhr = new XMLHttpRequest();
-  xhr.open('POST', TGD_API+"api/adtracks", true);
-  xhr.onload = function () {
-      if (xhr.readyState == 4) {
-
-        
-        // WARNING! Might be evaluating an evil script!
-        if (DEBUG && DEBUG_ADTRACK){
-          var resp = JSON.parse(xhr.responseText);
-          console.log('ADTRACK SALVADA EN EL API');
-          console.log('===========================');
-          console.log(resp);
-          console.log('===========================');
-          console.log('');
-        }
-
-        if ( xhr.status == 200)  {
-          if (DEBUG && DEBUG_ADTRACK)
-            console.log(xhr.responseText);
-        }
-        else  {
-          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
-        }
-
-      }
-  };
-
-  if (DEBUG && DEBUG_ADTRACK){
-    console.log('ADTRACK ENVIADA AL API');
-    console.log('===========================');
-    console.log(data);
-    console.log('===========================');
-    console.log('');
-  }
-
-  xhr.send(data);
+  
+  log_if_enabled('SaveThreat','adtrack_batch');
+  
+  localThreats.push({
+    'member_id': threat.member_id,
+    'user_id': threat.user_id,
+    'category': threat.category,
+    'service_name': threat.service_name,
+    'service_url': threat.service_url,
+    'url': threat.url,
+    'domain': threat.domain,
+    'usertime': threat.usertime,
+    'status': threat.status,
+    'language_support': threat.language_support
+  });
+  
+  if (!apiThreadsBatchThrottle) { clearTimeout(apiThreadsBatchWait); apiThreadsBatchWait = null; }
+  if (!apiThreadsBatchWait) { apiThreadsBatchWait = setTimeout(SaveThreatsToAPI, apiThreadsBatchTimeout); }
 
 }
 
@@ -909,7 +950,7 @@ function syncQueriesBlacklist(){
 function syncWhitelist(){
 
   
-  var whitelist=localStorage.whitelist
+  var whitelist=localStorage.whitelist;
   var user_id=localStorage.user_id;
   var member_id = localStorage.member_id;
 

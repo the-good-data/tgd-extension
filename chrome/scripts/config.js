@@ -74,6 +74,7 @@ const LANG = '_'+'en';
 
 var log_categories={
     adtrack: false,
+    adtrack_batch: true,
     query: false,
     browsing: false,
     login: false,
@@ -90,6 +91,7 @@ switch (TGD_ENV) {
   case "dev2": {
       CONST_DEBUG = true;
       log_categories.adtrack=false;
+      log_categories.adtrack_batch=true;
       log_categories.query=true;
       log_categories.browsing=true;
       break;
