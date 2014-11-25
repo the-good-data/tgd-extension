@@ -78,7 +78,8 @@ var log_categories={
     query: false,
     browsing: false,
     login: false,
-    saveUserSettings: false
+    saveUserSettings: false,
+    jsCache: false
 };
 
 // set main debug --------------------------------------------------------------
@@ -94,6 +95,7 @@ switch (TGD_ENV) {
       log_categories.adtrack_batch=true;
       log_categories.query=true;
       log_categories.browsing=false;
+      log_categories.jsCache=true;
       break;
   }
   default: {
