@@ -760,45 +760,80 @@ var localThreats=[];
  * The timeout object
  * @type setTimeout
  */
-var apiThreadsBatchWait=null;
+var apiThreatsBatchWait=null;
 
 /**
  * The time to wait in miliseconds
  * @type Number
  */
-var apiThreadsBatchTimeout=1000;
+var apiThreatsBatchTimeout=10000;
 
 /**
- * Throttle or not the batch, true means every time apiThreadsBatchTimeout 
+ * Throttle or not the batch, true means every time apiThreatsBatchTimeout 
  * passes then it will be run once while false means it will only run one time.
  * @type Boolean
  */
-var apiThreadsBatchThrottle=true;
+var apiThreatsBatchThrottle=true;
 
 /**
  * Know if a request to save adtracks is already running
  * @type Boolean
  */
-var apiThreadsBatchIsSending=false;
+var apiThreatsBatchIsSending=false;
+
+/**
+ * How many items to process per request?
+ * @type Number
+ */
+var apiThreatsBatchLimitItems=50;
 
 function SaveThreatsToAPI() {
   
   log_if_enabled('call SaveThreatsToAPI','adtrack_batch');
   
-  apiThreadsBatchWait=null;
+  apiThreatsBatchWait=null;
   
-  if (apiThreadsBatchIsSending) {
+  if (apiThreatsBatchIsSending) {
     log_if_enabled('[SKIPPED]: '+(localThreats.length),'adtrack_batch');
+    // if timeout is bigger than 5s and server did not answer yet, drop pending items
+    if (apiThreatsBatchTimeout >= 5000) {
+      log_if_enabled('[DROP]: '+(localThreats.length)+' items (slow server response)','adtrack_batch');
+      localThreats=[]; // drop remaining because server is overloaded
+    }
     return;
   }
   
   // Update status
-  apiThreadsBatchIsSending=true;
+  apiThreatsBatchIsSending=true;
   
-  log_if_enabled('[SENDING] SaveThreatsToAPI: '+(localThreats.length),'adtrack_batch');
+  log_if_enabled('[PROCESSING] SaveThreatsToAPI: '+(localThreats.length),'adtrack_batch');
   
-  var data = JSON.stringify(localThreats);
-  localThreats=[];
+  // Init data to send
+  var data = {};
+  
+  // If bigger than items limit per request, just get first chunk
+  if (localThreats.length > apiThreatsBatchLimitItems) {
+    log_if_enabled('-------> GET FIRST: '+(localThreats.length),'adtrack_batch');
+    // get first apiThreatsBatchLimitItems
+    data=localThreats.slice(0, apiThreatsBatchLimitItems);
+    // now remove from the pending list from (limit-1(because is zero based)) to remaining (localThreats qty - apiThreatsBatchLimitItems (items we've already cut))
+    localThreats=localThreats.slice(apiThreatsBatchLimitItems);
+//    log_if_enabled(data,'adtrack_batch');
+//    log_if_enabled(localThreats,'adtrack_batch');
+  } else {
+    // If smaller than limit, get all
+    log_if_enabled('-------> GET ALL: '+(localThreats.length),'adtrack_batch');
+    // get all
+    data=localThreats;
+    localThreats=[]; // clear remaining
+//    log_if_enabled(data,'adtrack_batch');
+//    log_if_enabled(localThreats,'adtrack_batch');
+  }
+  
+  log_if_enabled('[SENDING] SaveThreatsToAPI: '+(data.length)+'/'+(localThreats.length),'adtrack_batch');
+  
+  // Convert to json before sending
+  data = JSON.stringify(data);
   
     var xhr = new XMLHttpRequest();
     xhr.open('POST', TGD_API+"api/adtracks", true);
@@ -808,17 +843,17 @@ function SaveThreatsToAPI() {
           log_if_enabled('API Response','adtrack_batch');
           
           // Update status
-          apiThreadsBatchIsSending=false;
+          apiThreatsBatchIsSending=false;
           
           // if we've got pending items after receiving response, run it again
           if (localThreats.length) {
             log_if_enabled('Pending: '+(localThreats.length),'adtrack_batch');
-            var timer_exists=apiThreadsBatchWait?true:false;
+            var timer_exists=apiThreatsBatchWait?true:false;
             log_if_enabled('Timer exists: '+(timer_exists.toString()),'adtrack_batch');
             if (!timer_exists) {
-              if (!apiThreadsBatchWait) { apiThreadsBatchWait = setTimeout(function () {
+              if (!apiThreatsBatchWait) { apiThreatsBatchWait = setTimeout(function () {
                   SaveThreatsToAPI();
-              }, apiThreadsBatchTimeout); }
+              }, apiThreatsBatchTimeout); }
             }
           }
           
@@ -871,10 +906,10 @@ function SaveThreat(threat){
     'language_support': threat.language_support
   });
   
-  if (!apiThreadsBatchThrottle) { clearTimeout(apiThreadsBatchWait); apiThreadsBatchWait = null; }
-  if (!apiThreadsBatchWait) { apiThreadsBatchWait = setTimeout(function () {
+  if (!apiThreatsBatchThrottle) { clearTimeout(apiThreatsBatchWait); apiThreatsBatchWait = null; }
+  if (!apiThreatsBatchWait) { apiThreatsBatchWait = setTimeout(function () {
       SaveThreatsToAPI();
-  }, apiThreadsBatchTimeout); }
+  }, apiThreatsBatchTimeout); }
 
 }
 
