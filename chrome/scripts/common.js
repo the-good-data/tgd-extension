@@ -811,12 +811,12 @@ function SaveThreatsToAPI() {
   // Init data to send
   var data = {};
   
-  // If bigger than items limit per request, just get first chunk
+  // If bigger than items limit per request, just get first group
   if (localThreats.length > apiThreatsBatchLimitItems) {
     log_if_enabled('-------> GET FIRST: '+(localThreats.length),'adtrack_batch');
     // get first apiThreatsBatchLimitItems
     data=localThreats.slice(0, apiThreatsBatchLimitItems);
-    // now remove from the pending list from (limit-1(because is zero based)) to remaining (localThreats qty - apiThreatsBatchLimitItems (items we've already cut))
+    // now remove the first group from the pending list
     localThreats=localThreats.slice(apiThreatsBatchLimitItems);
 //    log_if_enabled(data,'adtrack_batch');
 //    log_if_enabled(localThreats,'adtrack_batch');
