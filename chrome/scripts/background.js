@@ -517,14 +517,25 @@ function extractSearch(searchEngineName,REQUESTED_URL)
     else if (searchEngineName == 'bing')
       seachTerm=data.q; 
 
-    if (lastQuerySearch == data.q)
+    if (lastQuerySearch == seachTerm)
       return;
+    
+    // add extra check to avoid request if term is empty
+    if (typeof(seachTerm)!='undefined' && seachTerm.length > 0) {
+      log_if_enabled('seachTerm: '+seachTerm,'query');
+    } else {
+      // got no term, return
+      log_if_enabled('no search term, returning','query');
+      return;
+    }
 
     var language = window.navigator.userLanguage || window.navigator.language;
     var localtime = new Date();
+    
+//    language='en'; // force language for testing purpose, comment this out
 
     CheckLanguagesSupport(language, function (language_support){
-
+      
       if (language_support.support == true){
         
         CheckQuery(seachTerm,language_support.alias, function(data_queries){
