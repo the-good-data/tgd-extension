@@ -634,6 +634,8 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
     if ( tab.status=="complete" ){
       
+      LoadAchievements(checkUnreadAchievements);
+      
       log_if_enabled('get_logged_user - FROM BACKGROUND TAB COMPLETE','login');
       get_logged_user(function () {}, function () {});
 

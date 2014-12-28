@@ -90,7 +90,7 @@ section#content {
       font-size: 12px;
       font-family: @font-semi-bold;
       height: 35px;
-
+      
       > div:first-child  {
         padding: 15px 5px 0px 30px;
       }
@@ -137,6 +137,14 @@ section#content {
             background-repeat: no-repeat;
             background-image: url(../images/loudspeaker-white.png);
           }
+        }
+      }
+      
+      &.unread {
+        background-color: @color-background-message-bar-unread;
+        .button {
+          background-color: @color-background-message-bar-unread-dark;
+          border-left: 1px solid @color-background-message-bar-unread-dark;
         }
       }
 

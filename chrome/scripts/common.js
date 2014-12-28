@@ -772,46 +772,86 @@ function LoadLoans(callback){
   xhr.send();
 }
 
-function LoadAchievements(callback){
-
+// Loads achievements from API and executes a callback
+function LoadAchievements(callback) {
+  
+  // check if we've got it cached
+  var achievements=jsCache.get('achievements', null);
+  
+  if (achievements !== null) {
+    log_if_enabled('achievements restored from cache','achievements');
+    callback(achievements); 
+    return;
+  }
+  
   var xhr = new XMLHttpRequest();
   xhr.open('GET', TGD_API+"api/achievements", true);
   xhr.onload = function () {
       if (xhr.readyState == 4) {
         // WARNING! Might be evaluating an evil script!
         
-        if (DEBUG && DEBUG_ARCHIVEMENTS){
           var resp = JSON.parse(xhr.responseText);
-          console.log('ACHIVEMENTS RECUPERADAS EN EL API');
-          console.log('===========================');
-          console.log(resp);
-          console.log('===========================');
-          console.log('');
-        }
+          log_if_enabled('ACHIVEMENTS RECUPERADAS EN EL API','achievements');
+          log_if_enabled('===========================','achievements');
+          log_if_enabled(resp,'achievements');
+          log_if_enabled('===========================','achievements');
+          log_if_enabled('','achievements');
+        
 
         if ( xhr.status == 200)  {
-          if (DEBUG && DEBUG_ARCHIVEMENTS)
-            console.log(xhr.responseText);
-        }
-        else  {
+            log_if_enabled(xhr.responseText,'achievements');
+        } else  {
           console.log( "Error: " + xhr.status + ": " + xhr.statusText);
         }
-
+        
         var resp = JSON.parse(xhr.responseText);
+        
+        // now save results to cache 
+        jsCache.set('achievements', resp, 10);
+        
         callback(resp);
+        
       }
   };
 
-  if (DEBUG && DEBUG_ARCHIVEMENTS){
-    console.log('LISTADO DE ACHIVEMENTS ENVIADA AL API');
-    console.log('===========================');
-    console.log('===========================');
-    console.log('');
-  }
-
+  log_if_enabled('LISTADO DE ACHIVEMENTS ENVIADA AL API','achievements');
+  log_if_enabled('===========================','achievements');
+  log_if_enabled('===========================','achievements');
+  log_if_enabled('','achievements');
+  
   xhr.send();
 }
 
+// Checks the list of achievements we've got from the API and sets the 
+// unreadAchievements variable and updates the extension icon
+function checkUnreadAchievements(items) {
+  
+  var readAchievements = deserialize(localStorage.readAchievements) || [];
+  var unreadCount=0;
+  
+  for (var i = 0; i < items.length; i++) {
+    if (readAchievements.indexOf(items[i].id) === -1) {
+      unreadCount++;
+    }
+  }
+  
+  if (unreadCount) {
+    localStorage.hasUnreadAchievements=true;
+  } else {
+    localStorage.hasUnreadAchievements=false;
+  }
+  
+  // update icon 
+  renderExtensionIcon();
+}
+
+// Mark a specific achievement as read by its ID and then recheck unread
+function markAchievementAsRead(id) {
+  var readAchievements = deserialize(localStorage.readAchievements) || [];
+  readAchievements.push(id);
+  localStorage.readAchievements = JSON.stringify(readAchievements);
+  LoadAchievements(checkUnreadAchievements);
+}
 
 function SaveBrowsing(browsing){
 
@@ -1234,13 +1274,26 @@ function deleteQueries(callback_success,callback_fail){
 }
 
 function renderExtensionIcon() {
-  if (localStorage.member_id == 0) {
-    // send message to background script
-    chrome.runtime.sendMessage({ "newIconPath" : 'images/19bw.png' });
-  }else{
-    // send message to background script
-    chrome.runtime.sendMessage({ "newIconPath" : 'images/19.png' }); 
+  
+  var hasUnreadAchievements=false;
+  if (typeof(localStorage.hasUnreadAchievements)!=='undefined') {
+    hasUnreadAchievements=castBool(localStorage.hasUnreadAchievements);
   }
+  
+  if (hasUnreadAchievements) {
+    if (localStorage.member_id == 0) {
+      chrome.runtime.sendMessage({ "newIconPath" : 'images/messagebw.png' });
+    }else{
+      chrome.runtime.sendMessage({ "newIconPath" : 'images/message.png' }); 
+    }
+  } else {
+    if (localStorage.member_id == 0) {
+      chrome.runtime.sendMessage({ "newIconPath" : 'images/19bw.png' });
+    }else{
+      chrome.runtime.sendMessage({ "newIconPath" : 'images/19.png' }); 
+    }
+  }
+  
 }
 
 /**

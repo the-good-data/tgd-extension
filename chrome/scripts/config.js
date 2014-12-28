@@ -79,7 +79,8 @@ var log_categories={
     browsing: false,
     login: false,
     saveUserSettings: false,
-    jsCache: false
+    jsCache: false,
+    achievements: false
 };
 
 // set main debug --------------------------------------------------------------
@@ -95,7 +96,8 @@ switch (TGD_ENV) {
       log_categories.adtrack_batch=true;
       log_categories.query=true;
       log_categories.browsing=false;
-      log_categories.jsCache=true;
+      log_categories.jsCache=false;
+      log_categories.achievements=true;
       break;
   }
   default: {
@@ -111,7 +113,6 @@ const DEBUG_QUERY = false;
 const DEBUG_QUERY_BLACKLIST = false;
 const DEBUG_WHITELIST = false;
 const DEBUG_CREDENTIAL= false;
-const DEBUG_ARCHIVEMENTS= false;
 const DEBUG_LOANS = false;
 const DEBUG_QUERY_CHECK = false;
 const DEBUG_QUERIES_COUNT = false;

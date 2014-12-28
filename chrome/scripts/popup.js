@@ -255,6 +255,20 @@ function renderAdtracks(tab) {
 //Write Achievements values
 function writeAchievement(achievements){
   
+  // get unread achievements var
+  var hasUnreadAchievements=false;
+  if (typeof(localStorage.hasUnreadAchievements)!=='undefined') {
+    hasUnreadAchievements=castBool(localStorage.hasUnreadAchievements);
+  }
+  
+  // add/remove unread class from header
+  var $headerMessageContainer=$('section#content header .message');
+  if (hasUnreadAchievements) {
+    $headerMessageContainer.addClass('unread');
+  } else {
+    $headerMessageContainer.removeClass('unread');
+  }
+  
   function changeSlide() {
     if(TGD.stopSlide){
       setTimeout(changeSlide, 1000);
@@ -263,6 +277,9 @@ function writeAchievement(achievements){
           if(current === length){
               current = 0;
           }
+          
+          // mark achievement as read after showing it
+          markAchievementAsRead(element.eq(current).attr('data-id'));
           
           element.eq(current).fadeIn(300);
       });
@@ -273,10 +290,32 @@ function writeAchievement(achievements){
 
   var text = '';
   $("#layer_achievement_value").empty();
+  
+  
+  
+  // reorder list based on what was already read and show first unread first
+  var readAchievements = deserialize(localStorage.readAchievements) || [];
+  var reorderedAchievements=[], reorderedAchievementsFirst=[], reorderedAchievementsLast=[];
+  for (var i = 0; i < achievements.length; i++) {
+    if (readAchievements.indexOf(achievements[i].id) === -1) {
+      reorderedAchievementsFirst.push(achievements[i]);
+    } else {
+      reorderedAchievementsLast.push(achievements[i]);
+    }
+  }
+  reorderedAchievements = reorderedAchievementsFirst.concat(reorderedAchievementsLast);
+  
+  
 
-  for(i = 0; i < achievements.length; i++){
-    var achievement = achievements[i];
-    $("#layer_achievement_value").append('<li><p><i></i><a href="'+achievement['link'+LANG]+'" target="_blank">'+achievement['text'+LANG]+'</a></p></li>');
+  for(var i = 0; i < reorderedAchievements.length; i++){
+    var achievement = reorderedAchievements[i];
+    
+    // mark first achievement already as read because it has been already displayed when the popup was opened
+    if (i===0) {
+      markAchievementAsRead(achievement.id);
+    }
+    
+    $("#layer_achievement_value").append('<li data-id="'+achievement.id+'"><p><i></i><a href="'+achievement['link'+LANG]+'" target="_blank">'+achievement['text'+LANG]+'</a></p></li>');
   }
 
   var element = $('#layer_achievement_value li'),
