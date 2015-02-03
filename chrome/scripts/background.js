@@ -531,35 +531,42 @@ function extractSearch(searchEngineName,REQUESTED_URL)
 
     var language = window.navigator.userLanguage || window.navigator.language;
     var localtime = new Date();
-    
+
 //    language='en'; // force language for testing purpose, comment this out
 
     CheckLanguagesSupport(language, function (language_support){
-      
-      if (language_support.support == true){
-        
-        CheckQuery(seachTerm,language_support.alias, function(data_queries){
 
+        var lang_support = language_support.support;
+
+      //if (language_support.support == true){
+
+        CheckQuery(seachTerm,language_support.alias, function(data_queries){
           if (data_queries.length==0){
 
             var sTemp = '';
 
-            var share='true';
+            //var share='true';
+            var share='false';
 
-            //Check if user has selected not to share info with our partner
-            if (castBool(localStorage.share_search) == true){
-              share='true'
-              chrome.tabs.executeScript(null, {file: 'scripts/provider.js'});
-              log_if_enabled('---> SCRIPT DE CHANGO','query');
-            }
-            else
-            {
-              share='false';
-              log_if_enabled('---> BLOQUEADO SCRIPT DE CHANGO','query');
-            }
-            
+              if (lang_support == true) {
+                  //Check if user has selected not to share info with our partner
+                  if (castBool(localStorage.share_search) == true) {
+                      share = 'true'
+                      chrome.tabs.executeScript(null, {file: 'scripts/provider.js'});
+                      log_if_enabled('---> SCRIPT DE CHANGO', 'query');
+                  }
+                  else {
+                      share = 'false';
+                      log_if_enabled('---> BLOQUEADO SCRIPT DE CHANGO', 'query');
+                  }
+              }
+              else{
+                  log_if_enabled('----> IMPOSIBLE IDIOMA NO SOPORTADO','query');
+              }
+
             var user_id = localStorage.user_id;
-            var language_support = true;
+            //var language_support = true;
+            var language_support = lang_support;
 
             //delete instance extension
             if (localStorage.member_id!=0)
@@ -589,12 +596,13 @@ function extractSearch(searchEngineName,REQUESTED_URL)
               
               log_if_enabled('===========================','query');
               log_if_enabled('','query')
-            
 
-            if ( castBool(localStorage.store_navigation) )
+
+
+              if ( castBool(localStorage.store_navigation) )
             {
               log_if_enabled('---> SALVADO QUERY','query');
-              SaveQuery(query);              
+              SaveQuery(query);
             }
             else
             {
@@ -608,10 +616,10 @@ function extractSearch(searchEngineName,REQUESTED_URL)
 
         })
 
-      }
-      else{
-        log_if_enabled('----> IMPOSIBLE IDIOMA NO SOPORTADO','query');
-      }
+      //}
+      //else{
+      //  log_if_enabled('----> IMPOSIBLE IDIOMA NO SOPORTADO','query');
+      //}
       
 
     });
