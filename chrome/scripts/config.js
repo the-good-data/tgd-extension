@@ -93,11 +93,11 @@ switch (TGD_ENV) {
   case "dev2": {
       CONST_DEBUG = true;
       log_categories.adtrack=false;
-      log_categories.adtrack_batch=true;
+      log_categories.adtrack_batch=false;
       log_categories.query=true;
       log_categories.browsing=false;
       log_categories.jsCache=false;
-      log_categories.achievements=true;
+      log_categories.achievements=false;
       break;
   }
   default: {

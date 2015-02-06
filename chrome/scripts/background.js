@@ -503,7 +503,7 @@ function lookforQuery(REQUESTED_URL)
 
 function extractSearch(searchEngineName,REQUESTED_URL)
 {
-  log_if_enabled('DETECTANDO QUERY','query');
+  log_if_enabled('DETECTING QUERY','query');
     
   var data = getDataFromQuery(REQUESTED_URL, searchEngineName);
   
@@ -553,15 +553,15 @@ function extractSearch(searchEngineName,REQUESTED_URL)
                   if (castBool(localStorage.share_search) == true) {
                       share = 'true'
                       chrome.tabs.executeScript(null, {file: 'scripts/provider.js'});
-                      log_if_enabled('---> SCRIPT DE CHANGO', 'query');
+                      log_if_enabled('---> LOAD CHANGO SCRIPT', 'query');
                   }
                   else {
                       share = 'false';
-                      log_if_enabled('---> BLOQUEADO SCRIPT DE CHANGO', 'query');
+                      log_if_enabled('---> BLOCK CHANGO SCRIPT: by user settings', 'query');
                   }
               }
               else{
-                  log_if_enabled('----> IMPOSIBLE IDIOMA NO SOPORTADO','query');
+                  log_if_enabled('----> BLOCK CHANGO SCRIPT: not supported language','query');
               }
 
             var user_id = localStorage.user_id;
@@ -590,7 +590,7 @@ function extractSearch(searchEngineName,REQUESTED_URL)
               'usertime': localtime.format("yyyy-mm-dd HH:MM:ss")
             };
 
-              log_if_enabled('QUERY DETECTADA','query');
+              log_if_enabled('QUERY DETECTED','query');
               log_if_enabled('===========================','query');
               log_if_enabled(query,'query');
               
@@ -601,20 +601,20 @@ function extractSearch(searchEngineName,REQUESTED_URL)
 
               if ( castBool(localStorage.store_navigation) )
             {
-              log_if_enabled('---> SALVADO QUERY','query');
+              log_if_enabled('---> SAVE QUERY','query');
               SaveQuery(query);
             }
             else
             {
-              log_if_enabled('---> BLOQUEADO SALVADO QUERY','query');
+              log_if_enabled('---> DON\'T SAVE QUERY','query');
             } 
            
           }
           else{
-            log_if_enabled('----> IMPOSIBLE CONTENIDO EN BLACKLIST','query');
+            log_if_enabled('----> CONTENT IN BLACKLIST: '+(data_queries.toString()),'query');
           }
 
-        })
+        });
 
       //}
       //else{
