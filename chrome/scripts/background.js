@@ -535,12 +535,14 @@ function extractSearch(searchEngineName,REQUESTED_URL)
 //    language='en'; // force language for testing purpose, comment this out
 
     CheckLanguagesSupport(language, function (language_support){
+      
+      log_if_enabled('CheckLanguagesSupport', 'query');
+      log_if_enabled(language_support, 'query');
 
-        var lang_support = language_support.support;
+        var lang_support = language_support !== null ? language_support.support : false;
+        var lang_alias = language_support !== null ? language_support.alias : language;
 
-      //if (language_support.support == true){
-
-        CheckQuery(seachTerm,language_support.alias, function(data_queries){
+        CheckQuery(seachTerm,lang_alias, function(data_queries){
           if (data_queries.length==0){
 
             var sTemp = '';
@@ -565,8 +567,6 @@ function extractSearch(searchEngineName,REQUESTED_URL)
               }
 
             var user_id = localStorage.user_id;
-            //var language_support = true;
-            var language_support = lang_support;
 
             //delete instance extension
             if (localStorage.member_id!=0)
@@ -585,7 +585,7 @@ function extractSearch(searchEngineName,REQUESTED_URL)
               'query':REQUESTED_URL,
               'data':seachTerm,
               'lang':language,
-              'language_support':language_support,
+              'language_support':lang_support,
               'share':share,
               'usertime': localtime.format("yyyy-mm-dd HH:MM:ss")
             };
@@ -615,12 +615,6 @@ function extractSearch(searchEngineName,REQUESTED_URL)
           }
 
         });
-
-      //}
-      //else{
-      //  log_if_enabled('----> IMPOSIBLE IDIOMA NO SOPORTADO','query');
-      //}
-      
 
     });
 
