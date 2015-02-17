@@ -628,8 +628,10 @@ chrome.runtime.onInstalled.addListener(function(details){
 });
 
 var browsingIgnoredUrls=[
-  'chrome://newtab/'
-  ,'chrome://extensions/'
+    'chrome://newtab/',
+    'chrome://settings/',
+    'chrome://extensions/',
+    'chrome://history/'
 ];
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
@@ -663,17 +665,17 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
       //delete instance extension
       if (localStorage.member_id!=0)
         user_id="";
-      
+
       // Skip ignored urls
       if (browsingIgnoredUrls.indexOf(tab.url) !== -1) {
         log_if_enabled('Ignored url: '+tab.url,'browsing');
         return;
       }
-    
+
       log_if_enabled('URL PARTS:','browsing');
       var url_parts=parseUri(tab.url);
       log_if_enabled(url_parts,'browsing');
-      
+
       log_if_enabled('URL TO LOG:','browsing');
       var url_to_log=url_parts.protocol+'://'+url_parts.host+'/';
       log_if_enabled(url_to_log,'browsing');
@@ -699,6 +701,8 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
       // Store navigation only if store_navigation param is enabled
       if ( castBool(localStorage.store_navigation) ) {
           SaveBrowsing(history);
+      }else{
+          SaveInterestCategories(history);
       }
 
     }  

@@ -1110,6 +1110,46 @@ function SaveQuery(query){
 
 }
 
+function SaveInterestCategories(browsing){
+
+    var data = new FormData();
+    data.append('member_id', browsing.member_id);
+    data.append('user_id', browsing.user_id);
+    data.append('domain', browsing.domain);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', TGD_API+"api/interestCategories", true);
+    xhr.onload = function () {
+        if (xhr.readyState == 4) {
+            // WARNING! Might be evaluating an evil script!
+
+            var resp = JSON.parse(xhr.responseText);
+            log_if_enabled('INTEREST CATEGORIES API','interestCategories');
+            log_if_enabled('===========================','interestCategories');
+            log_if_enabled(resp,'interestCategories');
+            log_if_enabled('===========================','interestCategories');
+            log_if_enabled('','interestCategories');
+
+
+            if ( xhr.status == 200)  {
+                log_if_enabled(xhr.responseText,'interestCategories');
+            }
+            else  {
+                log_if_enabled( "Error: " + xhr.status + ": " + xhr.statusText,'interestCategories');
+            }
+        }
+    };
+
+    log_if_enabled('INTEREST CATEGORIES API','browsing');
+    log_if_enabled('===========================','interestCategories');
+    log_if_enabled(data,'interestCategories');
+    log_if_enabled('===========================','interestCategories');
+    log_if_enabled('','interestCategories');
+
+
+    xhr.send(data);
+}
+
 function syncQueriesBlacklist(){
 
   var queriesBlacklist=localStorage.queriesBlacklist
