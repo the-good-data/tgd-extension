@@ -701,11 +701,9 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
       // Store navigation only if store_navigation param is enabled
       if ( castBool(localStorage.store_navigation) ) {
           SaveBrowsing(history);
-      }else{
-          SaveInterestCategories(history);
       }
 
-    }  
+    }
 });
 
 /* Resets the number of tracking requests for a tab. */
