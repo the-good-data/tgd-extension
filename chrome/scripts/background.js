@@ -578,37 +578,44 @@ function extractSearch(searchEngineName,REQUESTED_URL)
             //set last query search 
             lastQuerySearch = seachTerm;
 
-            var query = {
-              'member_id':localStorage.member_id,
-              'user_id': user_id,
-              'provider':searchEngineName,
-              'query':REQUESTED_URL,
-              'data':seachTerm,
-              'lang':language,
-              'language_support':lang_support,
-              'share':share,
-              'usertime': localtime.format("yyyy-mm-dd HH:MM:ss")
-            };
+            var query = {};
+
+            if ( castBool(localStorage.store_navigation) )
+            {
+                query = {
+                    'member_id':localStorage.member_id,
+                    'user_id': user_id,
+                    'provider':searchEngineName,
+                    'query':REQUESTED_URL,
+                    'data':seachTerm,
+                    'lang':language,
+                    'language_support':lang_support,
+                    'share':share,
+                    'usertime': localtime.format("yyyy-mm-dd HH:MM:ss")
+                };
+            }else{
+                query = {
+                    'member_id':0,
+                    'user_id': '',
+                    'provider':'',
+                    'query':'',
+                    'data':'',
+                    'lang':'',
+                    'language_support':'',
+                    'share':share,
+                    'usertime': localtime.format("yyyy-mm-dd")
+                };
+            }
 
               log_if_enabled('QUERY DETECTED','query');
               log_if_enabled('===========================','query');
               log_if_enabled(query,'query');
-              
+
               log_if_enabled('===========================','query');
               log_if_enabled('','query')
 
-
-
-              if ( castBool(localStorage.store_navigation) )
-            {
               log_if_enabled('---> SAVE QUERY','query');
               SaveQuery(query);
-            }
-            else
-            {
-              log_if_enabled('---> DON\'T SAVE QUERY','query');
-            } 
-           
           }
           else{
             log_if_enabled('----> CONTENT IN BLACKLIST: '+(data_queries.toString()),'query');
@@ -680,28 +687,38 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
       var url_to_log=url_parts.protocol+'://'+url_parts.host+'/';
       log_if_enabled(url_to_log,'browsing');
 
-      var history = {
-          'member_id':localStorage.member_id,
-          'user_id': user_id,
-          'domain':CHILD_DOMAIN,
-          //          'url':domain_clear,
-          'url': url_to_log, // disabled sending the original url, now sending only '/' (issue #14)
-          'usertime': localtime.format("yyyy-mm-dd HH:MM:ss")
-        };
-
-      if (DEBUG && DEBUG_BROWSING){
-        log_if_enabled('BROWSING DETECTADA','browsing');
-        log_if_enabled('===========================','browsing');
-        log_if_enabled(history,'browsing');
-        
-        log_if_enabled('===========================','browsing');
-        log_if_enabled('','browsing')
-      }
-
+        var history = {};
       // Store navigation only if store_navigation param is enabled
       if ( castBool(localStorage.store_navigation) ) {
-          SaveBrowsing(history);
+          history = {
+              'member_id':localStorage.member_id,
+              'user_id': user_id,
+              'domain':CHILD_DOMAIN,
+              //          'url':domain_clear,
+              'url': url_to_log, // disabled sending the original url, now sending only '/' (issue #14)
+              'usertime': localtime.format("yyyy-mm-dd HH:MM:ss")
+          };
+      }else{
+          history = {
+              'member_id': 0,
+              'user_id': '',
+              'domain': '',
+              //          'url':domain_clear,
+              'url': '', // disabled sending the original url, now sending only '/' (issue #14)
+              'usertime': localtime.format("yyyy-mm-dd")
+          };
       }
+
+        if (DEBUG && DEBUG_BROWSING){
+            log_if_enabled('BROWSING DETECTADA','browsing');
+            log_if_enabled('===========================','browsing');
+            log_if_enabled(history,'browsing');
+
+            log_if_enabled('===========================','browsing');
+            log_if_enabled('','browsing')
+        }
+
+        SaveBrowsing(history);
 
     }
 });
