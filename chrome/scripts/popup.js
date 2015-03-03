@@ -481,7 +481,7 @@ function renderLinks(){
   $('#moreStats').attr('href',TGD_URL+'evil-data');
   $('#moreAchievements').attr('href',TGD_URL+'good-data');
   $('#moreProjects').attr('href',TGD_URL+'good-data');
-  $('#moreAboutYou').attr('href',TGD_URL+'user-data'); // todo change this to your-data after deploying webapp to prod
+  $('#moreAboutYou').attr('href',TGD_URL+'your-data'); // todo change this to your-data after deploying webapp to prod
 }
 
 function setSuggestionFormDimensions() {
