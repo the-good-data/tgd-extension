@@ -369,10 +369,13 @@ function writeContributed(percentileData){
   }
   
   var text = percentileData.level,
-      img = text.toLowerCase() + '.png';
-  
+      img = percentileData.icon,
+      color = percentileData.color;
+
   $('#layer_usertype_title').html(text.toUpperCase());
-  $('#layer_usertype_image').attr("src","../images/"+img)
+  //$('#layer_usertype_title').css('color', color);
+  $('#layer_usertype_image').attr("src",TGD_API+"uploads/seniority/"+img)
+  //$('#layer_usertype_image').attr("src","../images/"+img)
     .addClass('icon ' + text.toLowerCase());// not every icon is te same so some css styling must be applied.
 }
 
