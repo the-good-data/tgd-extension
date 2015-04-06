@@ -45,6 +45,10 @@ switch (TGD_ENV) {
       CONST_TGD_API = "http://www.tgd.local/";
       break;
   }
+  case "pre": {
+      CONST_TGD_API = "https://pre.thegooddata.org/";
+      break;
+  }
   default: {
       CONST_TGD_API = "https://www.thegooddata.org/";
   }
@@ -61,6 +65,10 @@ switch (TGD_ENV) {
   }
   case "dev2": {
       CONST_URL = "http://www.tgd.local/";
+      break;
+  }
+  case "pre": {
+      CONST_URL = "https://pre.thegooddata.org/";
       break;
   }
   default: {
