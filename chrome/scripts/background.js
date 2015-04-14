@@ -554,15 +554,16 @@ function extractSearch(searchEngineName,REQUESTED_URL)
                   //Check if user has selected not to share info with our partner
                   if (castBool(localStorage.share_search) == true) {
                       share = 'true'
-                      log_if_enabled('---> LOAD', 'query');
+                      chrome.tabs.executeScript(null, {file: 'scripts/provider.js'});
+                      log_if_enabled('---> LOAD CHANGO SCRIPT', 'query');
                   }
                   else {
                       share = 'false';
-                      log_if_enabled('---> BLOCK: by user settings', 'query');
+                      log_if_enabled('---> BLOCK CHANGO SCRIPT: by user settings', 'query');
                   }
               }
               else{
-                  log_if_enabled('----> BLOCK: not supported language','query');
+                  log_if_enabled('----> BLOCK CHANGO SCRIPT: not supported language','query');
               }
 
             var user_id = localStorage.user_id;
