@@ -533,7 +533,7 @@ function CheckLanguagesSupport(lang,callback){
   // not cached, make request
   var xhr = new XMLHttpRequest();
 
-  xhr.open('GET', TGD_API+"api/languagesSupport/"+lang, false);
+  xhr.open('GET', TGD_API+"api/languagesSupport/"+lang, true);
   xhr.onload = function () {
       if (xhr.readyState == 4) {
         
@@ -583,7 +583,7 @@ function CheckQuery(query,alias,callback){
   console.log('----->'+query);
 
   //query = query.replace("%","");
-  xhr.open('GET', TGD_API+"api/queriesblacklist/"+alias+"/"+query, false);
+  xhr.open('GET', TGD_API+"api/queriesblacklist/"+alias+"/"+query, true);
   xhr.onload = function () {
       if (xhr.readyState == 4) {
         
