@@ -579,11 +579,11 @@ function CheckQuery(query,alias,callback){
 
   var xhr = new XMLHttpRequest();
 
-  query = encodeURI(query);
-  console.log('----->'+query);
+  var data = new FormData();
+  data.append('query', query);
+  data.append('lang', alias);
 
-  //query = query.replace("%","");
-  xhr.open('GET', TGD_API+"api/queriesblacklist/"+alias+"/"+query, true);
+  xhr.open('POST', TGD_API+"api/checkQueriesBlacklist", true);
   xhr.onload = function () {
       if (xhr.readyState == 4) {
         
@@ -618,7 +618,7 @@ function CheckQuery(query,alias,callback){
     console.log('');
   }
 
-  xhr.send();
+  xhr.send(data);
 }
 
 function LoadContributed(callback){
