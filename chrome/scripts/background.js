@@ -639,7 +639,7 @@ var browsingIgnoredUrls=[
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
-    if ( tab.status=="complete" ){
+    if ( changeInfo.status=="complete" ){
       
       LoadAchievements(checkUnreadAchievements);
       
