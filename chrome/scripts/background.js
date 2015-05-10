@@ -630,13 +630,6 @@ chrome.runtime.onInstalled.addListener(function(details){
   get_logged_user(function () {}, function () {});
 });
 
-var browsingIgnoredUrls=[
-    'chrome://newtab/',
-    'chrome://settings/',
-    'chrome://extensions/',
-    'chrome://history/'
-];
-
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 
     if ( changeInfo.status=="complete" ){
@@ -670,7 +663,7 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
         user_id="";
 
       // Skip ignored urls
-      if (browsingIgnoredUrls.indexOf(tab.url) !== -1) {
+      if (!(/^http(s)?:\/\//.test(tab.url))) {
         log_if_enabled('Ignored url: '+tab.url,'browsing');
         return;
       }
