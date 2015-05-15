@@ -623,46 +623,38 @@ function CheckQuery(query,alias,callback){
 
 function LoadContributed(callback){
 
-  var value='';
-
-  if (localStorage.member_id != 0){
-    value=localStorage.member_id;
-  }
-  else
-  {
-    value=localStorage.user_id;
-  }
-
+  var value = (localStorage.member_id !== 0)? localStorage.member_id : localStorage.user_id;
+  var resp;
   var xhr = new XMLHttpRequest();
   xhr.open('GET', TGD_API+"api/queries/percentile/"+value, true);
   xhr.onload = function () {
       if (xhr.readyState == 4) {
-        
-        if (DEBUG && DEBUG_QUERIES_PERCENTILE){
-          var resp = xhr.responseText;
-          console.log('QUERIES PERCENTILE RECUPERADAS EN EL API');
-          console.log('===========================');
-          console.log(resp);
-          console.log('===========================');
-          console.log('');
-        }
 
         if ( xhr.status == 200)  {
-          if (DEBUG && DEBUG_QUERIES_PERCENTILE)
-            console.log(xhr.responseText);
+          resp = xhr.responseText;
+          localStorage.contributed = resp;
+          try{
+            resp=JSON.parse(xhr.responseText);
+          }
+          catch(e){
+            resp = {};
+          }
+
+          if (DEBUG && DEBUG_QUERIES_PERCENTILE){
+            console.log('QUERIES PERCENTILE RECUPERADAS EN EL API');
+            console.log('===========================');
+            console.log(resp);
+            console.log('===========================');
+            console.log('');
+          }
+
+          callback(resp);
         }
         else  {
-          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
+          if (DEBUG && DEBUG_QUERIES_PERCENTILE){
+            console.log( "Error: " + xhr.status + ": " + xhr.statusText);
+          }
         }
-
-        var resp = 0;
-        try
-        {
-          resp=JSON.parse(xhr.responseText);
-        }
-        catch(e){}
-
-        callback(resp);
       }
   };
 

@@ -75,6 +75,7 @@ function updateCounter(tabId, count, deactivated) {
   // }
 }
 
+
 /* Indicates the number of tracking requests, if the tab is rendered. */
 function safelyUpdateCounter(tabId, count, deactivated) {
   TABS.query({}, function(tabs) {
@@ -177,6 +178,7 @@ var GET = SITENAME.get;
 var lastQuerySearch='';
 
 initializeToolbar();
+LoadContributed(function(json){localStorage.contributed = JSON.stringify(json);});
 
 /* Prepopulates the store of tab domain names. */
 var ID = setInterval(function() {
@@ -629,6 +631,7 @@ chrome.runtime.onInstalled.addListener(function(details){
   // so we can get user from webapp after it has been installed
   get_logged_user(function () {}, function () {});
 });
+
 
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
 

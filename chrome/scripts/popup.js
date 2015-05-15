@@ -16,11 +16,6 @@
   You should have received a copy of the GNU General Public License along with 
   this program.  If not, see <http://www.gnu.org/licenses/>.
 
-  Authors (one per line):
-
-    Brian Kennish <byoogle@gmail.com>
-    Raul Galindo  <rgalindo33@gmail.com>
-  
 */
 
 var BACKGROUND = chrome.extension.getBackgroundPage();
@@ -68,16 +63,21 @@ function renderAdtracks(tab) {
   var WHITELIST = DESERIALIZE(localStorage.whitelist) || {};
   var SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
 
-  //Clear
-  //$("#layer_adtracks > tbody").html("");
-  $('#layer_adtracks tr').not(function(){if ($(this).has('th').length){return true}}).remove();
-      
-  //Render header table
-
   var i = 0;
 
   var hAdtracks = new Hash();
   var hAdtracksCount = new Hash();
+  var offset;
+
+  //Clear
+  //$("#layer_adtracks > tbody").html(""); TODO: why not?
+  $('#layer_adtracks tr').not(function(){
+      if ($(this).has('th').length){
+        return true;
+      }
+    }).remove();
+      
+  //Render header table
 
   for (i in BACKGROUND.ADTRACKS[ID]) 
   {
@@ -150,8 +150,8 @@ function renderAdtracks(tab) {
 
   //Sort adtracks
   function partialSort(arr, start, end, index) {
-      var preSorted = arr.slice(0, start), 
-          postSorted = arr.slice(end);
+      var preSorted = arr.slice(0, start);
+      var postSorted = arr.slice(end);
 
       var sorted = arr.slice(start, end).sort(function(a,b){
         var A = $(a).children().eq(index).text().toUpperCase(),
@@ -191,7 +191,7 @@ function renderAdtracks(tab) {
   });
 
   // group by amount of threats and sort
-  var amounts = {}
+  var amounts = {};
   $.each(rows, function(index, row){
     //var value = parseInt($(row).children().eq(0).text(), 10);
     var value = parseInt($(row).children().eq(0).text(), 10);
@@ -202,7 +202,7 @@ function renderAdtracks(tab) {
     }
   });
 
-  var offset = 0;
+  offset = 0;
   for(key in amounts){
     if(amounts.hasOwnProperty(key)){
       partialSort(rows, offset, offset + amounts[key], 1);
@@ -221,7 +221,7 @@ function renderAdtracks(tab) {
     }
   });
 
-  var offset = 0;
+  offset = 0;
   for(key in amounts){
     if(amounts.hasOwnProperty(key)){
       partialSort(rows, offset, offset + amounts[key], 2);
@@ -232,19 +232,18 @@ function renderAdtracks(tab) {
   $('#layer_adtracks tbody').append(rows.reverse());
 
   // show/hide expand button for threats list
-  if (i==0){
+  if (i===0){
     $('#layer_adtracks').hide();
   }
-  else
-  {
+  else {
     $('#layer_adtracks').show();
   }
 
   //Render elements count
   if (BACKGROUND.ADTRACKS[ID] != undefined){
-    var count=BACKGROUND.ADTRACKS[ID].length;
+    count=BACKGROUND.ADTRACKS[ID].length;
     $('#layer_adtracks_count').html(count);
-    if(count == 0){
+    if(count === 0){
       $('#btnExpandAdtracks').hide();
     }
   }else{
@@ -359,14 +358,7 @@ function writeContributed(percentileData){
   // Owner: cooperative members that are in the bottom 20% in terms of data items shared last month (unless they are managers)
   // Expert: cooperative members that are not owners nor managers
   // Collaborator: cooperative members that have participated in the collaboration platform in the last month. Participation includes any kind of activity (posting content or commentaries, voting, setting up or completing tasks, etc)
-  console.log(percentileData);
-  var value=parseInt(percentileData.value);
-  var is_member=false;
-
-  if (localStorage.member_id != 0){
-    value=localStorage.member_id;
-    is_member=true;
-  }
+  // console.log(percentileData);
   
   var text = percentileData.level,
       img = percentileData.icon,
@@ -374,13 +366,16 @@ function writeContributed(percentileData){
 
   $('#layer_usertype_title').html(text.toUpperCase());
   //$('#layer_usertype_title').css('color', color);
-  $('#layer_usertype_image').attr("src",TGD_API+"uploads/seniority/"+img)
-  //$('#layer_usertype_image').attr("src","../images/"+img)
-    .addClass('icon ' + text.toLowerCase()).show();// not every icon is te same so some css styling must be applied.
+  $('#layer_usertype_image').
+    attr("src",TGD_API+"uploads/seniority/"+img).
+    addClass('icon ' + text.toLowerCase()).show();// not every icon is te same so some css styling must be applied.
 }
 
 //Render Contributed pieces counter in extension
 function renderContributed(){
+  if(typeof(localStorage.contributed) != undefined){
+    writeContributed(JSON.parse(localStorage.contributed));
+  }
   LoadContributed(writeContributed);
   if (localStorage.member_id != 0){
     $('#button_delete_stored_data').hide();
