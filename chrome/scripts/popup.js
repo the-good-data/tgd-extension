@@ -861,27 +861,6 @@ function onEvents(DOMAIN, TAB)
       renderOptions(TAB);
     });
 
-    // Event click button "Trade non-sensitive queries"
-    $('#level').on('click', '.btnShareSearch', function() { 
-      var share_search = castBool(localStorage.share_search);
-
-      share_search = !share_search;
-
-      localStorage.share_search = share_search;
-
-      //console.log('visualizar '+share_search);
-      //renderOptions(TAB);
-      
-      setButton(castBool(localStorage.share_search),'#layer_config_share_search');
-      
-      var ID = TAB.id;
-      
-      TABS.reload(ID);
-      
-      // Temp fix closing window so it will render new stats when opening again.
-      // window.close(); // disabled window close for now.
-    });
-
     // Event click button "blocked / allowed"
     $('#layer_adtracks').on('click', '.btnAdtrack', function() { 
       var ID = TAB.id;
