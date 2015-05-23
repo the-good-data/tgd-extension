@@ -774,7 +774,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 if (localStorage.user_id == undefined){
   localStorage.user_id = createUUID();
   localStorage.share_search = option_default_trade_sensitive_queries;
-  localStorage.store_navigation = false;
+  localStorage.store_navigation = option_default_store_navigation;
   localStorage.allow_social=false;
   localStorage.ask_confirmation = true;
   console.log('Generador user_id : '+localStorage.user_id);
@@ -784,7 +784,7 @@ if (localStorage.member_id == undefined){
   localStorage.member_id = 0;
   localStorage.member_username='';
   localStorage.share_search = option_default_trade_sensitive_queries;
-  localStorage.store_navigation = false;
+  localStorage.store_navigation = option_default_store_navigation;
   localStorage.allow_social=false;
   localStorage.ask_confirmation = true;
   console.log('Generador member_id : '+localStorage.member_id);
