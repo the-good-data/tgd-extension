@@ -22,6 +22,23 @@ For more info about TheGoodData, please visit our site and FAQs
 4. Push your changes.
 5. Send us pull requests!
 
+## How to change extension environment
+
+There is a variable that tells the extension what settings to load depending on the case.
+
+By default the extension works in "production" mode, with the official production API.
+
+In order to make it work in "development" mode to se debugging info in console, or to make 
+it work with the API of a local version of the webapp you must do the following:
+
+After loading the unpacked extension, open the console/debug window and type: 
+
+    localStorage.TGD_ENV='dev';
+
+List of environments are: dev, pre, prod, but more could be added if there is a special requirement.
+
+Once changed you sould reload and disable/enable the extension to make sure the new environment is active.
+
 ## Software used
 
 These libraries are bundled with the project and needn’t be updated manually:

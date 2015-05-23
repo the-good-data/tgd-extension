@@ -37,11 +37,7 @@ const SALT = "";
 // set api url ----------------------------------------------------------------
 var CONST_TGD_API;
 switch (TGD_ENV) {
-  case "dev1": {
-      CONST_TGD_API = "http://tgd.heavydots.com/";
-      break;
-  }
-  case "dev2": {
+  case "dev": {
       CONST_TGD_API = "http://www.tgd.local/";
       break;
   }
@@ -59,11 +55,7 @@ const TGD_API=CONST_TGD_API;
 // set website url -------------------------------------------------------------
 var CONST_URL;
 switch (TGD_ENV) {
-  case "dev1": {
-      CONST_URL = "http://tgd.heavydots.com/";
-      break;
-  }
-  case "dev2": {
+  case "dev": {
       CONST_URL = "http://www.tgd.local/";
       break;
   }
@@ -80,6 +72,13 @@ const TGD_URL=CONST_URL;
 // set extension lang
 const LANG = '_'+'en';
 
+// set other options
+var feature_trade_sensitive_queries=false;
+var option_default_trade_sensitive_queries=false;
+var option_default_store_navigation=true;
+
+// set debug settings --------------------------------------------------------------
+
 var log_categories={
     adtrack: false,
     adtrack_batch: true,
@@ -91,14 +90,10 @@ var log_categories={
     achievements: false
 };
 
-// set main debug --------------------------------------------------------------
 var CONST_DEBUG;
+
 switch (TGD_ENV) {
-  case "dev1":
-      CONST_DEBUG = true;
-      log_categories.login=true;
-      log_categories.saveUserSettings=true;
-  case "dev2": {
+  case "dev": {
       CONST_DEBUG = true;
       log_categories.adtrack=false;
       log_categories.adtrack_batch=false;

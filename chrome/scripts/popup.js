@@ -378,7 +378,7 @@ function renderContributed(){
     writeContributed(JSON.parse(localStorage.contributed));
   }
 
-  loadContributed(writeContributed);
+  LoadContributed(writeContributed);
 
   if (localStorage.member_id !== 0){
     $('#button_delete_stored_data').hide();
@@ -413,15 +413,21 @@ function setButton(status, id){
 //Render Contributed pieces counter in extension
 function renderOptions(tab){
   // store navigation and non-sensitive queries?
-  if (localStorage.store_navigation == undefined) {
-    localStorage.store_navigation=false;
+  if (typeof(localStorage.store_navigation) === 'undefined') {
+    localStorage.store_navigation=option_default_store_navigation;
   }
 
   var store_navigation = castBool(localStorage.store_navigation) ;
   setButton(store_navigation,'#layer_config_store_navigation');
 
   // Trade non-sensitive queries?
-  if (localStorage.share_search == undefined) {
+  if (feature_trade_sensitive_queries) {
+      $('#layer_config_share_search_container').show();
+  } else {
+      $('#layer_config_share_search_container').hide();
+  }
+  
+  if (typeof(localStorage.share_search) === 'undefined') {
     localStorage.share_search=true;
   }
 
@@ -429,7 +435,7 @@ function renderOptions(tab){
   setButton(share_search,'#layer_config_share_search');
 
   // Allow social networks?
-  if (localStorage.allow_social == undefined) {
+  if (typeof(localStorage.allow_social) === 'undefined') {
     localStorage.allow_social=false;
   }
 
@@ -859,6 +865,27 @@ function onEvents(DOMAIN, TAB)
 
       //console.log('visualizar '+store_navigation);
       renderOptions(TAB);
+    });
+    
+    // Event click button "Trade non-sensitive queries"
+    $('#level').on('click', '.btnShareSearch', function() { 
+      var share_search = castBool(localStorage.share_search);
+
+      share_search = !share_search;
+
+      localStorage.share_search = share_search;
+
+      //console.log('visualizar '+share_search);
+      //renderOptions(TAB);
+      
+      setButton(castBool(localStorage.share_search),'#layer_config_share_search');
+      
+      var ID = TAB.id;
+      
+      TABS.reload(ID);
+      
+      // Temp fix closing window so it will render new stats when opening again.
+      // window.close(); // disabled window close for now.
     });
 
     // Event click button "blocked / allowed"
