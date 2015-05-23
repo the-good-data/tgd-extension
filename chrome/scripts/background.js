@@ -234,7 +234,7 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
     
     log_if_enabled("", "adtrack");
     log_if_enabled("===================== INTERCEPTING REQUEST =====================", "adtrack");
-    log_if_enabled("Share search: "+castBool(localStorage.share_search), "adtrack");
+    log_if_enabled("Share search: "+castBool(localStorage.share_search+" feature_trade_sensitive_queries: " + feature_trade_sensitive_queries), "adtrack");
     log_if_enabled(REQUESTED_URL, "adtrack");
     
     // Set up our provider    
@@ -268,7 +268,7 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
     }
     
     // Trading services
-    else if (( (castBool(localStorage.share_search) && contains(TRADED_SERVICES,childService.name)) ) && (item_whitelist_status==undefined||item_whitelist_status))
+    else if (( (   (castBool(localStorage.share_search) && feature_trade_sensitive_queries)    && contains(TRADED_SERVICES,childService.name)) ) && (item_whitelist_status==undefined||item_whitelist_status))
     {
       
       log_if_enabled("BLOCK TRADING", "adtrack");
@@ -554,7 +554,7 @@ function extractSearch(searchEngineName,REQUESTED_URL)
 
               if (lang_support == true) {
                   //Check if user has selected not to share info with our partner
-                  if (castBool(localStorage.share_search) == true) {
+                  if (castBool(localStorage.share_search) === true && feature_trade_sensitive_queries) {
                       share = 'true';
                   }
                   else {
@@ -773,7 +773,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 /* Launch when extension is installed */
 if (localStorage.user_id == undefined){
   localStorage.user_id = createUUID();
-  localStorage.share_search = true;
+  localStorage.share_search = option_default_trade_sensitive_queries;
   localStorage.store_navigation = false;
   localStorage.allow_social=false;
   localStorage.ask_confirmation = true;
@@ -783,7 +783,7 @@ if (localStorage.user_id == undefined){
 if (localStorage.member_id == undefined){
   localStorage.member_id = 0;
   localStorage.member_username='';
-  localStorage.share_search = true;
+  localStorage.share_search = option_default_trade_sensitive_queries;
   localStorage.store_navigation = false;
   localStorage.allow_social=false;
   localStorage.ask_confirmation = true;

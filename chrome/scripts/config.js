@@ -74,6 +74,7 @@ const LANG = '_'+'en';
 
 // set other options
 var feature_trade_sensitive_queries=false;
+var option_default_trade_sensitive_queries=false;
 
 // set debug settings --------------------------------------------------------------
 
