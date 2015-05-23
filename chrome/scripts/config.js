@@ -55,11 +55,7 @@ const TGD_API=CONST_TGD_API;
 // set website url -------------------------------------------------------------
 var CONST_URL;
 switch (TGD_ENV) {
-  case "dev1": {
-      CONST_URL = "http://tgd.heavydots.com/";
-      break;
-  }
-  case "dev2": {
+  case "dev": {
       CONST_URL = "http://www.tgd.local/";
       break;
   }
@@ -90,11 +86,7 @@ var log_categories={
 // set main debug --------------------------------------------------------------
 var CONST_DEBUG;
 switch (TGD_ENV) {
-  case "dev1":
-      CONST_DEBUG = true;
-      log_categories.login=true;
-      log_categories.saveUserSettings=true;
-  case "dev2": {
+  case "dev": {
       CONST_DEBUG = true;
       log_categories.adtrack=false;
       log_categories.adtrack_batch=false;
