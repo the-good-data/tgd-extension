@@ -37,11 +37,7 @@ const SALT = "";
 // set api url ----------------------------------------------------------------
 var CONST_TGD_API;
 switch (TGD_ENV) {
-  case "dev1": {
-      CONST_TGD_API = "http://tgd.heavydots.com/";
-      break;
-  }
-  case "dev2": {
+  case "dev": {
       CONST_TGD_API = "http://www.tgd.local/";
       break;
   }
