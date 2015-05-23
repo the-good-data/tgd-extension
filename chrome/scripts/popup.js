@@ -421,6 +421,12 @@ function renderOptions(tab){
   setButton(store_navigation,'#layer_config_store_navigation');
 
   // Trade non-sensitive queries?
+  if (feature_trade_sensitive_queries) {
+      $('#layer_config_share_search_container').show();
+  } else {
+      $('#layer_config_share_search_container').hide();
+  }
+  
   if (typeof(localStorage.share_search) === 'undefined') {
     localStorage.share_search=true;
   }
@@ -859,6 +865,27 @@ function onEvents(DOMAIN, TAB)
 
       //console.log('visualizar '+store_navigation);
       renderOptions(TAB);
+    });
+    
+    // Event click button "Trade non-sensitive queries"
+    $('#level').on('click', '.btnShareSearch', function() { 
+      var share_search = castBool(localStorage.share_search);
+
+      share_search = !share_search;
+
+      localStorage.share_search = share_search;
+
+      //console.log('visualizar '+share_search);
+      //renderOptions(TAB);
+      
+      setButton(castBool(localStorage.share_search),'#layer_config_share_search');
+      
+      var ID = TAB.id;
+      
+      TABS.reload(ID);
+      
+      // Temp fix closing window so it will render new stats when opening again.
+      // window.close(); // disabled window close for now.
     });
 
     // Event click button "blocked / allowed"

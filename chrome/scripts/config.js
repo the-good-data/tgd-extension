@@ -72,6 +72,11 @@ const TGD_URL=CONST_URL;
 // set extension lang
 const LANG = '_'+'en';
 
+// set other options
+var feature_trade_sensitive_queries=false;
+
+// set debug settings --------------------------------------------------------------
+
 var log_categories={
     adtrack: false,
     adtrack_batch: true,
@@ -83,8 +88,8 @@ var log_categories={
     achievements: false
 };
 
-// set main debug --------------------------------------------------------------
 var CONST_DEBUG;
+
 switch (TGD_ENV) {
   case "dev": {
       CONST_DEBUG = true;
