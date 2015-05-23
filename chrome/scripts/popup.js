@@ -378,7 +378,7 @@ function renderContributed(){
     writeContributed(JSON.parse(localStorage.contributed));
   }
 
-  loadContributed(writeContributed);
+  LoadContributed(writeContributed);
 
   if (localStorage.member_id !== 0){
     $('#button_delete_stored_data').hide();
