@@ -2,7 +2,6 @@
   "manifest_version": 2,
   "name": "TheGoodData",
   "short_name": "TheGoodData",
-  "options_page": "markup/options.html",
   "version": "1.0.33",
   "description":
       "Protect your privacy, block trackers and make your browsing data work for a good cause.",
