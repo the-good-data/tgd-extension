@@ -413,7 +413,7 @@ function setButton(status, id){
 //Render Contributed pieces counter in extension
 function renderOptions(tab){
   // store navigation and non-sensitive queries?
-  if (localStorage.store_navigation == undefined) {
+  if (typeof(localStorage.store_navigation) === 'undefined') {
     localStorage.store_navigation=false;
   }
 
@@ -421,7 +421,7 @@ function renderOptions(tab){
   setButton(store_navigation,'#layer_config_store_navigation');
 
   // Trade non-sensitive queries?
-  if (localStorage.share_search == undefined) {
+  if (typeof(localStorage.share_search) === 'undefined') {
     localStorage.share_search=true;
   }
 
@@ -429,7 +429,7 @@ function renderOptions(tab){
   setButton(share_search,'#layer_config_share_search');
 
   // Allow social networks?
-  if (localStorage.allow_social == undefined) {
+  if (typeof(localStorage.allow_social) === 'undefined') {
     localStorage.allow_social=false;
   }
 
