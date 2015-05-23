@@ -414,7 +414,7 @@ function setButton(status, id){
 function renderOptions(tab){
   // store navigation and non-sensitive queries?
   if (typeof(localStorage.store_navigation) === 'undefined') {
-    localStorage.store_navigation=false;
+    localStorage.store_navigation=option_default_store_navigation;
   }
 
   var store_navigation = castBool(localStorage.store_navigation) ;

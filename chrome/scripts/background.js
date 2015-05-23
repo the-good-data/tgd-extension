@@ -771,7 +771,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 });
 
 /* Launch when extension is installed */
-if (localStorage.user_id == undefined){
+if (typeof(localStorage.user_id) === 'undefined'){
   localStorage.user_id = createUUID();
   localStorage.share_search = option_default_trade_sensitive_queries;
   localStorage.store_navigation = option_default_store_navigation;
@@ -780,7 +780,7 @@ if (localStorage.user_id == undefined){
   console.log('Generador user_id : '+localStorage.user_id);
 }
 
-if (localStorage.member_id == undefined){
+if (typeof(localStorage.member_id) === 'undefined'){
   localStorage.member_id = 0;
   localStorage.member_username='';
   localStorage.share_search = option_default_trade_sensitive_queries;
