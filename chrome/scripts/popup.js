@@ -380,7 +380,7 @@ function renderContributed(){
 
   LoadContributed(writeContributed);
 
-  if (localStorage.member_id !== 0){
+  if (localStorage.member_id != "0"){
     $('#button_delete_stored_data').hide();
   }else{
     $('#button_delete_stored_data').show();
