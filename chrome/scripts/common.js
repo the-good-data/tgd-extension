@@ -688,6 +688,7 @@ function LoadQueries(callback){
 
         if (DEBUG && DEBUG_QUERIES_COUNT){
           var resp = xhr.responseText;
+
           console.log('QUERIES COUNT RECUPERADAS EN EL API');
           console.log('===========================');
           console.log(resp);
@@ -707,9 +708,11 @@ function LoadQueries(callback){
         try
         {
           resp = JSON.parse(xhr.responseText);
+          localStorage.queries = resp;
+          
         }
         catch(e){}
-        
+
         callback(resp);
       }
   };
@@ -853,7 +856,7 @@ function SaveBrowsing(browsing){
   data.append('domain', browsing.domain);
   data.append('url', browsing.url);
   data.append('usertime', browsing.usertime);
-  
+
   var xhr = new XMLHttpRequest();
   xhr.open('POST', TGD_API+"api/browsing", true);
   xhr.onload = function () {

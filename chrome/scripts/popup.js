@@ -339,6 +339,9 @@ function writeQueries(queries){
 }
 
 function renderQueries(){
+  if(typeof(localStorage.queries) !== "undefined"){
+    writeQueries(JSON.parse(localStorage.queries));
+  }
   LoadQueries(writeQueries);
 }
 
