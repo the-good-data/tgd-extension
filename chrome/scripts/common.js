@@ -20,13 +20,112 @@
   
 */
 
-function contains(a, obj) {
-    for (var i = 0; i < a.length; i++) {
-        if (a[i] === obj) {
-            return true;
-        }
+
+/**
+ * Variable where we store temporary local threats
+ * @type Array
+ */
+ var local_threats                =[];
+ 
+ /**
+ * The timeout object
+ * @type setTimeout
+ */
+ var api_threats_batch_wait       =null;
+ 
+ /**
+ * The time to wait in miliseconds
+ * @type Number
+ */
+ var api_threats_batch_timeout    =10000;
+ 
+ /**
+ * Throttle or not the batch, true means every time api_threats_batch_timeout 
+ * passes then it will be run once while false means it will only run one time.
+ * @type Boolean
+ */
+ var api_threats_batch_throttle   =true;
+ 
+ /**
+ * Know if a request to save adtracks is already running
+ * @type Boolean
+ */
+ var api_threats_batch_is_sending =false;
+ 
+ /**
+ * How many items to process per request?
+ * @type Number
+ */
+ var api_threats_limit_items      =50;
+
+
+
+
+
+////////////////////////
+// Tool to parse url  //
+////////////////////////
+
+/**
+ * Options for the parseUri function.
+ * @type {Object}
+ */
+var parseUri_options = {
+    strictMode: false,
+    key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
+    q:   {
+            name:   "queryKey",
+            parser: /(?:^|&)([^&=]*)=?([^&]*)/g
+    },
+    parser: {
+            strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
+            loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
     }
-    return false;
+};
+
+/**
+ * Parses an URI and stores its pieces in an object.
+ * @param  {String} str   The URI to parse.
+ * @return {Object}       The resulting object.
+ */
+function parseUri(str) {
+    var o   = parseUri_options,
+            m   = o.parser[o.strictMode ? "strict" : "loose"].exec(str),
+            uri = {},
+            i   = 14;
+
+    while (i--) {
+      uri[o.key[i]] = m[i] || "";
+    }
+
+    uri[o.q.name] = {};
+    uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
+            if ($1) uri[o.q.name][$1] = $2;
+    });
+
+    return uri;
+}
+
+
+
+
+//////////////////////
+// Helper functions //
+//////////////////////
+
+/**
+ * Checks if an item exists in an object/array.
+ * @param  {Obect} a    Haystack.
+ * @param  {mixed} obj  Needle
+ * @return {Boolean}    True if the item is found, false otherwise.
+ */
+function contains(a, obj) {
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] === obj) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /*
@@ -42,15 +141,16 @@ function contains(a, obj) {
  * The date defaults to the current date/time.
  * The mask defaults to dateFormat.masks.default.
  */
-
 var dateFormat = function () {
-  var token = /d{1,4}|m{1,4}|yy(?:yy)?|([HhMsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g,
-    timezone = /\b(?:[PMCEA][SDP]T|(?:Pacific|Mountain|Central|Eastern|Atlantic) (?:Standard|Daylight|Prevailing) Time|(?:GMT|UTC)(?:[-+]\d{4})?)\b/g,
-    timezoneClip = /[^-+\dA-Z]/g,
-    pad = function (val, len) {
+  var token = /d{1,4}|m{1,4}|yy(?:yy)?|([HhMsTt])\1?|[LloSZ]|"[^"]*"|'[^']*'/g;
+  var timezone = /\b(?:[PMCEA][SDP]T|(?:Pacific|Mountain|Central|Eastern|Atlantic) (?:Standard|Daylight|Prevailing) Time|(?:GMT|UTC)(?:[-+]\d{4})?)\b/g;
+  var timezoneClip = /[^-+\dA-Z]/g;
+  var pad = function (val, len) {
       val = String(val);
       len = len || 2;
-      while (val.length < len) val = "0" + val;
+      while (val.length < len) {
+        val = "0" + val;
+      }
       return val;
     };
 
@@ -59,14 +159,16 @@ var dateFormat = function () {
     var dF = dateFormat;
 
     // You can't provide utc if you skip other args (use the "UTC:" mask prefix)
-    if (arguments.length == 1 && Object.prototype.toString.call(date) == "[object String]" && !/\d/.test(date)) {
+    if (arguments.length == 1 && Object.prototype.toString.call(date) == "[object String]" && !(/\d/.test(date))) {
       mask = date;
       date = undefined;
     }
 
     // Passing date through Date applies Date.parse, if necessary
     date = date ? new Date(date) : new Date;
-    if (isNaN(date)) throw SyntaxError("invalid date");
+    if (isNaN(date)) {
+      throw SyntaxError("invalid date");
+    }
 
     mask = String(dF.masks[mask] || mask || dF.masks["default"]);
 
@@ -76,17 +178,17 @@ var dateFormat = function () {
       utc = true;
     }
 
-    var _ = utc ? "getUTC" : "get",
-      d = date[_ + "Date"](),
-      D = date[_ + "Day"](),
-      m = date[_ + "Month"](),
-      y = date[_ + "FullYear"](),
-      H = date[_ + "Hours"](),
-      M = date[_ + "Minutes"](),
-      s = date[_ + "Seconds"](),
-      L = date[_ + "Milliseconds"](),
-      o = utc ? 0 : date.getTimezoneOffset(),
-      flags = {
+    var _ = utc ? "getUTC" : "get";
+    var d = date[_ + "Date"]();
+    var D = date[_ + "Day"]();
+    var m = date[_ + "Month"]();
+    var y = date[_ + "FullYear"]();
+    var H = date[_ + "Hours"]();
+    var M = date[_ + "Minutes"]();
+    var  s = date[_ + "Seconds"]();
+    var  L = date[_ + "Milliseconds"]();
+    var o = utc ? 0 : date.getTimezoneOffset();
+    var flags = {
         d:    d,
         dd:   pad(d),
         ddd:  dF.i18n.dayNames[D],
@@ -140,151 +242,87 @@ dateFormat.masks = {
 
 // Internationalization strings
 dateFormat.i18n = {
-  dayNames: [
-    "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat",
-    "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
-  ],
-  monthNames: [
-    "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-    "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"
-  ]
+  dayNames: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
+  monthNames: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 };
 
 // For convenience...
 Date.prototype.format = function (mask, utc) {
   return dateFormat(this, mask, utc);
 };
-/* Generate a Hashtable  */
-function Hash()
-{
-    this.length = 0;
-    this.items = new Array();
-    for (var i = 0; i < arguments.length; i += 2) {
-        if (typeof(arguments[i + 1]) != 'undefined') {
-            this.items[arguments[i]] = arguments[i + 1];
-            this.length++;
-        }
-    }
 
-    this.removeItem = function(in_key)
-    {
-        var tmp_value;
-        if (typeof(this.items[in_key]) != 'undefined') {
-            this.length--;
-            var tmp_value = this.items[in_key];
-            delete this.items[in_key];
-        }
-        return tmp_value;
+/**
+ * Generate a Hashtable
+ */
+function Hash() {
+  this.length = 0;
+  this.items  = new Array();
+  for (var i = 0; i < arguments.length; i += 2) {
+    if (typeof(arguments[i + 1]) != 'undefined') {
+      this.items[arguments[i]] = arguments[i + 1];
+      this.length++;
     }
+  }
 
-    this.getItem = function(in_key) {
-        return this.items[in_key];
+  this.removeItem = function(in_key)  {
+      var tmp_value;
+      if (typeof(this.items[in_key]) != 'undefined') {
+          this.length--;
+          tmp_value = this.items[in_key];
+          delete this.items[in_key];
+      }
+      return tmp_value;
+  };
+
+  this.getItem = function(in_key) {
+      return this.items[in_key];
+  };
+
+  this.setItem = function(in_key, in_value) {
+    if (typeof(in_value) != 'undefined') {
+      if (typeof(this.items[in_key]) == 'undefined') {
+          this.length++;
+      }
+
+      this.items[in_key] = in_value;
     }
+    return in_value;
+  };
 
-    this.setItem = function(in_key, in_value)
-    {
-        if (typeof(in_value) != 'undefined') {
-            if (typeof(this.items[in_key]) == 'undefined') {
-                this.length++;
-            }
-
-            this.items[in_key] = in_value;
-        }
-        return in_value;
-    }
-
-    this.hasItem = function(in_key)
-    {
-        return typeof(this.items[in_key]) != 'undefined';
-    }
+  this.hasItem = function(in_key) {
+    return typeof(this.items[in_key]) != 'undefined';
+  };
 }
 
-function getDomainName(data)
-{
-  var    a      = document.createElement('a');
-         a.href = data;
+/**
+ * Gets the domain name of a URL.
+ * @param  {String} data URL to get the domain name from.
+ * @return {String}      The hostname of the given URL.
+ */
+function getDomainName(data) {
+  var a = document.createElement('a');
+  a.href = data;
   return a.hostname;
 }
 
-// Reset entire whitelist
-function resetEntireWhitelist(){
-  var WHITELIST = {};
-  var SITE_WHITELIST = {};
-  localStorage.whitelist = JSON.stringify(WHITELIST);
-}
-
-//Add services to whitelist
-function addWhitelist(DOMAIN,service_name, category, status){
-  var WHITELIST = deserialize(localStorage.whitelist) || {};
-  var SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
-
-  WHITELIST[DOMAIN][service_name+':'+category]=!status;
-  localStorage.whitelist = JSON.stringify(WHITELIST);
-}
-
-//Get status whitelisted service
-function getWhitelistStatus(DOMAIN,tab,service_name,category){
-  var WHITELIST = deserialize(localStorage.whitelist) || {};
-  var SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
-  
-  if (SITE_WHITELIST[service_name+':'+category]==undefined)
-  {
-    return false;
-  }
-  else
-  {
-    return SITE_WHITELIST[service_name+':'+category];
-  }
-}
-
-//Set status whitelisted service
-function setWhitelistStatus(DOMAIN,tab,service_name,category,status){
-  var WHITELIST = deserialize(localStorage.whitelist) || {};
-  var SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
-  
-  SITE_WHITELIST[service_name+':'+category]=status;
-  localStorage.whitelist = JSON.stringify(WHITELIST);
-
-}
-
-//Cast string to boolean values
+/**
+ * Cast string to boolean values
+ * @param  {String} str   String to be coverted.
+ * @return {Boolean}      Boolean result.
+ */
 function castBool(str) {
-    if (str != undefined && str.toLowerCase() === 'true') {
-        return true;
-    } else if (str != undefined && str.toLowerCase() === 'false') {
-        return false;
-    }
+  if (typeof(str) != "undefined" && str.toLowerCase() === 'true') {
+    return true;
+  } else if (str != undefined && str.toLowerCase() === 'false') {
     return false;
+  }
+  return false;
 }
 
-//Get value if actual tab is deactivate 
-function isDeactivateCurrent(DOMAIN,ID){
-
-  var status=false;
-  //return true;
-  var WHITELIST = deserialize(localStorage.whitelist) || {};
-  var SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
-
-  //Render Adtracks in GUI
-  try
-  {
-    for (i in SITE_WHITELIST) 
-    {
-      if (i == '*' || i == '*:*') // Added *:* because whitelist now works with service_name:category
-      {
-        status = SITE_WHITELIST[i];
-      }
-    }
-  }
-  catch(err)
-  {
-    console.log(err);
-  }
-
-  return status;
-}
-
-/* Generate a user_id for anSaveHistoryonymous user. */
+/**
+ * Generate a user_id for anoyonymous user.
+ * @return {String} The Unique User Id.
+ */
 function createUUID() {
     // http://www.ietf.org/rfc/rfc4122.txt
     var s = [];
@@ -300,135 +338,296 @@ function createUUID() {
     return uuid;
 }
 
-/* Populates an array of a given length with a default value. */
-function initializeArray(length, defaultValue) {
-  var ARRAY = [];
-  for (var i = 0; i < length; i++) ARRAY[i] = defaultValue;
-  return ARRAY;
+/**
+ * Destringifies an object. It @package rses the string using the JSON.parse() method.
+ * @param  {String} str   The string representation of an object.
+ * @return {Object}       The object.
+ */
+function deserialize(str) {
+  return typeof str == 'string' ? JSON.parse(str) : str;
+} 
+
+/**
+ * Renders the extension icon depending on wether there are any pending messages and the user is logged in.
+ * @return {undefined} 
+ */
+function renderExtensionIcon() {
+  
+  var has_unread_achievements = false;
+
+  if (typeof(localStorage.hasUnreadAchievements) != 'undefined') {
+    has_unread_achievements = castBool(localStorage.hasUnreadAchievements);
+  }
+  
+  if (has_unread_achievements) {
+    if (localStorage.member_id == "0") {
+      chrome.runtime.sendMessage({ "newIconPath" : 'images/messagebw.png' });
+    }else{
+      chrome.runtime.sendMessage({ "newIconPath" : 'images/message.png' }); 
+    }
+  } else {
+    if (localStorage.member_id == "0") {
+      chrome.runtime.sendMessage({ "newIconPath" : 'images/19bw.png' });
+    }else{
+      chrome.runtime.sendMessage({ "newIconPath" : 'images/19.png' }); 
+    }
+  }
 }
 
-/* Destringifies an object. */
-function deserialize(object) {
-  return typeof object == 'string' ? JSON.parse(object) : object;
+
+
+/////////////////////////
+// Whitelist functions //
+/////////////////////////
+
+/**
+ * Reset entire whitelist.
+ * @return {undefined}
+ */
+function resetEntireWhitelist(){
+  var whitelist = {};
+  localStorage.whitelist = JSON.stringify(whitelist);
 }
 
-/* Rewrites a generic cookie with specific domains and paths. */
-function mapCookie(cookie, storeId, url, domain, subdomains, paths) {
-  var MINIMIZE = Math.min;
-  var SUBDOMAIN_COUNT = MINIMIZE(subdomains.length, 20);
-      // Chrome won't persist more than 22 domains because of cookie limits.
-  delete cookie.hostOnly;
-  delete cookie.session;
-  var DOMAIN = cookie.domain;
+/**
+ * Get the whitelist status for a service:category pair.
+ * @param  {String} service_name  Service name.
+ * @param  {String} category      Category.
+ * @return {Boolean}              True if it is whitelisted, false otherwise.
+ */
+function getWhitelistStatus(service_name, category){
+  var whitelist = deserialize(localStorage.whitelist) || {};
+  
+  if (typeof(whitelist[service_name + ':' + category]) == "undefined") {
+    return false;
+  } else {
+    return whitelist[service_name + ':' + category];
+  }
+}
 
-  for (var i = 0; i < SUBDOMAIN_COUNT; i++) {
-    var subdomain = subdomains[i];
-    cookie.url = url.replace('www', subdomain).replace('search', subdomain);
-    cookie.domain = subdomain + domain;
-    COOKIES.set(cookie);
+/**
+ * Set status whitelisted service.
+ * @param {String} service_name   The service name.
+ * @param {String} category       The category.
+ * @param {Boolean} status        Whitelist status.
+ */
+function setWhitelistStatus(service_name, category, status){
+  var whitelist = deserialize(localStorage.whitelist) || {};
+  
+  if(status) {
+    whitelist[service_name + ':' + category] = status;
+  } else {
+    if(category == CONTENT_NAME) {
+      whitelist[service_name + ':' + category] = status;
+    } else {
+      delete whitelist[service_name + ':' + category];
+    }
+  }
+  localStorage.whitelist = JSON.stringify(whitelist);
+}
+
+
+
+
+
+///////////////////////////////
+// Allow all threats in site //
+///////////////////////////////
+
+/**
+ * Get value if actual tab is deactivate
+ * @param  {String}  domain   Domain to which any threats will be allowed.
+ * @return {Boolean}          Status.
+ */
+function setAllowThreatsInCurrent(domain, status){
+  var whitelist = deserialize(localStorage.whitelist) || {};
+  
+  if (status) {
+    console.log("setting WL for " + domain + " to :" + status);
+    whitelist.all_threats_allowed[domain] = status;
+  } else {
+    console.log("usetting WL for " + domain + " to :" + status);
+    delete whitelist.all_threats_allowed[domain];
+  }
+  
+  localStorage.whitelist = JSON.stringify(whitelist);
+}
+
+/**
+ * Get value if actual tab is deactivate
+ * @param  {String}  domain   Domain to get the whitelist status.
+ * @return {Boolean}          True if threats are allowed, false otherwise.
+ */
+function getAllowThreatsInCurrent(domain){
+  var whitelist = deserialize(localStorage.whitelist) || {};
+
+  if(typeof(whitelist.all_threats_allowed[domain]) != "undefined" && whitelist.all_threats_allowed[domain] === true) {
+    return true;
   }
 
-  var PATH_COUNT = MINIMIZE(paths.length, 10);
-      // Chrome won't persist more than 11 paths.
-  cookie.domain = DOMAIN;
-
-  for (i = 0; i < PATH_COUNT; i++) {
-    var path = paths[i];
-    cookie.url = url + path;
-    cookie.path = '/' + path;
-    COOKIES.set(cookie);
-  }
-
-  COOKIES.remove({url: url, name: cookie.name, storeId: storeId});
-}
-
-/* Rewrites a batch of generic cookies with specific domains and paths. */
-function mapCookies(url, service) {
-  COOKIES.getAllCookieStores(function(cookieStores) {
-    var STORE_COUNT = cookieStores.length;
-    var DOMAIN = '.' + service[1][0];
-    var SUBDOMAINS = service[2];
-    var PATHS = service[3];
-
-    for (var i = 0; i < STORE_COUNT; i++) {
-      var storeId = cookieStores[i].id;
-
-      COOKIES.getAll({url: url, storeId: storeId}, function(cookies) {
-        var COOKIE_COUNT = cookies.length;
-        for (var j = 0; j < COOKIE_COUNT; j++)
-            mapCookie(cookies[j], storeId, url, DOMAIN, SUBDOMAINS, PATHS);
-      });
-    }
-  });
-}
-
-/* Erases a batch of cookies. */
-function deleteCookies(url, domain, path, storeId, name) {
-  var DETAILS = {url: url, storeId: storeId};
-  if (name) DETAILS.name = name;
-
-  COOKIES.getAll(DETAILS, function(cookies) {
-    var COOKIE_COUNT = cookies.length;
-
-    for (var i = 0; i < COOKIE_COUNT; i++) {
-      var cookie = cookies[i];
-      if (cookie.domain == domain && cookie.path == path)
-          COOKIES.remove(
-            {url: url, name: name || cookie.name, storeId: storeId}
-          );
-    }
-  });
-}
-
-/* Rewrites a batch of specific cookies with a generic domain and path. */
-function reduceCookies(url, service, name) {
-  COOKIES.getAllCookieStores(function(cookieStores) {
-    var STORE_COUNT = cookieStores.length;
-    var SUBDOMAINS = service[2];
-    var SUBDOMAIN_COUNT = SUBDOMAINS.length;
-    var DOMAIN = '.' + service[1][0];
-    var PATHS = service[3];
-    var PATH_COUNT = PATHS.length;
-
-    for (var i = 0; i < STORE_COUNT; i++) {
-      var storeId = cookieStores[i].id;
-
-      for (var j = 0; j < SUBDOMAIN_COUNT; j++) {
-        var subdomain = SUBDOMAINS[j];
-        var mappedUrl =
-            url.replace('www', subdomain).replace('search', subdomain);
-
-        if (!name && !j) {
-          COOKIES.getAll({url: mappedUrl, storeId: storeId}, function(cookies) {
-            var COOKIE_COUNT = cookies.length;
-
-            for (var i = 0; i < COOKIE_COUNT; i++) {
-              var details = cookies[i];
-              details.url = url;
-              details.domain = DOMAIN;
-              delete details.hostOnly;
-              delete details.session;
-
-              setTimeout(function(details) {
-                COOKIES.set(details);
-              }.bind(null, details), 1000);
-            }
-          });
-        }
-
-        deleteCookies(mappedUrl, '.' + subdomain + DOMAIN, '/', storeId, name);
-      }
-
-      for (j = 0; j < PATH_COUNT; j++) {
-        var path = PATHS[j];
-        deleteCookies(url + path, DOMAIN, '/' + path, storeId, name);
-      }
-    }
-  });
+  return false;
 }
 
 
 
+
+
+///////////////////////
+// Cookies functions //
+///////////////////////
+
+/**
+ * Rewrites a generic cookie with specific domains and paths.
+ * @param  {[type]} cookie     [description]
+ * @param  {[type]} storeId    [description]
+ * @param  {[type]} url        [description]
+ * @param  {[type]} domain     [description]
+ * @param  {[type]} subdomains [description]
+ * @param  {[type]} paths      [description]
+ * @return {[type]}            [description]
+ */
+// function mapCookie(cookie, storeId, url, domain, subdomains, paths) {
+//   var MINIMIZE = Math.min;
+//   var SUBDOMAIN_COUNT = MINIMIZE(subdomains.length, 20);
+//       // Chrome won't persist more than 22 domains because of cookie limits.
+//   delete cookie.hostOnly;
+//   delete cookie.session;
+//   var DOMAIN = cookie.domain;
+
+//   for (var i = 0; i < SUBDOMAIN_COUNT; i++) {
+//     var subdomain = subdomains[i];
+//     cookie.url = url.replace('www', subdomain).replace('search', subdomain);
+//     cookie.domain = subdomain + domain;
+//     COOKIES_API.set(cookie);
+//   }
+
+//   var PATH_COUNT = MINIMIZE(paths.length, 10);
+//       // Chrome won't persist more than 11 paths.
+//   cookie.domain = DOMAIN;
+
+//   for (i = 0; i < PATH_COUNT; i++) {
+//     var path = paths[i];
+//     cookie.url = url + path;
+//     cookie.path = '/' + path;
+//     COOKIES_API.set(cookie);
+//   }
+
+//   COOKIES_API.remove({url: url, name: cookie.name, storeId: storeId});
+// }
+
+/**
+ * Rewrites a batch of generic cookies with specific domains and paths.
+ * @param  {String} url     URL of the cookie.
+ * @param  {String} service [description]
+ * @return {undefined}         
+ */
+// function mapCookies(url, service) {
+//   COOKIES_API.getAllCookieStores(function(cookieStores) {
+//     var store_count = cookieStores.length;
+//     var domain      = '.' + service[1][0];
+//     var subdomains  = service[2];
+//     var paths       = service[3];
+//     var storeId; 
+
+//     for (var i = 0; i < store_count; i++) {
+//       storeId = cookieStores[i].id;
+
+//       COOKIES_API.getAll({url: url, storeId: storeId}, function(cookies) {
+//         var cookie_count = cookies.length;
+//         for (var j = 0; j < cookie_count; j++) {
+//           mapCookie(cookies[j], storeId, url, domain, subdomains, paths);
+//         }
+//       });
+//     }
+//   });
+// }
+
+/**
+ * Erases a batch of cookies.
+ * @param  {[type]} url     [description]
+ * @param  {[type]} domain  [description]
+ * @param  {[type]} path    [description]
+ * @param  {[type]} storeId [description]
+ * @param  {[type]} name    [description]
+ * @return {[type]}         [description]
+ */
+// function deleteCookies(url, domain, path, storeId, name) {
+//   var DETAILS = {url: url, storeId: storeId};
+//   if (name) DETAILS.name = name;
+
+//   COOKIES_API.getAll(DETAILS, function(cookies) {
+//     var COOKIE_COUNT = cookies.length;
+
+//     for (var i = 0; i < COOKIE_COUNT; i++) {
+//       var cookie = cookies[i];
+//       if (cookie.domain == domain && cookie.path == path)
+//           COOKIES_API.remove(
+//             {url: url, name: name || cookie.name, storeId: storeId}
+//           );
+//     }
+//   });
+// }
+
+/**
+ * Rewrites a batch of specific cookies with a generic domain and path.
+ * @param  {[type]} url     [description]
+ * @param  {[type]} service [description]
+ * @param  {[type]} name    [description]
+ * @return {[type]}         [description]
+ */
+// function reduceCookies(url, service, name) {
+//   COOKIES_API.getAllCookieStores(function(cookieStores) {
+//     var STORE_COUNT = cookieStores.length;
+//     var SUBDOMAINS = service[2];
+//     var SUBDOMAIN_COUNT = SUBDOMAINS.length;
+//     var DOMAIN = '.' + service[1][0];
+//     var PATHS = service[3];
+//     var PATH_COUNT = PATHS.length;
+
+//     for (var i = 0; i < STORE_COUNT; i++) {
+//       var storeId = cookieStores[i].id;
+
+//       for (var j = 0; j < SUBDOMAIN_COUNT; j++) {
+//         var subdomain = SUBDOMAINS[j];
+//         var mappedUrl =
+//             url.replace('www', subdomain).replace('search', subdomain);
+
+//         if (!name && !j) {
+//           COOKIES_API.getAll({url: mappedUrl, storeId: storeId}, function(cookies) {
+//             var COOKIE_COUNT = cookies.length;
+
+//             for (var i = 0; i < COOKIE_COUNT; i++) {
+//               var details = cookies[i];
+//               details.url = url;
+//               details.domain = DOMAIN;
+//               delete details.hostOnly;
+//               delete details.session;
+
+//               setTimeout(function(details) {
+//                 COOKIES_API.set(details);
+//               }.bind(null, details), 1000);
+//             }
+//           });
+//         }
+
+//         deleteCookies(mappedUrl, '.' + subdomain + DOMAIN, '/', storeId, name);
+//       }
+
+//       for (j = 0; j < PATH_COUNT; j++) {
+//         var path = PATHS[j];
+//         deleteCookies(url + path, DOMAIN, '/' + path, storeId, name);
+//       }
+//     }
+//   });
+// }
+
+
+
+
+
+///////////
+// Cache //
+///////////
 
 /**
  * Class to manage local javascript cache to local storage.
@@ -519,522 +718,259 @@ jsCache.restoreFromLocalStorage();
 
 
 
-function CheckLanguagesSupport(lang,callback){
-  
-  // check if we've got cached this language support to avoid making request
-  var languagesSupport_cache_key='languagesSupport_'+lang;
-  var languagesSupport=jsCache.get(languagesSupport_cache_key, null);
-  
-  if (languagesSupport !== null) {
-    callback(languagesSupport);
-    return; 
-  }
-  
-  // not cached, make request
-  var xhr = new XMLHttpRequest();
 
-  xhr.open('GET', TGD_API+"api/languagesSupport/"+lang, true);
-  xhr.onload = function () {
-      if (xhr.readyState == 4) {
-        
-        var resp = JSON.parse(xhr.responseText);
 
-        if (DEBUG && DEBUG_LANGUAGES_SUPPORT_CHECK){
-          console.log('QUERY CHECK RECUPERADAS EN EL API');
-          console.log('===========================');
-          console.log(resp);
-          console.log('===========================');
-          console.log('');
-        }
+/////////////
+// Queries //
+/////////////
 
-        if ( xhr.status == 200)  {
-          if (DEBUG && DEBUG_LANGUAGES_SUPPORT_CHECK)
-            console.log(xhr.responseText);
-        }
-        else  {
-          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
-        }
+/**
+ * Checks if a query is black listed
+ * @param  {String}   query    Search query string.
+ * @param  {String}   alias    Language alias.
+ * @param  {Function} callback Callback to be executed after API call.
+ * @return {undefined}            
+ */
+function checkQuery(query,alias,callback){
+  var xhr;
+  var data = new FormData();
 
-        var resp = JSON.parse(xhr.responseText);
-        callback(resp);
-        
-        // now save results to cache for 1h
-        jsCache.set(languagesSupport_cache_key, resp, 3600);
-        
-      }
+  xhr= new XMLHttpRequest();
+  xhr.open('POST', TGD_API+"api/checkQueriesBlacklist", true);
+  xhr.onload = function () {        
+    var resp;
+
+    if ( xhr.status == 200)  {
+      resp = JSON.parse(xhr.responseText);
+      callback(resp);
+    }
   };
 
-  if (DEBUG && DEBUG_LANGUAGES_SUPPORT_CHECK){
-    console.log('QUERY CHECK DE LANGUAGESSUPPORT ENVIADA AL API');
-    console.log('===========================');
-    console.log(lang);
-    console.log('===========================');
-    console.log('');
-  }
-
-  xhr.send();  
-}
-
-function CheckQuery(query,alias,callback){
-
-  var xhr = new XMLHttpRequest();
-
-  var data = new FormData();
   data.append('query', query);
   data.append('lang', alias);
-
-  xhr.open('POST', TGD_API+"api/checkQueriesBlacklist", true);
-  xhr.onload = function () {
-      if (xhr.readyState == 4) {
-        
-        var resp = JSON.parse(xhr.responseText);
-
-        if (DEBUG && DEBUG_QUERY_CHECK){
-          console.log('QUERY CHECK RECUPERADAS EN EL API');
-          console.log('===========================');
-          console.log(resp);
-          console.log('===========================');
-          console.log('');
-        }
-
-        if ( xhr.status == 200)  {
-          if (DEBUG && DEBUG_QUERY_CHECK)
-            console.log(xhr.responseText);
-        }
-        else  {
-          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
-        }
-
-        var resp = JSON.parse(xhr.responseText);
-        callback(resp);
-      }
-  };
-
-  if (DEBUG && DEBUG_QUERY_CHECK){
-    console.log('QUERY CHECK DE LOANS ENVIADA AL API');
-    console.log('===========================');
-    console.log(query);
-    console.log('===========================');
-    console.log('');
-  }
-
   xhr.send(data);
 }
 
-function LoadContributed(callback){
+/**
+ * Get how many queries have been traded/registered.
+ * @param {Function} callback Callback to be executed after API call.
+ * @return {undefined} 
+ */
+function loadQueries(callback){
 
-  var value = (localStorage.member_id !== 0)? localStorage.member_id : localStorage.user_id;
-  var resp;
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', TGD_API+"api/queries/percentile/"+value, true);
-  xhr.onload = function () {
-      if (xhr.readyState == 4) {
+  var value = '';
+  var xhr;
 
-        if ( xhr.status == 200)  {
-          resp = xhr.responseText;
-          localStorage.contributed = resp;
-          try{
-            resp=JSON.parse(xhr.responseText);
-          }
-          catch(e){
-            resp = {};
-          }
-
-          if (DEBUG && DEBUG_QUERIES_PERCENTILE){
-            console.log('QUERIES PERCENTILE RECUPERADAS EN EL API');
-            console.log('===========================');
-            console.log(resp);
-            console.log('===========================');
-            console.log('');
-          }
-
-          callback(resp);
-        }
-        else  {
-          if (DEBUG && DEBUG_QUERIES_PERCENTILE){
-            console.log( "Error: " + xhr.status + ": " + xhr.statusText);
-          }
-        }
-      }
-  };
-
-  if (DEBUG && DEBUG_QUERIES_PERCENTILE){
-    console.log('LISTADO DE QUERIES PERCENTILE ENVIADA AL API');
-    console.log('===========================');
-    console.log('===========================');
-    console.log('');
+  if (localStorage.member_id != "0"){
+    value = localStorage.member_id;
+  } else {
+    value = localStorage.user_id;
   }
+
+  xhr = new XMLHttpRequest();
+  xhr.open('GET', TGD_API + "api/queries/count/" + value, true);
+  xhr.onload = function () {
+    var resp;
+
+    if ( xhr.status == 200)  {
+      resp = 0;
+      try {
+        resp = JSON.parse(xhr.responseText);
+        localStorage.queries = resp;
+        
+      } catch(e){}
+
+      callback(resp);
+    } 
+  };
 
   xhr.send();
 }
 
-function LoadQueries(callback){
+/**
+ * Save query to the API.
+ * @param {String} query  Search query.
+ */
+function SaveQuery(query){
 
-  var value='';
+  var data = new FormData();
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', TGD_API+"api/queries", true);
 
-  if (localStorage.member_id != 0){
+  data.append('member_id', query.member_id);
+  data.append('user_id', query.user_id);
+  data.append('provider', query.provider);
+  data.append('data', query.data);
+  data.append('query', query.query);
+  data.append('lang', query.lang);
+  data.append('usertime', query.usertime);
+  data.append('share', query.share);
+  data.append('language_support', query.language_support);
+  xhr.send(data);
+}
+
+/**
+ * Delete search query from database.
+ * @param  {Function} callback_success 
+ * @param  {Function} callback_fail    
+ * @return {undefined}                  
+ */
+function deleteQueries(callback_success,callback_fail){
+
+  var value = 0;
+  var xhr;
+
+  if (localStorage.member_id != "0"){
     value=localStorage.member_id;
-  }
-  else
-  {
+  } else {
     value=localStorage.user_id;
   }
 
-  var xhr = new XMLHttpRequest();
-  
-  xhr.open('GET', TGD_API+"api/queries/count/"+value, true);
-  xhr.onload = function () {
-      if (xhr.readyState == 4) {
-
-        if (DEBUG && DEBUG_QUERIES_COUNT){
-          var resp = xhr.responseText;
-
-          console.log('QUERIES COUNT RECUPERADAS EN EL API');
-          console.log('===========================');
-          console.log(resp);
-          console.log('===========================');
-          console.log('');
-        }
-
-        if ( xhr.status == 200)  {
-          if (DEBUG && DEBUG_QUERIES_COUNT)
-            console.log(xhr.responseText);
-        }
-        else  {
-          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
-        }
-
-        var resp=0;
-        try
-        {
-          resp = JSON.parse(xhr.responseText);
-          localStorage.queries = resp;
-          
-        }
-        catch(e){}
-
-        callback(resp);
-      }
+  xhr = new XMLHttpRequest();
+  xhr.open( 'GET', TGD_API + "api/queries/delete/" + value, true);
+  xhr.onload = function()  {
+    if ( xhr.status == 200) {
+      callback_success();
+    } else {
+      callback_fail(xhr.statusText);
+    } 
   };
-
-  if (DEBUG && DEBUG_QUERIES_COUNT){
-    console.log('LISTADO DE QUERIES COUNT ENVIADA AL API');
-    console.log('===========================');
-    console.log('===========================');
-    console.log('');
-  }
 
   xhr.send();
 }
 
-function LoadLoans(callback){
+/**
+ * Extract query string from the URL.
+ * @param  {String} requested_url    
+ * @param  {String} searchEngineName 
+ * @return {String}                  
+ */
+function getDataFromQuery(requested_url, searchEngineName){
+  var param_JSON = {};
+  var parameters;
+  var exclude_param;
+  var url_params;
+  var already_has_q;
+  var aux, i;
 
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', TGD_API+"api/loans/count", true);
-  xhr.onload = function () {
-      if (xhr.readyState == 4) {
-        // WARNING! Might be evaluating an evil script!
-        
-        if (DEBUG && DEBUG_LOANS){
-          var resp = JSON.parse(xhr.responseText);
-          console.log('LOANS RECUPERADAS EN EL API');
-          console.log('===========================');
-          console.log(resp);
-          console.log('===========================');
-          console.log('');
-        }
-
-        if ( xhr.status == 200)  {
-          if (DEBUG && DEBUG_LOANS)
-            console.log(xhr.responseText);
-        }
-        else  {
-          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
-        }
-
-        var resp = JSON.parse(xhr.responseText);
-        callback(resp);
-      }
-  };
-
-  if (DEBUG && DEBUG_LOANS){
-    console.log('LISTADO DE LOANS ENVIADA AL API');
-    console.log('===========================');
-    console.log('===========================');
-    console.log('');
-  }
-
-  xhr.send();
-}
-
-// Loads achievements from API and executes a callback
-function LoadAchievements(callback) {
-  
-  // check if we've got it cached
-  var achievements=jsCache.get('achievements', null);
-  
-  if (achievements !== null) {
-    log_if_enabled('achievements restored from cache','achievements');
-    callback(achievements); 
-    return;
-  }
-  
-  var xhr = new XMLHttpRequest();
-  xhr.open('GET', TGD_API+"api/achievements", true);
-  xhr.onload = function () {
-      if (xhr.readyState == 4) {
-        // WARNING! Might be evaluating an evil script!
-        
-          var resp = JSON.parse(xhr.responseText);
-          log_if_enabled('ACHIVEMENTS RECUPERADAS EN EL API','achievements');
-          log_if_enabled('===========================','achievements');
-          log_if_enabled(resp,'achievements');
-          log_if_enabled('===========================','achievements');
-          log_if_enabled('','achievements');
-        
-
-        if ( xhr.status == 200)  {
-            log_if_enabled(xhr.responseText,'achievements');
-        } else  {
-          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
-        }
-        
-        var resp = JSON.parse(xhr.responseText);
-        
-        // now save results to cache 
-        jsCache.set('achievements', resp, 10);
-        
-        callback(resp);
-        
-      }
-  };
-
-  log_if_enabled('LISTADO DE ACHIVEMENTS ENVIADA AL API','achievements');
-  log_if_enabled('===========================','achievements');
-  log_if_enabled('===========================','achievements');
-  log_if_enabled('','achievements');
-  
-  xhr.send();
-}
-
-// Checks the list of achievements we've got from the API and sets the 
-// unreadAchievements variable and updates the extension icon
-function checkUnreadAchievements(items) {
-  
-  var readAchievements = deserialize(localStorage.readAchievements) || [];
-  var unreadCount=0;
-  
-  for (var i = 0; i < items.length; i++) {
-    if (readAchievements.indexOf(items[i].id) === -1) {
-      unreadCount++;
+  if (searchEngineName == 'google') {
+    if (requested_url.indexOf("?") != -1) {
+      requested_url=requested_url.replace("#q=","&q=");
+    } else { 
+      requested_url=requested_url.replace("#q=","?q=");
     }
+    
   }
   
-  if (unreadCount) {
-    localStorage.hasUnreadAchievements=true;
-  } else {
-    localStorage.hasUnreadAchievements=false;
-  }
-  
-  // update icon 
-  renderExtensionIcon();
-}
+  try {
+    parameters = requested_url.split("?")[1].split("&");
+    exclude_param = new Array;
+    url_params = "/?s=" + C_MN;
+    
+    if(requested_url.indexOf("se=") == -1) {
+      url_params += "&se=" + searchEngineName;
+    }
 
-// Mark a specific achievement as read by its ID and then recheck unread
-function markAchievementAsRead(id) {
-  var readAchievements = deserialize(localStorage.readAchievements) || [];
-  readAchievements.push(id);
-  localStorage.readAchievements = JSON.stringify(readAchievements);
-  LoadAchievements(checkUnreadAchievements);
-}
 
-function SaveBrowsing(browsing){
-
-  var data = new FormData();
-  data.append('member_id', browsing.member_id);
-  data.append('user_id', browsing.user_id);
-  data.append('domain', browsing.domain);
-  data.append('url', browsing.url);
-  data.append('usertime', browsing.usertime);
-
-  var xhr = new XMLHttpRequest();
-  xhr.open('POST', TGD_API+"api/browsing", true);
-  xhr.onload = function () {
-      if (xhr.readyState == 4) {
-        // WARNING! Might be evaluating an evil script!
-        
-        var resp = JSON.parse(xhr.responseText);
-        log_if_enabled('BROWSING SALVADA EN EL API','browsing');
-        log_if_enabled('===========================','browsing');
-        log_if_enabled(resp,'browsing');
-        log_if_enabled('===========================','browsing');
-        log_if_enabled('','browsing');
-        
-
-        if ( xhr.status == 200)  {
-            log_if_enabled(xhr.responseText,'browsing');
+    already_has_q = false;
+    for (i = 0; i<parameters.length; i++) {
+      aux = parameters[i].split("=");
+      if (aux[0] == "q" || aux[0] == "p") {
+        if (searchEngineName == 'yahoo') {
+          aux[0] = "q";
         }
-        else  {
-          log_if_enabled( "Error: " + xhr.status + ": " + xhr.statusText,'browsing');
-        }
+        aux[1] = aux[1].replace(/'/g, "%27");
       }
-  };
+      if(!already_has_q) param_JSON[aux[0]] = aux[1];
+      //if(aux[0] == "q") already_has_q = true;
+    }
 
-    log_if_enabled('BROWSING ENVIADA AL API','browsing');
-    log_if_enabled('===========================','browsing');
-    log_if_enabled(data,'browsing');
-    log_if_enabled('===========================','browsing');
-    log_if_enabled('','browsing');
+    for (i = 0; i<exclude_param.length; i++) {
+      delete param_JSON[exclude_param[i]];
+    }
+    
+  } catch(err){
+
+  }
   
-
-  xhr.send(data);
-
+  return param_JSON;
 }
 
-/**
- * Variable where we store temporary local threats
- * @type Array
- */
-var localThreats=[];
+
+
+
+/////////////
+// Threats //
+/////////////
 
 /**
- * The timeout object
- * @type setTimeout
+ * Saves threats via API.
+ * @return {undefined} 
  */
-var apiThreatsBatchWait=null;
-
-/**
- * The time to wait in miliseconds
- * @type Number
- */
-var apiThreatsBatchTimeout=10000;
-
-/**
- * Throttle or not the batch, true means every time apiThreatsBatchTimeout 
- * passes then it will be run once while false means it will only run one time.
- * @type Boolean
- */
-var apiThreatsBatchThrottle=true;
-
-/**
- * Know if a request to save adtracks is already running
- * @type Boolean
- */
-var apiThreatsBatchIsSending=false;
-
-/**
- * How many items to process per request?
- * @type Number
- */
-var apiThreatsBatchLimitItems=50;
-
-function SaveThreatsToAPI() {
+function saveThreatsToAPI() {
   
-  log_if_enabled('call SaveThreatsToAPI','adtrack_batch');
+  var xhr;
+  var data;
+
+  api_threats_batch_wait=null;
   
-  apiThreatsBatchWait=null;
-  
-  if (apiThreatsBatchIsSending) {
-    log_if_enabled('[SKIPPED]: '+(localThreats.length),'adtrack_batch');
+  if (api_threats_batch_is_sending) {
     // if timeout is bigger than 5s and server did not answer yet, drop pending items
-    if (apiThreatsBatchTimeout >= 5000) {
-      log_if_enabled('[DROP]: '+(localThreats.length)+' items (slow server response)','adtrack_batch');
-      localThreats=[]; // drop remaining because server is overloaded
+    if (api_threats_batch_timeout >= 5000) {
+      local_threats=[]; // drop remaining because server is overloaded
     }
     return;
   }
   
   // Update status
-  apiThreatsBatchIsSending=true;
+  api_threats_batch_is_sending=true;
   
-  log_if_enabled('[PROCESSING] SaveThreatsToAPI: '+(localThreats.length),'adtrack_batch');
   
   // Init data to send
-  var data = {};
-  
+  data = {};
   // If bigger than items limit per request, just get first group
-  if (localThreats.length > apiThreatsBatchLimitItems) {
-    log_if_enabled('-------> GET FIRST: '+(localThreats.length),'adtrack_batch');
-    // get first apiThreatsBatchLimitItems
-    data=localThreats.slice(0, apiThreatsBatchLimitItems);
+  if (local_threats.length > api_threats_limit_items) {
+    // get first api_threats_limit_items
+    data = local_threats.slice(0, api_threats_limit_items);
     // now remove the first group from the pending list
-    localThreats=localThreats.slice(apiThreatsBatchLimitItems);
-//    log_if_enabled(data,'adtrack_batch');
-//    log_if_enabled(localThreats,'adtrack_batch');
+    local_threats = local_threats.slice(api_threats_limit_items);
   } else {
     // If smaller than limit, get all
-    log_if_enabled('-------> GET ALL: '+(localThreats.length),'adtrack_batch');
-    // get all
-    data=localThreats;
-    localThreats=[]; // clear remaining
-//    log_if_enabled(data,'adtrack_batch');
-//    log_if_enabled(localThreats,'adtrack_batch');
+    data = local_threats;
+    local_threats = []; // clear remaining
   }
   
-  log_if_enabled('[SENDING] SaveThreatsToAPI: '+(data.length)+'/'+(localThreats.length),'adtrack_batch');
-  
   // Convert to json before sending
-  data = JSON.stringify(data);
   
-    var xhr = new XMLHttpRequest();
-    xhr.open('POST', TGD_API+"api/adtracks", true);
+    xhr = new XMLHttpRequest();
+    xhr.open('POST', TGD_API + "api/adtracks", true);
     xhr.onload = function () {
-        if (xhr.readyState == 4) {
-  
-          log_if_enabled('API Response','adtrack_batch');
-          
-          // Update status
-          apiThreatsBatchIsSending=false;
-          
-          // if we've got pending items after receiving response, run it again
-          if (localThreats.length) {
-            log_if_enabled('Pending: '+(localThreats.length),'adtrack_batch');
-            var timer_exists=apiThreatsBatchWait?true:false;
-            log_if_enabled('Timer exists: '+(timer_exists.toString()),'adtrack_batch');
-            if (!timer_exists) {
-              if (!apiThreatsBatchWait) { apiThreatsBatchWait = setTimeout(function () {
-                  SaveThreatsToAPI();
-              }, apiThreatsBatchTimeout); }
-            }
-          }
-          
-          // WARNING! Might be evaluating an evil script!
-          if (DEBUG && DEBUG_ADTRACK){
-            var resp = JSON.parse(xhr.responseText);
-            console.log('ADTRACK SALVADA EN EL API');
-            console.log('===========================');
-            console.log(resp);
-            console.log('===========================');
-            console.log('');
-          }
-  
-          if ( xhr.status == 200)  {
-            if (DEBUG && DEBUG_ADTRACK)
-              console.log(xhr.responseText);
-          }
-          else  {
-            console.log( "Error: " + xhr.status + ": " + xhr.statusText);
-          }
-  
+      var timer_exists;
+      // Update status
+      api_threats_batch_is_sending = false;
+      
+      // if we've got pending items after receiving response, run it again
+      if (local_threats.length) {
+        timer_exists = api_threats_batch_wait ? true : false;
+        if (!timer_exists) {
+          if (!api_threats_batch_wait) { api_threats_batch_wait = setTimeout(function () {
+              saveThreatsToAPI();
+          }, api_threats_batch_timeout); }
         }
+      }
     };
-  
-    if (DEBUG && DEBUG_ADTRACK){
-      console.log('ADTRACK ENVIADA AL API');
-      console.log('===========================');
-      console.log(data);
-      console.log('===========================');
-      console.log('');
-    }
-  
+    
+    data = JSON.stringify(data);
     xhr.send(data);
 }
 
-function SaveThreat(threat){
-  
-  log_if_enabled('SaveThreat','adtrack_batch');
-  
-  localThreats.push({
+/**
+ * Save threats using a batch.
+ * @param  {SQtring} threat 
+ * @return {undefined}        
+ */
+function saveThreat(threat){
+  local_threats.push({
     'member_id': threat.member_id,
     'user_id': threat.user_id,
     'category': threat.category,
@@ -1047,296 +983,138 @@ function SaveThreat(threat){
     'language_support': threat.language_support
   });
   
-  if (!apiThreatsBatchThrottle) { clearTimeout(apiThreatsBatchWait); apiThreatsBatchWait = null; }
-  if (!apiThreatsBatchWait) { apiThreatsBatchWait = setTimeout(function () {
-      SaveThreatsToAPI();
-  }, apiThreatsBatchTimeout); }
+  if (!api_threats_batch_throttle) { 
+    clearTimeout(api_threats_batch_wait); 
+    api_threats_batch_wait = null; 
+  }
 
+  if (!api_threats_batch_wait) {
+    api_threats_batch_wait = setTimeout(function () {
+      saveThreatsToAPI();
+    }, api_threats_batch_timeout); 
+  }
 }
 
-function SaveQuery(query){
 
-  var data = new FormData();
-  data.append('member_id', query.member_id);
-  data.append('user_id', query.user_id);
-  data.append('provider', query.provider);
-  data.append('data', query.data);
-  data.append('query', query.query);
-  data.append('lang', query.lang);
-  data.append('usertime', query.usertime);
-  data.append('share', query.share);
-  data.append('language_support', query.language_support);
+
+
+
+//////////////////
+// Achievements //
+//////////////////
+
+/**
+ * Loads achievements from API and executes a callback
+ * @param  {Function} callback 
+ * @return {Undefined}            
+ */
+function loadAchievements(callback) {
   
-  var xhr = new XMLHttpRequest();
-  xhr.open('POST', TGD_API+"api/queries", true);
+  // check if we've got it cached
+  var achievements = jsCache.get('achievements', null);
+  var xhr;
+
+  if (achievements !== null) {
+    callback(achievements); 
+    return;
+  }
+  
+  xhr = new XMLHttpRequest();
+  xhr.open('GET', TGD_API+"api/achievements", true);
   xhr.onload = function () {
-      if (xhr.readyState == 4) {
-        // WARNING! Might be evaluating an evil script!
+    var resp;
 
-        if (DEBUG  && DEBUG_QUERY){
-          var resp = JSON.parse(xhr.responseText);
-          console.log('QUERY SALVADA EN EL API');
-          console.log('===========================');
-          console.log(resp);
-          console.log('===========================');
-          console.log('');
-        }
-
-        if ( xhr.status == 200)  {
-          if (DEBUG && DEBUG_QUERY)
-            console.log(xhr.responseText);
-        }
-        else  {
-          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
-        }
-
-      }
+    if ( xhr.status == 200)  {
+      resp = JSON.parse(xhr.responseText);
+      // now save results to cache 
+      jsCache.set('achievements', resp, 10);
+      callback(resp);
+    }         
   };
 
-  if (DEBUG && DEBUG_QUERY){
-    console.log('QUERY ENVIADA AL API');
-    console.log('===========================');
-    console.log(data);
-    console.log('===========================');
-    console.log('');
-  }
-
-  xhr.send(data);
-
-}
-
-function syncQueriesBlacklist(){
-
-  var queriesBlacklist=localStorage.queriesBlacklist
-  var member_id = localStorage.member_id;
-
-  var xhr = new XMLHttpRequest();
-  var url = TGD_API+"api/queriesBlacklist/";
-  xhr.onreadystatechange = function()  {
-    if ( xhr.readyState == 4)  {
-
-      if (DEBUG && DEBUG_QUERY_BLACKLIST){
-          var resp = JSON.parse(xhr.responseText);
-          console.log('QUERY BLACKLIST SALVADA EN EL API');
-          console.log('===========================');
-          console.log(resp);
-          console.log('===========================');
-          console.log('');
-      }
-
-      if ( xhr.status == 200)  {
-
-          localStorage.queriesBlacklist = xhr.responseText;
-
-          var blacklist = JSON.parse(localStorage.queriesBlacklist)
-
-          var length = blacklist.length;   
-          for (var i = 0; i < length; i++) {
-            var value=blacklist[i];
-          }
-
-          if (DEBUG && DEBUG_QUERY_BLACKLIST)
-            console.log(xhr.responseText);
-        }
-        else  {
-          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
-        }
-    }
-  }
-  xhr.open( 'GET', url, true);
-
-  if (DEBUG && DEBUG_QUERY_BLACKLIST){
-    console.log('QUERY BLACKLIST  ENVIADA AL API');
-    console.log('===========================');
-    console.log(localStorage.queriesBlacklist);
-    console.log('===========================');
-    console.log('');
-  }
-
   xhr.send();
-
-} 
-
-function syncWhitelist(){
-
-  /**
-   * This feature gets disabled for now until future optimization.
-   */ 
-  return false;
-  
-  var whitelist=localStorage.whitelist;
-  var user_id=localStorage.user_id;
-  var member_id = localStorage.member_id;
-
-  var xhr = new XMLHttpRequest();
-  var url = TGD_API+"api/whitelists/"+user_id+"/"+member_id;
-  xhr.onreadystatechange = function()  {
-    if ( xhr.readyState == 4)  {
-
-      if (DEBUG && DEBUG_WHITELIST){
-          var resp = JSON.parse(xhr.responseText);
-          console.log('WHITELIST SALVADA EN EL API');
-          console.log('===========================');
-          console.log(resp);
-          console.log('===========================');
-          console.log('');
-      }
-
-      if ( xhr.status == 200)  {
-
-          //localStorage.whitelist = xhr.responseText;
-
-          if (DEBUG && DEBUG_WHITELIST)
-            console.log(xhr.responseText);
-        }
-        else  {
-          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
-        }
-    }
-  }
-  xhr.open( 'PUT', url, true);
-
-  if (DEBUG && DEBUG_WHITELIST){
-    console.log('WHITELIST ENVIADA AL API');
-    console.log('===========================');
-    console.log(localStorage.whitelist);
-    console.log('===========================');
-    console.log('');
-  }
-  
-  /**
-   * TODO:
-   * - Loop on all services for all domains
-   * - Get urls for all services
-   * - Add urls to another array
-   * - Modify the request to send both the full whitelist and the urls list
-   * - Now we can create a new adtrack_service inside the api if it is missing
-   */
-
-  xhr.send( localStorage.whitelist);
-
-} 
-
-
-
-function deleteQueries(callback_success,callback_fail){
-
-  var value=0;
-  if (localStorage.member_id != 0){
-    value=localStorage.member_id;
-  }
-  else
-  {
-    value=localStorage.user_id;
-  }
-
-  var xhr = new XMLHttpRequest();
-  var url = TGD_API+"api/queries/delete/"+value;
-  xhr.onreadystatechange = function()  {
-    if ( xhr.readyState == 4)  {
-
-      if (DEBUG && DEBUG_DELETE_QUERIES){
-          var resp = xhr.responseText;
-          console.log('DELETE QUERIES DESDE API');
-          console.log('===========================');
-          console.log(resp);
-          console.log('===========================');
-          console.log('');
-      }
-
-      if ( xhr.status == 200)  
-      {
-        callback_success();
-      }
-      else  
-      {
-        console.log( "Error: " + xhr.status + ": " + xhr.statusText);
-        callback_fail(xhr.statusText);
-      } 
-    }
-  }
-  xhr.open( 'GET', url, true);
-
-  if (DEBUG && DEBUG_DELETE_QUERIES){
-    console.log('DELETE QUERIES ENVIADA AL API');
-    console.log('===========================');
-    console.log('===========================');
-    console.log('');
-  }
-
-  xhr.send();
-
-}
-
-function renderExtensionIcon() {
-  
-  var hasUnreadAchievements=false;
-  if (typeof(localStorage.hasUnreadAchievements)!=='undefined') {
-    hasUnreadAchievements=castBool(localStorage.hasUnreadAchievements);
-  }
-  
-  if (hasUnreadAchievements) {
-    if (localStorage.member_id == 0) {
-      chrome.runtime.sendMessage({ "newIconPath" : 'images/messagebw.png' });
-    }else{
-      chrome.runtime.sendMessage({ "newIconPath" : 'images/message.png' }); 
-    }
-  } else {
-    if (localStorage.member_id == 0) {
-      chrome.runtime.sendMessage({ "newIconPath" : 'images/19bw.png' });
-    }else{
-      chrome.runtime.sendMessage({ "newIconPath" : 'images/19.png' }); 
-    }
-  }
-  
 }
 
 /**
- * Logs user in from the popup login form
+ * Checks the list of achievements we've got from the API and sets the
+ * unreadAchievements variable and updates the extension icon.
+ * @param  {Array} items 
+ * @return {undefined}  
+ */
+function checkUnreadAchievements(items) {
+  
+  var readAchievements = deserialize(localStorage.readAchievements) || [];
+  var unreadCount = 0;
+  
+  for (var i = 0; i < items.length; i++) {
+    if (readAchievements.indexOf(items[i].id) === -1) {
+      unreadCount++;
+    }
+  }
+  
+  if (unreadCount) {
+    localStorage.hasUnreadAchievements = true;
+  } else {
+    localStorage.hasUnreadAchievements = false;
+  }
+  
+  // update icon 
+  renderExtensionIcon();
+}
+
+/**
+ * Mark a specific achievement as read by its ID and then recheck unread
+ * @param  {Number} id 
+ * @return {undefined}    
+ */
+function markAchievementAsRead(id) {
+  var readAchievements = deserialize(localStorage.readAchievements) || [];
+  readAchievements.push(id);
+  localStorage.readAchievements = JSON.stringify(readAchievements);
+  loadAchievements(checkUnreadAchievements);
+}
+
+
+
+
+
+///////////
+// Login //
+///////////
+
+/**
+ * Logs user in from the popup login form.
+ * @param {String}                    username Username.
+ * @param {String}                    password Password.
+ * @param {Function} callback_succes  Function to run upon successful login.
+ * @param {Function} callback_fail    Function to run upon filed login.
+ * @return {undefined}
  */
 function loginUser(username, password, callback_success, callback_fail) {
 
   var data = new FormData();
+  
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', TGD_API + "api/login", true);
+  xhr.onload = function () {
+    var error_msg;
+    if ( xhr.status == 200)  {
+      if (resp.success) {
+        getLoggedUser(callback_success, function () {});
+      } else {
+        if (resp.errors && resp.errors[0]) {
+          errorMsg = resp.errors[0];
+        }
+        callback_fail(errorMsg);
+      }
+    }
+  };
+
+
   data.append('UserLogin[username]', username);
   data.append('UserLogin[password]', password);
   data.append('UserLogin[rememberMe]', 1);
-  
-  var xhr = new XMLHttpRequest();
-  xhr.open('POST', TGD_API+"api/login", true);
-  xhr.onload = function () {
-      if (xhr.readyState == 4) {
-        if ( xhr.status == 200)  {
-            var resp = JSON.parse(xhr.responseText);
-            log_if_enabled('LOGIN RESPONSE','login');
-            log_if_enabled('===========================','login');
-            log_if_enabled(resp,'login');
-            log_if_enabled('===========================','login');
-            log_if_enabled('','login');
-            
-            if (resp.success) {
-              get_logged_user(callback_success, function () {});
-            } else {
-              var errorMsg='';
-              if (resp.errors && resp.errors[0]) {
-                errorMsg=resp.errors[0];
-              }
-              callback_fail(errorMsg);
-            }
-        }
-        else  {
-          log_if_enabled( "Error: " + xhr.status + ": " + xhr.statusText,'login');
-        }
-      }
-  };
-
-  log_if_enabled('LOGIN REQUEST','login');
-  log_if_enabled('===========================','login');
-  log_if_enabled(data,'login');
-  log_if_enabled('===========================','login');
-  log_if_enabled('','login');
-
   xhr.send(data);
-
 }
 
 /**
@@ -1346,84 +1124,223 @@ function loginUser(username, password, callback_success, callback_fail) {
  * - After login form submit
  * - After clicking on logout
  * - After completely loading a tab so user gets 'auto-logged-in'
+ * @param {Function} callback_logged 
+ * @param {Function} callback_notLogged 
  */
-function get_logged_user(callback_logged, callback_notLogged) {
+function getLoggedUser(callback_logged, callback_notLogged) {
   
   var data = new FormData();
-  
-  data.append('user_id', localStorage.user_id);
   
   // make request to get the logged user
   var xhr = new XMLHttpRequest();
   xhr.open('POST', TGD_API+"api/getLoggedUser", true);
   xhr.onload = function () {
-      if (xhr.readyState == 4) {
-        if ( xhr.status == 200)  {
-            var resp = JSON.parse(xhr.responseText);
-            log_if_enabled('get_logged_user RESPONSE','login');
-            log_if_enabled('===========================','login');
-            log_if_enabled(resp,'login');
-            log_if_enabled('===========================','login');
-            log_if_enabled('','login');
-            
-            if (resp.id) {
-              
-              var member_id=resp.id;
-              var member_username = resp.username;
-              
-              // if user is logged in and it's the same as the local storage 
-              if (localStorage.member_username && localStorage.member_username == member_username) {
-                // do nothing
-              } else {
-                // if not logged or logged but different, set/change user
-                localStorage.member_username = member_username;
-                localStorage.member_id = member_id;
-                log_if_enabled('Almacenado member_id : '+localStorage.member_id,'login');
-              }
-              
-              // restore user settings
-              restoreUserSettingsFromApi(resp.settings);
-              
-              // callback_success
-              callback_logged();
-            
-            } else {
-              // if user not logged in, log him out also from the local storage
-              localStorage.member_id = 0;
-              localStorage.member_username='';
-              callback_notLogged();
-            }
-            
-            // update icon 
-            renderExtensionIcon();
-            
+    var resp;
+    var member_id;
+    var member_username;
+    if ( xhr.status == 200)  {
+      resp = JSON.parse(xhr.responseText);
+      if (resp.id) {
+        member_id       = resp.id;
+        member_username = resp.username;
+        // if user is logged in and it's the same as the local storage 
+        if (localStorage.member_username && localStorage.member_username == member_username) {
+          'do nothing';// do nothing
+        } else {
+          // if not logged or logged but different, set/change user
+          localStorage.member_username = member_username;
+          localStorage.member_id       = member_id;
         }
-        else  {
-          log_if_enabled( "Error: " + xhr.status + ": " + xhr.statusText,'login');
-        }
+        
+        // restore user settings
+        restoreUserSettingsFromApi(resp.settings);
+        
+        // callback_success
+        callback_logged();
+      } else {
+        // if user not logged in, log him out also from the local storage
+        localStorage.member_id       = 0;
+        localStorage.member_username = '';
+        callback_notLogged();
       }
+      
+      // update icon 
+        renderExtensionIcon();
+    }
   };
 
-  log_if_enabled('get_logged_user REQUEST','login');
-  log_if_enabled('===========================','login');
-  log_if_enabled(data,'login');
-  log_if_enabled('===========================','login');
-  log_if_enabled('','login');
-
-  xhr.send(data);
-  
+  data.append('user_id', localStorage.user_id);
+  xhr.send(data);  
 }
 
 
+
+
+
+//////////////////////
+// Language support //
+//////////////////////
+
 /**
- * Saves user settings to API
+ * Checks if a given language is supported.
+ * @param  {String}   lang     
+ * @param  {Function} callback 
+ * @return {undefined}            
+ */
+function checkLanguagesSupport(lang, callback){
+  
+  // check if we've got cached this language support to avoid making request
+  var languagesSupport_cache_key = 'languagesSupport_' + lang;
+  var languagesSupport           = jsCache.get(languagesSupport_cache_key, null);
+  var xhr;
+
+  if (languagesSupport !== null) {
+    callback(languagesSupport);
+    return; 
+  }
+  
+  // not cached, make request
+  xhr = new XMLHttpRequest();
+  xhr.open('GET', TGD_API + "api/languagesSupport/" + lang, true);
+  xhr.onload = function () {
+        
+    var resp;
+
+    if ( xhr.status == 200)  {
+      resp = JSON.parse(xhr.responseText);
+      callback(resp);
+      
+      // now save results to cache for 1h
+      jsCache.set(languagesSupport_cache_key, resp, 3600);
+    }
+        
+  };
+
+  xhr.send();  
+}
+
+
+
+
+
+/////////////////
+// Contributed //
+/////////////////
+
+/**
+ * Load percentile data for current user.
+ * @param {Function} callback What to do with the data obtained.
+ * @return {undefined} 
+ */
+function loadContributed(callback){
+  var xhr;
+  var value = (localStorage.member_id != "0")? localStorage.member_id : localStorage.user_id;
+  var resp;
+
+  xhr = new XMLHttpRequest();
+  xhr.open('GET', TGD_API + "api/queries/percentile/" + value, true);
+  xhr.onload = function () {
+  
+    if ( xhr.status == 200)  {
+      resp = xhr.responseText;
+      localStorage.contributed = resp;
+  
+      try{
+        resp = JSON.parse(xhr.responseText);
+      }catch(e){
+        resp = {};
+      }
+
+      // The call from background.js doesn't pass any callback.
+      if (typeof(callback != "undefined")){
+        callback(resp);
+      }
+    } 
+  };
+
+  xhr.send();
+}
+
+
+
+
+
+///////////
+// Loans //
+///////////
+
+/**
+ * Load data regarding the loans.
+ * @param  {Function} callback 
+ * @return {undefined}            
+ */
+function loadLoans(callback){
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', TGD_API+"api/loans/count", true);
+  xhr.onload = function () {
+    var resp;
+
+    if ( xhr.status == 200)  {
+      resp = JSON.parse(xhr.responseText);
+      callback(resp);
+    }
+  };
+
+  xhr.send();
+}
+
+
+
+
+
+//////////////
+// Browsing //
+//////////////
+
+/**
+ * Saves the page visited via API.
+ * @param {String} browsing 
+ */
+function saveBrowsing(browsing){
+  var data = new FormData();
+  var xhr;
+
+  xhr = new XMLHttpRequest();
+  xhr.open('POST', TGD_API + "api/browsing", true);
+  xhr.onload = function () {
+    var resp;
+    
+    if ( xhr.status == 200)  {
+      resp = JSON.parse(xhr.responseText);
+    }
+  };
+
+  data.append('member_id', browsing.member_id);
+  data.append('user_id', browsing.user_id);
+  data.append('domain', browsing.domain);
+  data.append('url', browsing.url);
+  data.append('usertime', browsing.usertime);
+  xhr.send(data);
+}
+
+
+
+
+
+///////////////////
+// User settings //
+///////////////////
+
+/**
+ * Saves user settings to API.
  */
 function saveUserSettingsToAPI() {
 
   var data = new FormData();
-  
   var keys = saveUserSettings_getKeys();
-  
+  var xhr;
+
   for (var key in keys) {
     if (keys.hasOwnProperty(key)) {
       if (typeof(localStorage[key])!='undefined') {
@@ -1432,43 +1349,9 @@ function saveUserSettingsToAPI() {
     }
   }
   
-  var xhr = new XMLHttpRequest();
+  xhr = new XMLHttpRequest();
   xhr.open('POST', TGD_API+"api/saveUserSettings", true);
-  xhr.onload = function () {
-      if (xhr.readyState == 4) {
-        if ( xhr.status == 200)  {
-            var resp = JSON.parse(xhr.responseText);
-            log_if_enabled('saveUserSettings RESPONSE','saveUserSettings');
-            log_if_enabled('===========================','saveUserSettings');
-            log_if_enabled(resp,'saveUserSettings');
-            log_if_enabled('===========================','saveUserSettings');
-            log_if_enabled('','saveUserSettings');
-            
-            if (resp.success) {
-              log_if_enabled('SAVED!','saveUserSettings');
-            } else {
-              log_if_enabled('NOT SAVED!','saveUserSettings');
-              if (resp.errors) {
-                for (i_e = 0; i_e < resp.errors.length; i_e++) {
-                  log_if_enabled('Error: '+resp.errors[i_e],'saveUserSettings');
-                }
-              }
-            }
-        }
-        else  {
-          log_if_enabled( "Error: " + xhr.status + ": " + xhr.statusText,'saveUserSettings');
-        }
-      }
-  };
-
-  log_if_enabled('saveUserSettings REQUEST','saveUserSettings');
-  log_if_enabled('===========================','saveUserSettings');
-  log_if_enabled(data,'saveUserSettings');
-  log_if_enabled('===========================','saveUserSettings');
-  log_if_enabled('','saveUserSettings');
-
   xhr.send(data);
-
 }
 
 // Add here to this array any new configuration key that will be required
@@ -1487,109 +1370,41 @@ function saveUserSettings_getKeys() {
  * Restores the user settings got from the API back into the localStorage
  */
 function restoreUserSettingsFromApi(settings) {
-  log_if_enabled('restoreUserSettingsFromApi','saveUserSettings');
   var keys = saveUserSettings_getKeys();
+  var value;
+  var type;
+
   for (var key in keys) {
     if (keys.hasOwnProperty(key)) {
       if (settings[key]) {
-        var value=settings[key];
-        var type=keys[key];
+        value = settings[key];
+        type  = keys[key];
         switch (type) {
           case 'bool':
-            value=castBool(value);
+            value = castBool(value);
             break;
           case 'int':
-            value=parseInt(value);
+            value = parseInt(value, 10);
             break;
           case 'text':
-            value=String(value);
+            value = String(value);
+            break;
+          default:
             break;
         }
-        log_if_enabled('key: '+key+' type: '+type,'saveUserSettings');
-        log_if_enabled(value,'saveUserSettings');
         localStorage[key]=value;
       }
     }
   }
 }
 
-function getDataFromQuery(requested_url, searchEngineName){
-  var paramJSON = {};
 
-  if (searchEngineName == 'google')
-  {
-    if (requested_url.indexOf("?") != -1)
-    {
-      requested_url=requested_url.replace("#q=","&q=");
-    }
-    else
-    { 
-      requested_url=requested_url.replace("#q=","?q=");
-    }
-    
-  }
-  
-  try
-  {
-    var parameters = requested_url.split("?")[1].split("&");
-    var excludeParam = new Array;
-    var url_params = "/?s=" + C_MN;
-    
-    if(requested_url.indexOf("se=") == -1)
-      url_params += "&se=" + searchEngineName;
 
-    var alreadyHasQ = false;
 
-    for (var i=0; i<parameters.length; i++) {
-      var aux = parameters[i].split("=");
-      if (aux[0] == "q" || aux[0] == "p") {
-        if (searchEngineName == 'yahoo') aux[0] = "q";
-        aux[1] = aux[1].replace(/'/g, "%27");
-      }
-      if(!alreadyHasQ) paramJSON[aux[0]] = aux[1];
-      //if(aux[0] == "q") alreadyHasQ = true;
-    }
-    for (var i=0; i<excludeParam.length; i++) {
-      delete paramJSON[excludeParam[i]];
-    }
-    
-  }
-  catch(err)
-  {
 
-  }
-  
-  return paramJSON;
-};
-
-// tool to parse url
-var parseUri_options = {
-    strictMode: false,
-    key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
-    q:   {
-            name:   "queryKey",
-            parser: /(?:^|&)([^&=]*)=?([^&]*)/g
-    },
-    parser: {
-            strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
-            loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
-    }
-};
-function parseUri(str) {
-    var	o   = parseUri_options,
-            m   = o.parser[o.strictMode ? "strict" : "loose"].exec(str),
-            uri = {},
-            i   = 14;
-
-    while (i--) uri[o.key[i]] = m[i] || "";
-
-    uri[o.q.name] = {};
-    uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
-            if ($1) uri[o.q.name][$1] = $2;
-    });
-
-    return uri;
-}
+/////////////
+// Logging //
+/////////////
 
 function log_if_enabled(msg, category) {
   if (DEBUG) {

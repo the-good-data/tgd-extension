@@ -18,137 +18,84 @@
 
 */
 
+
+
+
+
+//////////////////
+// Declarations //
+//////////////////
+
+/**
+ * Background scope.
+ * @type {Object}
+ */
 var BACKGROUND = chrome.extension.getBackgroundPage();
 
-/* The domain getter. */
-var GET = BACKGROUND.GET;
+/**
+ * String value representing the content category.
+ * @type {String}
+ */
+var CONTENT_NAME = BACKGROUND.CONTENT_NAME;
 
-/* The object deserializer. */
-var DESERIALIZE = BACKGROUND.deserialize;
-
-/* The third parties. */
+/**
+ * The third parties.
+ * @type {Array}
+ */
 var SERVICES = ['Facebook', 'Google', 'Twitter', 'Yahoo!'];
 
-/* The number of third parties. */
-var SERVICE_COUNT = SERVICES.length;
+/**
+ * The "tabs" API.
+ * @type {Object}
+ */
+var TABS_API = BACKGROUND.TABS_API;
 
-/* The "tabs" API. */
-var TABS = BACKGROUND.TABS;
-
-/* The "tabs" API. */
+/**
+ * The current active tab.
+ * @type {Object}
+ */
 var TAB_CURRENT;
 
-/* global vars in TGD namespace to avoid conflicts */
-TGD = {
+/**
+ * Variables namespaced for the "share achievements"
+ * @type {Object}
+ */
+Share = {
   killTooltip: true,
   stopSlide : false,
-  onEventsCalled : false,
+  onEventsCalled : false
+};
 
-}
 
-function renderVersion(){
-  var manifest = chrome.runtime.getManifest();
-  $('.version').text(manifest.version);
-}
 
-//Render adtracks in table
+
+
+//////////////
+// Adtracks //
+//////////////
+
+/**
+ * Render adtracks in the extension's HTML table.
+ * @param  {Object}     tab   The tab whose trackers are being processed.
+ * @return {undefined}     
+ */
 function renderAdtracks(tab) {  
   
-  var TAB = tab;
-  var ID = TAB.id;
+  var tab_id         = tab.id;
+  var tab_domain     = BACKGROUND.SITENAME_GET_DOMAIN(tab.url);
 
-  var CATEGORY_REQUESTS = (BACKGROUND.REQUEST_COUNTS[ID] || {}).Disconnect || {};
-  var DOMAIN = GET(TAB.url);
+  var whitelist      = BACKGROUND.deserialize(localStorage.whitelist) || {};
 
-  var WHITELIST = DESERIALIZE(localStorage.whitelist) || {};
-  var SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
+  var i;
 
-  var i = 0;
+  var adtracks       = new Hash();
+  var adtracks_count = new Hash();
+  var adtrack, adtrack_key, count;
+  var data_status, data_status_value, data_status_text, title, trading_style, selector;
+  var rows, amounts, amountName, offset;
 
-  var hAdtracks = new Hash();
-  var hAdtracksCount = new Hash();
-  var offset;
+  var allow_threats;
 
-  //Clear
-  //$("#layer_adtracks > tbody").html(""); TODO: why not?
-  $('#layer_adtracks tr').not(function(){
-      if ($(this).has('th').length){
-        return true;
-      }
-    }).remove();
-      
-  //Render header table
-
-  for (i in BACKGROUND.ADTRACKS[ID]) 
-  {
-    var adtrack = BACKGROUND.ADTRACKS[ID][i];
-    
-    var adtrack_key=adtrack.service_name+":"+adtrack.category;
-    hAdtracks.setItem(adtrack_key, adtrack);
-
-    if (!hAdtracksCount.hasItem(adtrack_key))
-    {
-      hAdtracksCount.setItem(adtrack_key,1);
-    }
-    else
-    {
-      var count = hAdtracksCount.getItem(adtrack_key);
-      count++;
-      hAdtracksCount.setItem(adtrack_key,count);
-    }
-  }
-
-  var deactivate_current = isDeactivateCurrent(DOMAIN,tab);
-  console.log(deactivate_current);
-
-  //Render Adtracks in GUI
-  for (service in hAdtracks.items)
-  {
-    
-    // tip: service contains now adtrack.service_name:adtrack.category
-
-    var adtrack = hAdtracks.items[service];
-    var data_status = false;
-    var data_status_value = 'BLOCKED';
-
-    if (adtrack.status=='allowed') {
-      data_status=true;
-    }
-
-    if (!data_status)
-      data_status_value = 'BLOCKED';
-    else
-      data_status_value = 'ALLOWED';
-    
-    var count =hAdtracksCount.getItem(service);
-
-    var selector='#layer_adtracks tbody';
-    
-    if (deactivate_current == true) {
-      data_status_value = 'ALLOWED';
-      data_status=true;
-    }
-    
-    var data_status_text=data_status_value;
-    var trading_style='';
-    var title='';
-    
-    if (adtrack.status_extra.statusText) {
-      data_status_text=adtrack.status_extra.statusText;
-    }
-    if (adtrack.status_extra.buttonStyle) {
-      trading_style=adtrack.status_extra.buttonStyle;
-    }
-    if (adtrack.status_extra.buttonTitle) {
-      title=adtrack.status_extra.buttonTitle;
-    }
-
-    $(selector).append('<tr><td>'+count+'</td><td>'+adtrack.category+'</td><td>'+adtrack.service_name+'</td><td><div title="'+title+'" style="'+trading_style+'" class="'+(deactivate_current?'':'btnAdtrack')+' button '+data_status_value.toLowerCase()+'" data-service_name="'+adtrack.service_name+'" data-category="'+adtrack.category+'" data-status="'+data_status+'">'+data_status_text+'</div></td></tr>');
-
-    i++;
-  }
-
-  //Sort adtracks
   function partialSort(arr, start, end, index) {
       var preSorted = arr.slice(0, start);
       var postSorted = arr.slice(end);
@@ -173,75 +120,133 @@ function renderAdtracks(tab) {
       return arr;
   }
 
-  var rows = $('#layer_adtracks tbody  tr').get();
+  // Clear HTML list.
+  $("#layer_adtracks > tbody").html(""); 
+      
+  // Set counter to adtracks_count hash
+  // and fill the adtracks hash.
+  for (i in BACKGROUND.ADTRACKS[tab_id]) {
+    adtrack     = BACKGROUND.ADTRACKS[tab_id][i];
+    adtrack_key = adtrack.service_name + ":" + adtrack.category;
+    adtracks.setItem(adtrack_key, adtrack);
 
-  // sort by number of threats
-  rows.sort(function(a, b) {
-    var A = parseInt($(a).children().eq(0).text(), 10),
-        B = parseInt($(b).children().eq(0).text(), 10);
-        
-    if(A < B) {
-      return -1;
-    }
-
-    if(A > B) {
-      return 1;
-    }
-    return 0;
-  });
-
-  // group by amount of threats and sort
-  var amounts = {};
-  $.each(rows, function(index, row){
-    //var value = parseInt($(row).children().eq(0).text(), 10);
-    var value = parseInt($(row).children().eq(0).text(), 10);
-    if(amounts[value] == undefined){
-      amounts[value] = 1;
-    }else{
-      amounts[value] += 1;
-    }
-  });
-
-  offset = 0;
-  for(key in amounts){
-    if(amounts.hasOwnProperty(key)){
-      partialSort(rows, offset, offset + amounts[key], 1);
-      offset += (amounts[key]);
+    if (!adtracks_count.hasItem(adtrack_key)){
+      adtracks_count.setItem(adtrack_key,1);
+    } else {
+      count = adtracks_count.getItem(adtrack_key);
+      count++;
+      adtracks_count.setItem(adtrack_key,count);
     }
   }
-  
-  // group by amount:name
-  var amountName = {};
-  $.each(rows, function(index, row){
-    var value = $(row).children().eq(0).text() + $(row).children().eq(1).text();
-    if(amounts[value] == undefined){
-      amountName[value] = 1;
-    }else{
-      amountName[value] += 1;
-    }
-  });
 
-  offset = 0;
-  for(key in amounts){
-    if(amounts.hasOwnProperty(key)){
-      partialSort(rows, offset, offset + amounts[key], 2);
-      offset += (amounts[key]);
+  //Render Adtracks in GUI
+  allow_threats = getAllowThreatsInCurrent(tab_domain);
+  i = 0;
+  for (service in adtracks.items) {
+    adtrack = adtracks.items[service];
+
+    data_status = false; // default
+    if (allow_threats === true || adtrack.status.toLowerCase() == 'allowed') {
+      data_status = true;
+    }
+
+    data_status_value = 'BLOCKED'; // default
+    if (data_status === true) {
+      data_status_value = 'ALLOWED';
+    }
+    
+    data_status_text = data_status_value; // default
+    if (adtrack.status_extra.status_text) {
+      data_status_text = adtrack.status_extra.status_text;
+    }
+    
+    trading_style = ''; // default
+    if (adtrack.status_extra.button_style) {
+      trading_style = adtrack.status_extra.button_style;
+    }
+    
+    title = ''; // default
+    if (adtrack.status_extra.button_title) {
+      title = adtrack.status_extra.button_title;
+    }
+
+    selector = '#layer_adtracks tbody';
+    count = adtracks_count.getItem(service);
+    $(selector).append('<tr><td>' + count + '</td><td>' + adtrack.category + '</td><td>' + adtrack.service_name + '</td><td><div title="' + title + '" style="' + trading_style + '" class="' + (allow_threats?'':'btnAdtrack') + ' button ' + data_status_value.toLowerCase() + '" data-service_name="' + adtrack.service_name + '" data-category="' + adtrack.category + '" data-status="' + data_status + '">' + data_status_text + '</div></td></tr>');
+
+    i++;
+  }
+
+  //Sort adtracks
+  rows = $('#layer_adtracks tbody  tr').get();
+
+  if (i > 1) {  
+    // sort by number of threats
+    rows.sort(function(a, b) {
+      var A = parseInt($(a).children().eq(0).text(), 10),
+          B = parseInt($(b).children().eq(0).text(), 10);
+          
+      if(A < B) {
+        return -1;
+      }
+
+      if(A > B) {
+        return 1;
+      }
+      return 0;
+    });
+
+    // group by amount of threats and sort
+    amounts = {};
+    $.each(rows, function(index, row){
+      var value = parseInt($(row).children().eq(0).text(), 10);
+      if(typeof(amounts[value]) == "undefined"){
+        amounts[value] = 1;
+      }else{
+        amounts[value] += 1;
+      }
+    });
+
+    offset = 0;
+    for(key in amounts){
+      if(amounts.hasOwnProperty(key)){
+        partialSort(rows, offset, offset + amounts[key], 1);
+        offset += (amounts[key]);
+      }
+    }
+    
+    // group by amount:name
+    amountName = {};
+    $.each(rows, function(index, row){
+      var value = $(row).children().eq(0).text() + $(row).children().eq(1).text();
+      if(amounts[value] == undefined){
+        amountName[value] = 1;
+      }else{
+        amountName[value] += 1;
+      }
+    });
+
+    offset = 0;
+    for(key in amounts){
+      if(amounts.hasOwnProperty(key)){
+        partialSort(rows, offset, offset + amounts[key], 2);
+        offset += (amounts[key]);
+      }
     }
   }
 
   $('#layer_adtracks tbody').append(rows.reverse());
 
   // show/hide expand button for threats list
-  if (i===0){
+  if (i === 0){
     $('#layer_adtracks').hide();
-  }
-  else {
+  } else {
     $('#layer_adtracks').show();
   }
 
   //Render elements count
-  if (BACKGROUND.ADTRACKS[ID] != undefined){
-    count=BACKGROUND.ADTRACKS[ID].length;
+  if (typeof(BACKGROUND.ADTRACKS[tab_id]) != "undefined"){
+    count = BACKGROUND.ADTRACKS[tab_id].length;
     $('#layer_adtracks_count').html(count);
     if(count === 0){
       $('#btnExpandAdtracks').hide();
@@ -251,25 +256,31 @@ function renderAdtracks(tab) {
   }
 }
 
-//Write Achievements values
+
+
+
+
+//////////////////
+// Achievements //
+//////////////////
+
+/**
+ * Write Achievements values
+ * @param  {Array} achievements  List of acheievemnts as an array.
+ * @return {undefined}              
+ */
 function writeAchievement(achievements){
   
   // get unread achievements var
-  var hasUnreadAchievements=false;
-  if (typeof(localStorage.hasUnreadAchievements)!=='undefined') {
-    hasUnreadAchievements=castBool(localStorage.hasUnreadAchievements);
-  }
-  
-  // add/remove unread class from header
-  var $headerMessageContainer=$('section#content header .message');
-  if (hasUnreadAchievements) {
-    $headerMessageContainer.addClass('unread');
-  } else {
-    $headerMessageContainer.removeClass('unread');
-  }
-  
+  var has_unread_achievements = false;
+  var $header_message_container;
+  var read_achievements, reordered_achievements, reordered_achievements_first, reordered_achievements_last;
+  var achievement;
+  var element, length, current, timeout;
+  var i;
+
   function changeSlide() {
-    if(TGD.stopSlide){
+    if(Share.stopSlide){
       setTimeout(changeSlide, 1000);
     }else{
       element.eq(current++).fadeOut(300, function(){
@@ -287,27 +298,36 @@ function writeAchievement(achievements){
     }
   }
 
-  var text = '';
+  if (typeof(localStorage.hasUnreadAchievements) !== 'undefined') {
+    has_unread_achievements = castBool(localStorage.hasUnreadAchievements);
+  }
+  
+  // add/remove unread class from header
+  $header_message_container = $('section#content header .message');
+  if (has_unread_achievements) {
+    $header_message_container.addClass('unread');
+  } else {
+    $header_message_container.removeClass('unread');
+  }
+  
   $("#layer_achievement_value").empty();
   
-  
-  
   // reorder list based on what was already read and show first unread first
-  var readAchievements = deserialize(localStorage.readAchievements) || [];
-  var reorderedAchievements=[], reorderedAchievementsFirst=[], reorderedAchievementsLast=[];
-  for (var i = 0; i < achievements.length; i++) {
-    if (readAchievements.indexOf(achievements[i].id) === -1) {
-      reorderedAchievementsFirst.push(achievements[i]);
+  read_achievements            = BACKGROUND.deserialize(localStorage.readAchievements) || [];
+  reordered_achievements       = [];
+  reordered_achievements_first = [];
+  reordered_achievements_last  = [];
+  for (i = 0; i < achievements.length; i++) {
+    if (read_achievements.indexOf(achievements[i].id) === -1) {
+      reordered_achievements_first.push(achievements[i]);
     } else {
-      reorderedAchievementsLast.push(achievements[i]);
+      reordered_achievements_last.push(achievements[i]);
     }
   }
-  reorderedAchievements = reorderedAchievementsFirst.concat(reorderedAchievementsLast);
+  reordered_achievements = reordered_achievements_first.concat(reordered_achievements_last);
   
-  
-
-  for(var i = 0; i < reorderedAchievements.length; i++){
-    var achievement = reorderedAchievements[i];
+  for(i = 0; i < reordered_achievements.length; i++){
+    achievement = reordered_achievements[i];
     
     // mark first achievement already as read because it has been already displayed when the popup was opened
     if (i===0) {
@@ -317,43 +337,90 @@ function writeAchievement(achievements){
     $("#layer_achievement_value").append('<li data-id="'+achievement.id+'"><p><i></i><a href="'+achievement['link'+LANG]+'" target="_blank">'+achievement['text'+LANG]+'</a></p></li>');
   }
 
-  var element = $('#layer_achievement_value li'),
-      length = element.length, 
-      current = 0,
-      timeout = 5000;
-
+  element = $('#layer_achievement_value li');
+  length  = element.length;
+  current = 0;
+  timeout = 5000;
   if(element.length > 1){
     element.slice(1).hide();
     setTimeout(changeSlide, timeout); 
   }
 }
 
-//Render Achievement in extension
+/**
+ * Render Achievement in extension
+ * @return {undefined} 
+ */
 function renderAchievement(){
-  LoadAchievements(writeAchievement);
+  loadAchievements(writeAchievement);
 }
 
-//Write Achievements values
+
+
+
+
+/////////////
+// Queries //
+/////////////
+
+/**
+ * Write achievements value into the pop-up HTML.
+ * @param  {Number}    queries Number of queries contributed.
+ * @return {undefined}         
+ */
 function writeQueries(queries){
   $("#layer_achievement_contributions").html(queries.toString());
 }
 
+/**
+ * Loads queries count and renders it in the extension.
+ * @return {undefined} 
+ */
 function renderQueries(){
   if(typeof(localStorage.queries) !== "undefined"){
     writeQueries(JSON.parse(localStorage.queries));
   }
-  LoadQueries(writeQueries);
+  loadQueries(writeQueries);
 }
 
+
+
+
+
+///////////
+// Loans //
+///////////
+
+/**
+ * Write loans value into the pop-up HTML.
+ * @param  {Number}    loans [description]
+ * @return {undefined}  
+ */
 function writeLoans(loans){
   $('#layer_loans_value').html(loans);
 }
 
-//Render Loans counter in extension
+/**
+ * Loads loans count and renders it in the extension
+ * @return {undefined} 
+ */
 function renderLoans(){
-  LoadLoans(writeLoans);
+  loadLoans(writeLoans);
 }
 
+
+
+
+
+//////////////////
+// Contributed  //
+//////////////////
+
+/**
+ * Writes the seniority icon and data into the extension's pop-up HTML.
+ * @param  {Object} percentileData Seniority data.
+ * @return {undefined}                
+ */
 function writeContributed(percentileData){
 
   // Apprentice: users that are in the bottom 5% in terms of data items shared last month (unless they are cooperative members)
@@ -366,22 +433,24 @@ function writeContributed(percentileData){
   var text = percentileData.level,
       img = percentileData.icon,
       color = percentileData.color;
-
   $("#layer_usertype_title").html(text.toUpperCase());
   //$('#layer_usertype_title').css('color', color);
   $("#layer_usertype_image").
-    attr("src",TGD_API+"uploads/seniority/"+img).
+    attr("src", TGD_API + "uploads/seniority/" + img).
     addClass("icon " + text.toLowerCase()).
     show();// not every icon is the same so some css styling must be applied.
 }
 
-//Render Contributed pieces counter in extension
+/**
+ * Loads seniority data and shows it in the extension's pop-up.
+ * @return {undefined} 
+ */
 function renderContributed(){
   if(typeof(localStorage.contributed) !== "undefined"){
     writeContributed(JSON.parse(localStorage.contributed));
   }
 
-  LoadContributed(writeContributed);
+  loadContributed(writeContributed);
 
   if (localStorage.member_id != "0"){
     $('#button_delete_stored_data').hide();
@@ -390,32 +459,63 @@ function renderContributed(){
   }
 }
 
+
+
+
+
+/////////////
+// Buttons //
+/////////////
+
+/**
+ * Set button's look for the "ON" state.
+ * @param {String} id   Button's id.
+ */
 function setButtonOn(id){
   $(id).html('ON');
   $(id).removeClass('off');
   $(id).addClass('on');
 }
 
+/**
+ * Set button's look for the "OFF" state.
+ * @param {String} id   Button's id.
+ */
 function setButtonOff(id){
   $(id).html('OFF');
   $(id).removeClass('on');
   $(id).addClass('off');
 }
 
+/**
+ * Set button's state.
+ * @param {String} status Status to be set.
+ * @param {String} id     Button's id.
+ */
 function setButton(status, id){
-  if (status==true)
-  {
+  if (status === true) {
     setButtonOn(id);
-  }
-  else
-  {
+  } else {
     setButtonOff(id);
   }
 }
 
-//Render Contributed pieces counter in extension
+
+
+
+
+/////////////
+// Options //
+/////////////
+
+/**
+ * Render active extension's options.
+ * @param  {Object}     tab Active tab.
+ * @return {undefined}     
+ */
 function renderOptions(tab){
-  // store navigation and non-sensitive queries?
+
+  // Store navigation and non-sensitive queries?
   if (typeof(localStorage.store_navigation) === 'undefined') {
     localStorage.store_navigation=option_default_store_navigation;
   }
@@ -446,33 +546,30 @@ function renderOptions(tab){
   setButton(allow_social,'#layer_config_allow_social');
 }
 
-//Render Deactivate Current
-function renderDeactivateCurrent(DOMAIN,tab){
-    var deactivate_current=isDeactivateCurrent(DOMAIN,tab);
-    setButton(deactivate_current,'#layer_config_deactivate_current');
+/**
+ * Set the status for the "Allow threats on this site" button. 
+ * @param  {String} domain Domain for which the threats will be allowed/denied.
+ * @return {undefined}        
+ */
+function renderDeactivateCurrent(domain){
+  setButton(getAllowThreatsInCurrent(domain),'#layer_config_deactivate_current');
 }
 
-// TODO: is this function used by any one?
-function deactivateCurrent(tab){
-  var TAB = tab;
-  var ID = TAB.id;
-  var DOMAIN = GET(TAB.url);
 
-  var status=false;
-  
-  for (i in BACKGROUND.ADTRACKS[ID]) 
-  {
-    var adtrack = BACKGROUND.ADTRACKS[ID][i];
-    addWhitelist(DOMAIN,adtrack.service_name,adtrack.category,true);
-  }
 
-  return status;
-}
 
+////////////
+// Header //
+////////////
+
+/**
+ * Writes the HTML for the extension's pop-up header.
+ * @return {undefined} 
+ */
 function renderHeader(){
 
   //console.log(localStorage.member_id);
-  if (localStorage.member_id != 0){
+  if (localStorage.member_id !== 0){
     $('header .username').text(localStorage.member_username);
     $('header .authenticated').show();
     $('header .anonymous').hide();
@@ -486,6 +583,18 @@ function renderHeader(){
   }
 }
 
+
+
+
+
+///////////
+// Links //
+///////////
+
+/**
+ * Render the link's
+ * @return {undefined} 
+ */
 function renderLinks(){
   $('#forgotPassword').attr('href',TGD_URL+'user/recovery');
   $('#moreStats').attr('href',TGD_URL+'evil-data');
@@ -494,38 +603,56 @@ function renderLinks(){
   $('#moreAboutYou').attr('href',TGD_URL+'your-data'); // todo change this to your-data after deploying webapp to prod
 }
 
+
+
+
+
+//////////////////////
+// Suggestion form //
+//////////////////////
+
+/**
+ * Set the suggestions form dimensions so it fills the pop-up height.
+ */
 function setSuggestionFormDimensions() {
-  var $suggestion = $('#suggestion'),
-      $content = $('#content'),
-      popupHeight = $content.innerHeight();
+  var $suggestion = $('#suggestion');
+  var $content    = $('#content');
+  var popupHeight = $content.innerHeight();
 
   $suggestion.innerHeight(popupHeight);
 }
 
+/**
+ * Set the spinner dimension for the suggestion form so it is centered in the pop-up.
+ */
 function setSpinnerDimensions() {
-  var $suggestionBody = $('#suggestion .body'),
-      $suggestionSpinner = $('#suggestion-spinner'),
-      bodyHeight = $suggestionBody.innerHeight(),
-      bodyWidth = $suggestionBody.innerWidth();
+  var $suggestionBody    = $('#suggestion .body');
+  var $suggestionSpinner = $('#suggestion-spinner');
+  var bodyHeight         = $suggestionBody.innerHeight();
+  var bodyWidth          = $suggestionBody.innerWidth();
 
   $suggestionSpinner.innerHeight(bodyHeight);
   $suggestionSpinner.innerWidth(bodyWidth);
 }
 
+/**
+ * Defines the event handler for the form sumbmission process.
+ * @return {undefined} 
+ */
 function bindSuggestionFormEvents() {
   $('#suggestion-submit').click(function(event){
 
-    var $form = $('#suggestion-form'),
-        $spinner = $('#suggestion-spinner'),
-        $formContainer = $('#suggestion-form-container'),
-        postData = $form.serializeArray(),
-        formURL = $form.attr("action");
+    var $form          = $('#suggestion-form');
+    var $spinner       = $('#suggestion-spinner');
+    var $formContainer = $('#suggestion-form-container');
+    var postData       = $form.serializeArray();
+    var formURL        = $form.attr("action");
 
     postData.push({'name': 'id', 'value': localStorage.member_id});
 
-//    if(localStorage.member_id != 0){
-//      postData.push({'name': 'username', 'value': localStorage.member_username});
-//    }
+    //    if(localStorage.member_id != 0){
+    //      postData.push({'name': 'username', 'value': localStorage.member_username});
+    //    }
 
     setSpinnerDimensions();
 
@@ -555,8 +682,12 @@ function bindSuggestionFormEvents() {
   });
 }
 
+/**
+ * Determine if the email field has to be shown or not and update the form accordingly.
+ * @return {undefined} 
+ */
 function showHideEmailField() {
-  if(localStorage.member_id != 0){
+  if(localStorage.member_id !== "0"){
     $('#suggestion-form div.row:first-child').hide();
     $('#suggestion-form textarea').height(200);
   }
@@ -567,6 +698,10 @@ function showHideEmailField() {
   }
 }
 
+/**
+ * Compose the sugestion form.
+ * @return {undefined} 
+ */
 function buildSuggestionForm() {
   if($('#suggestion-form').length < 1){
     $.get( TGD_URL+"suggestion/ajax")
@@ -587,14 +722,23 @@ function buildSuggestionForm() {
   }
 }
 
+
+
+
+
+/////////////
+// on load //
+/////////////
+
+/**
+ * Holds the function calls that take place upon loading the pop-up.
+ * @return {undefined} 
+ */
 function onLoad(){
     
-  var TAB = TAB_CURRENT;
-  var ID = TAB.id;
-  var CATEGORY_REQUESTS = (BACKGROUND.REQUEST_COUNTS[ID] || {}).Disconnect || {};
-  var DOMAIN = GET(TAB.url);
-  var WHITELIST = DESERIALIZE(localStorage.whitelist) || {};
-  var SITE_WHITELIST = WHITELIST[DOMAIN] || (WHITELIST[DOMAIN] = {});
+  var tab = TAB_CURRENT;
+  var id = tab.id;
+  var domain = BACKGROUND.SITENAME_GET_DOMAIN(tab.url);
   
 
   //Render links
@@ -603,11 +747,8 @@ function onLoad(){
   //Render Correct Header
   renderHeader();
 
-  //Render version
-  renderVersion();
-
   //Render adtracks in table
-  renderAdtracks(TAB);
+  renderAdtracks(tab);
 
   //Render achievement
   renderAchievement();
@@ -622,29 +763,38 @@ function onLoad(){
   renderContributed();
 
   //Render Options
-  renderOptions(TAB);
+  renderOptions(tab);
 
   //Render deactivate current
-  renderDeactivateCurrent(DOMAIN,TAB);
+  renderDeactivateCurrent(domain,tab);
 
   //Render extension icon
   renderExtensionIcon();
-
-  // Build suggestion form
-  // buildSuggestionForm();
 
   // onEvents is called multiple times during extension execution.
   // This causes event handlers being attached more than once to an element
   // resulting in undesired behaviour.
   // TODO: This needs to be fixed
-  if(!TGD.onEventsCalled){
-    onEvents(DOMAIN, TAB);
+  if(!Share.onEventsCalled){
+    onEvents(domain, tab);
   }
 }
 
 
-function onEvents(DOMAIN, TAB)
-{
+
+
+
+////////////
+// Events //
+////////////
+
+/**
+ * Define events handler for the pop-up.
+ * @param  {String} domain  The domain name of the current site.
+ * @param  {Object} tab     The current tab.
+ * @return {undefined}        
+ */
+function onEvents(domain, tab) {
   $( document ).ready(function() {
         
     // Remove focus from links
@@ -652,80 +802,74 @@ function onEvents(DOMAIN, TAB)
     
     //Event click button "expand adtracks"
     $('#btnExpandAdtracks').click(function () {
-        if ( $( "#layer_adtracks_expand" ).is( ":hidden" ) ) {
-            // $( "#layer_adtracks_expand" ).slideDown( "slow" );
-            $( "#layer_adtracks_expand" ).show();
-            $('#btnExpandAdtracks').removeClass("fa-plus collapsed");
-            $('#btnExpandAdtracks').addClass("fa-minus expanded");
-
-        } else {
-            // $( "#layer_adtracks_expand" ).slideUp( "slow" );
-            $( "#layer_adtracks_expand" ).hide();
-            $('#btnExpandAdtracks').removeClass("fa-minus expanded");
-            $('#btnExpandAdtracks').addClass("fa-plus collapsed");
-        }
-        event.preventDefault();
+      if ( $( "#layer_adtracks_expand" ).is( ":hidden" ) ) {
+        $( "#layer_adtracks_expand" ).show();
+        $( "#btnExpandAdtracks" ).removeClass( "fa-plus collapsed" );
+        $( "#btnExpandAdtracks" ).addClass( "fa-minus expanded" );
+      } else {
+        $( "#layer_adtracks_expand" ).hide();
+        $( "#btnExpandAdtracks" ).removeClass( "fa-minus expanded" );
+        $( "#btnExpandAdtracks" ).addClass( "fa-plus collapsed" );
+      }
+      event.preventDefault();
     });
 
     //Event click button "show sign-in form"
     $('#btnLogin').click(function (event) {
-        var $signin = $('#sign-in'),
-            $content = $('#content'),
-            popupHeight = $content.innerHeight();
+      var $signin     = $( "#sign-in" );
+      var $content    = $( "#content" );
+      var popupHeight = $content.innerHeight();
 
-        $signin.innerHeight(popupHeight);
+      $signin.innerHeight(popupHeight);
 
-        if ( $signin.is( ":hidden" ) ) 
-        {
-            $content.hide();
-            $signin.fadeIn( "slow");
-        } 
-        else 
-        {
-            $signin.fadeOut("slow", function(){
-              $content.show();
-            });
-        }
-        event.preventDefault();  
+      if ( $signin.is( ":hidden" ) ) {
+        $content.hide();
+         $signin.fadeIn( "slow" );
+      } else {
+        $signin.fadeOut( "slow", function(){
+          $content.show();
+        });
+      }
+      event.preventDefault();  
     });
 
     // Click event on button "close sign-in form"
-    $('#sign-in .close').click(function(){
-      $('#btnLogin').click();
+    $( '#sign-in .close' ).click(function(){
+      $( '#btnLogin' ).click();
     });
 
     // Cick event on button "close suggestion form"
     $('#suggestion .close').click(function(){
-      var $suggestion = $('#suggestion'),
-          $content = $('#content');
+      var $suggestion = $( "#suggestion" );
+      var $content    = $( "#content" );
 
-      if($('#suggestion > .ops').length > 0){
-        $('#suggestion > .ops').remove();
+      if($( "#suggestion > .ops" ).length > 0){
+        $( "#suggestion > .ops" ).remove();
       }
 
-      if($('#suggestion > .thanks').length > 0){
-        $('#suggestion > .thanks').remove();
+      if($( "#suggestion > .thanks" ).length > 0){
+        $( "#suggestion > .thanks" ).remove();
       }
 
-      $suggestion.fadeOut("slow", function(){
-        $('#suggestion-spinner').hide();
+      $suggestion.fadeOut( "slow", function(){
+        $( "#suggestion-spinner" ).hide();
         $content.show();
-        $('#suggestion_title').show();
+        $( "#suggestion_title" ).show();
       });
     });
 
 
 
-    $("#in-love .email-us").click(function(event){
-      var $suggestion = $('#suggestion'),
-          $content = $('#content'),
-          $form = $('#suggestion-form'),
-          memberId = localStorage.member_id;
+    $( "#in-love .email-us" ).click(function(event){
+      var $suggestion = $( "#suggestion" );
+      var $content    = $( "#content" );
+      var $form       = $( "#suggestion-form" );
+      var memberId    = localStorage.member_id;
 
       setSuggestionFormDimensions();
       buildSuggestionForm();
 
-      $content.fadeOut("slow", function(){
+      $content.fadeOut( "slow", function(){
         $('#suggestion-spinner').hide();
         $form.show();
         $suggestion.show();
@@ -740,7 +884,7 @@ function onEvents(DOMAIN, TAB)
           chrome.tabs.getCurrent(function (tab){
             localStorage.user_id = createUUID();
             onLoad(tab);
-          })
+          });
         },
         function (error){
         }
@@ -749,12 +893,12 @@ function onEvents(DOMAIN, TAB)
 
     // Event click button "sign in"
     $('#btnSignIn').click(function (event) {
-      var username= $('#txtUsername').val();
-      var password= $('#txtPassword').val();
+      var username = $('#txtUsername').val();
+      var password = $('#txtPassword').val();
       
       $('#pError').html("");
       
-      if (username == "" || password == "") {
+      if (username === "" || password === "") {
         $('#pError').html("Invalid username or password.");
       } else {
         loginUser(
@@ -786,42 +930,35 @@ function onEvents(DOMAIN, TAB)
     // Event click button "Deactivate Current"
     $('#not-working').on('click', '.btnDeactivateCurrent', function() { 
 
-      var ID = TAB.id;
-
-      var sStatus=$(this).html();
-      var status=false;
-
-      if (sStatus == 'ON') {
-        status=false;
-      }else if (sStatus == 'OFF') {
-        status=true
+      var id       = tab.id;
+      var s_status = $(this).html();
+      var status   = false;
+      var url      = BACKGROUND.SITENAME_GET_DOMAIN(TAB_CURRENT.url);
+      if (s_status == 'ON') {
+        status = true;
+      }else if (s_status == 'OFF') {
+        status = false;
       }
 
       try {
-        // for (i in BACKGROUND.ADTRACKS[ID]) 
-        // {
-        // var adtrack = BACKGROUND.ADTRACKS[ID][i];
-        console.log('----> '+'*'+' - '+status);
-        // TODO: Test if this is working properly since adding category.
-        setWhitelistStatus(DOMAIN,TAB,'*','*',status);
-        // }
+        setAllowThreatsInCurrent(url, !status);
       } catch(err) {
         console.log(err);
       }
 
       
-      syncWhitelist();
+      //syncWhitelist();
 
-      TABS.reload(ID);
+      TABS_API.reload(id);
 
       //Render Options
-      renderOptions(TAB);
+      renderOptions(tab);
 
       //Render deactivate current
-      renderDeactivateCurrent(DOMAIN,TAB);
+      renderDeactivateCurrent(domain,tab);
 
       //Render adtracks in table
-      //renderAdtracks(TAB);
+      //renderAdtracks(tab);
 
       // Temp fix closing window so it will render new stats when opening again.
       window.close();
@@ -832,24 +969,22 @@ function onEvents(DOMAIN, TAB)
     // Event click button "Allow Social"
     $('#not-working').on('click', '.btnAllowSocial', function() { 
       var allow_social = castBool(localStorage.allow_social);
-      var ID = TAB.id;
+      var id           = tab.id;
 
-      allow_social = !allow_social;
-
-      localStorage.allow_social = allow_social;
+      localStorage.allow_social = !allow_social;
 
       //console.log('visualizar '+allow_social);
-      renderOptions(TAB);
+      renderOptions(tab);
 
-      addWhitelist(DOMAIN,'Facebook','Social',!allow_social);
-      addWhitelist(DOMAIN,'Twitter','Social',!allow_social);
+      setWhitelistStatus('Facebook','Social', allow_social);
+      setWhitelistStatus('Twitter','Social', allow_social);
       
       // syncWhitelist();
       
-      TABS.reload(ID);
+      TABS_API.reload(id);
       
       //Render adtracks in table
-      // renderAdtracks(TAB);
+      // renderAdtracks(tab);
       
       // Temp fix closing window so it will render new stats when opening again.
       window.close();
@@ -885,7 +1020,7 @@ function onEvents(DOMAIN, TAB)
       
       var ID = TAB.id;
       
-      TABS.reload(ID);
+      TABS_API.reload(ID);
       
       // Temp fix closing window so it will render new stats when opening again.
       // window.close(); // disabled window close for now.
@@ -893,21 +1028,20 @@ function onEvents(DOMAIN, TAB)
 
     // Event click button "blocked / allowed"
     $('#layer_adtracks').on('click', '.btnAdtrack', function() { 
-      var ID = TAB.id;
+      var id           = tab.id;
+      var service_name = $(this).data("service_name");
+      var status       = $(this).data("status");
+      var category     = $(this).data("category");
 
-      var service_name=$(this).data("service_name");
-      var status=$(this).data("status");
-      var category=$(this).data("category");
+      setWhitelistStatus(service_name,category,!status);
 
-      addWhitelist(DOMAIN,service_name,category,status);
-
-      syncWhitelist();
+      //syncWhitelist();
       
-      TABS.reload(ID);
-      
+      TABS_API.reload(id);
+    
       // Temp fix closing window so it will render new stats when opening again.
       window.close();
-      
+                                          
       //Render adtracks in table
       //renderAdtracks(TAB);
       
@@ -919,10 +1053,11 @@ function onEvents(DOMAIN, TAB)
     
     // Reset preferences for all sites / clear whitelist
     $('#reset_site_pref').on('click', function() { 
-      var $buttons = $('#confirmation .buttons'),
-          $confirmation = $('#confirmation'),
-          $wrapper = $('#confirmation .wrapper'),
-          $message = $('#confirmation .message');
+      var $buttons      = $('#confirmation .buttons');
+      var $confirmation = $('#confirmation');
+      var $wrapper      = $('#confirmation .wrapper');
+      var $message      = $('#confirmation .message');
+      var id;
 
       if($confirmation.is(':visible')){
         $confirmation.slideUp();
@@ -930,13 +1065,13 @@ function onEvents(DOMAIN, TAB)
       }
 
       // if the user had chosen not to receive confirmation
-      if(castBool(localStorage.ask_confirmation) == false){
+      if(castBool(localStorage.ask_confirmation) === false){
 
         resetEntireWhitelist();
 
         // hide the buttons divs and move the confirmation to the left
         $buttons.hide();
-        $wrapper.css({left: "-320px"})
+        $wrapper.css({left: "-320px"});
         $confirmation.slideDown({
           complete: function() {
 
@@ -954,9 +1089,9 @@ function onEvents(DOMAIN, TAB)
         });
 
 
-        var ID = TAB.id;
         syncWhitelist();
-        TABS.reload(ID);
+        id = tab.id;
+        TABS_API.reload(id);
         // window.close(); TODO: necessary?
         return;
       }
@@ -972,10 +1107,11 @@ function onEvents(DOMAIN, TAB)
 
     // accept resetting preferences
     $('#reset_pref_ok').on('click', function() {
-      var $confirmation = $('#confirmation'),
-          $wrapper = $('#confirmation .wrapper'),
-          $message = $('#confirmation .message'),
-          $alert = $('#confirmation .alert');
+      var $confirmation = $('#confirmation');
+      var $wrapper = $('#confirmation .wrapper');
+      var $message = $('#confirmation .message');
+      var $alert = $('#confirmation .alert');
+      var id;
 
       if($('#ask_confirmation').is(':checked')){
         localStorage.ask_confirmation = false;
@@ -990,9 +1126,9 @@ function onEvents(DOMAIN, TAB)
                 complete: function() {
                   $wrapper.css({left: "0px"});
 
-                  var ID = TAB.id;
                   syncWhitelist();
-                  TABS.reload(ID);
+                  id = tab.id;
+                  TABS_API.reload(id);
                 }
               });
             },2000);
@@ -1003,7 +1139,7 @@ function onEvents(DOMAIN, TAB)
 
     // Event click button "BECOME A MEMBER"
     $('#become-member').click(function(){
-      TABS.create({url: TGD_URL + 'apply'});
+      TABS_API.create({url: TGD_URL + 'apply'});
     });
 
     // Event click button "Email us"
@@ -1012,43 +1148,27 @@ function onEvents(DOMAIN, TAB)
 
     // Event click button "Become owner"
     $('#in-love').on('click','.become-owner', function(){
-      TABS.create({url: TGD_URL + '/user/registration'});
+      TABS_API.create({url: TGD_URL + '/user/registration'});
       return false;
-    });
-
-    // Event click button "Share on G+"
-    $('#in-love').on('click','.google-plus', function(){
     });
 
     // Event click button "Donate"
     $('#in-love').on('click','.donate', function(){
-      TABS.create({url: TGD_URL + '/donate'});
+      TABS_API.create({url: TGD_URL + '/donate'});
       return false;
-    });
-
-    // Event click button "Share on FB"
-    $('#in-love').on('click','.fa-facebook', function (event){
-      //event.preventDefault();
-      //TABS.create({url : 'http://www.facebook.com/sharer.php?s=100&p[url]=https://www.thegooddata.org&p[images][0]=https://www.thegooddata.org/img/final-logo-200px.png&p[title]=TheGoodData!&p[summary]=Be in control of your data while doing some good.'});
-    });
-
-    // Event click button "Share on Twitter"
-    $('#in-love').on('click','.twitter', function(){
     });
 
     // Event click button "Sign out"
     $('#header').on('click','#btnLogout', function(){
       
-      $.get( TGD_URL+"/user/logout", function( data ) {
-        log_if_enabled('get_logged_user - FROM LOGOUT','login');
-        get_logged_user(function () { onLoad(); }, function () { onLoad(); });
+      $.get( TGD_URL + "/user/logout", function( data ) {
+        getLoggedUser(function () { onLoad(); }, function () { onLoad(); });
       });
-
     });
 
     // Event click on any link
     $('body a').click(function(){
-      TABS.create({url: this.getAttribute('href')});
+      TABS_API.create({url: this.getAttribute('href')});
       return false;
     });
 
@@ -1070,24 +1190,24 @@ function onEvents(DOMAIN, TAB)
       $that.tooltip('show');
 
       // stp slide
-      TGD.stopSlide = true;
+      Share.stopSlide = true;
 
       // hides tootip on mouseleave
       $('.tooltip').mouseleave(function(){
         $that.tooltip('hide');
-        TGD.killTooltip = true;
-        TGD.stopSlide = false;
+        Share.killTooltip = true;
+        Share.stopSlide   = false;
       }).mouseenter(function(){
-        TGD.killTooltip = false;
+        Share.killTooltip = false;
       });
 
       // hides tooltip on mouseclick on any of the social icons
       $('.tooltip .fa').click(function(){
         var active     = $('#layer_achievement_value li:visible a');
-        var activeHref = active.attr('href'),
-            activeText = active.text(),
-            socialHref = '',
-            statusText = encodeURIComponent( activeText + ' ' + activeHref + ' @thegooddata' );
+        var activeHref = active.attr('href');
+        var activeText = active.text();
+        var socialHref = '';
+        var statusText = encodeURIComponent( activeText + ' ' + activeHref + ' @thegooddata' );
 
         if($(this).hasClass('fa-facebook')){
           socialHref = 'https://www.facebook.com/sharer/sharer.php?u=' + activeHref;
@@ -1097,24 +1217,24 @@ function onEvents(DOMAIN, TAB)
           socialHref = 'https://plus.google.com/share?url=' + activeHref;
         }
         $that.tooltip('hide');
-        TABS.create({url: socialHref});
+        TABS_API.create({url: socialHref});
       })
     }).mouseleave(function(){
       setTimeout(function(){
-        if(TGD.killTooltip){
+        if(Share.killTooltip){
           $('#layer_achievement_id').tooltip('hide');
-          TGD.stopSlide = false;
+          Share.stopSlide = false;
         }
       },500);
     });
 
-    TGD.onEventsCalled = true;
+    Share.onEventsCalled = true;
   });
 }
 
 /* Paints the UI. */
 // $( document ).ready(function() {
-//   TABS.query(
+//   TABS_API.query(
 //     {
 //       currentWindow: true, 
 //       active: true
@@ -1126,23 +1246,10 @@ function onEvents(DOMAIN, TAB)
 //   );
 // });
 
-(window).addEventListener(
-  'load', function() 
-  {
-    TABS.query
-    (
-      {
-        currentWindow: true, 
-        active: true
-      }
-      , 
-      function(tabs) 
-      {        
+(window).addEventListener('load', function() {
+    TABS_API.query({currentWindow: true, active: true}, function(tabs) {        
         TAB_CURRENT = tabs[0];
         onLoad();
-      }
-    );
-  }
-  ,
-  true
+      });
+  },true
 );

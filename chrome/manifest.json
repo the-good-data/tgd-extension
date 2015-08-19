@@ -24,10 +24,9 @@
     "http://cc.chango.com/static/o.js"
   ],
   "content_security_policy":
-      "script-src 'self' 'unsafe-eval' https://cc.chango.com; object-src 'self'",
+      "script-src 'self'; object-src 'self'",
   "background": {
     "scripts": [
-      "scripts/vendor/port/port.js",
       "scripts/vendor/jquery/jquery-1.7.2.min.js",
       "scripts/vendor/sitename/sitename.js",
       "scripts/md5.js",
@@ -40,12 +39,5 @@
   "browser_action": {
     "default_icon": "images/19bw.png",
     "default_title": "Enjoy your data"
-  },
-  "content_scripts": [{
-    "matches": ["http://*/*", "https://*/*"],
-    "css": ["stylesheets/content.css"],
-    "js": ["scripts/vendor/port/port.js", "scripts/content.js"],
-    "run_at": "document_start",
-    "all_frames": true
-  }]
+  }
 }

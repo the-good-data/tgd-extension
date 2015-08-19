@@ -20,772 +20,679 @@
   
 */
 
-/* Toggles the search preferences. */
-function editSettings(state) {
-  state = !!state;
-  INSTANT_ENABLED.set({value: state});
-  SUGGEST_ENABLED.set({value: state});
+/**
+ * Adtracks captured for each tab.
+ * @type {Object}
+ */
+ var ADTRACKS          = {};
+ 
+ /**
+ * Stores the counters for each tab.
+ * @type {Object}
+ */
+ var BADGE_COUNTER     = {};
+ 
+ /**
+ * The WHITELISTed services.
+ * @type {Object}
+ */
+ var WHITELIST         = deserialize(localStorage.whitelist) || {};
+ 
+ /**
+ * Last search query run.
+ * @type {String}
+ */
+ var LAST_SEARCH_QUERY = '';
+ 
+ /**
+ * The content key.
+ * @type {String}
+ */
+ var CONTENT_NAME      = 'Content';
+ 
+ /**
+ * The social key.
+ * @type {String}
+ */
+ var SOCIAL_NAME       = 'Social';
+
+
+
+
+
+//////////
+// APIs //
+//////////
+
+/**
+ * The "browserAction" API.
+ * @type {Object}
+ */
+ var BROWSER_ACTION_API = chrome.browserAction;
+ 
+ /**
+ * The "tabs" API.
+ * @type {Object}
+ */
+ var TABS_API           = chrome.tabs;
+ 
+ /**
+ * The "cookies" API.
+ * @type {Object}
+ */
+ var COOKIES_API        = chrome.cookies; 
+
+//////////////
+// Services //
+//////////////
+
+var SOCIAL_SERVICES  = ['Facebook','Twitter']; // TODO: Unused
+var TRADING_SERVICES = ['Doubleclick','Chango','Pubmatic','adxhm','eBay','Fox One Stop Media','Federated Media','eXelate','Casale Media','LiveIntent','Improve Digital','Criteo','Rapleaf','AudienceManager','OpenX','AOL','AddThis','AppNexus','LiveRail','BrightRoll','Skimlinks','SpotXchange','adBrite','CONTEXTWEB','rmxregateKnowledge','Adap.tv'];
+var SEARCHS_DOMAINS  = ['google.com','bing.com','yahoo.com']; // TODO: Unused
+
+
+
+
+
+//////////
+// Tabs //
+//////////
+
+/**
+ * The domain name of the tabs.
+ * @type {Object}
+ */
+ var TABS_DOMAINS           = {};
+ 
+ /**
+ * The previous requested URL of the tabs.
+ * @type {Object}
+ */
+ var TABS_PREVIOUS_REQUESTS = {};
+ 
+ /**
+ * The previous redirected URL of the tabs.
+ * @type {Object}
+ */
+ var TABS_REDIRECTS         = {};
+
+
+
+
+
+//////////////
+// Sitename //
+//////////////
+ 
+/**
+ *  The Sitename object.
+ * @type {Sitename}
+ */
+var SITENAME                = new Sitename;
+
+/**
+ * The Sitename initialization status.
+ * @type {Boolean} 
+ */
+var SITENAME_IS_INITIALIZED = SITENAME.isInitialized;
+
+/**
+ * Gets the domain portion for a given URL.
+ * @type {String}
+ */
+var SITENAME_GET_DOMAIN     = SITENAME.get;
+
+
+
+
+
+///////////////
+// Functions //
+///////////////
+
+/**
+ * Create a whitelist with the new format from the old format if it exists.
+ * @return {undefined} 
+ */
+function migrateWhitelist() {
+  var isLegacy      = typeof(WHITELIST.version) == "undefined";
+  var new_whitelist = {version : 2, all_threats_allowed: {}};
+  var domain, category;
+
+  // if the whitelist has old format
+  if (isLegacy) {
+    // loop through each domain
+    for(domain in WHITELIST) {
+      // loop through each category of current domain
+      for(category in WHITELIST[domain]) {
+        
+        // if threats are allowed, store domain name.
+        if (category == "*:*" || category == "*") {
+          new_whitelist.all_threats_allowed[domain] = WHITELIST[domain][category];
+        } 
+
+        // if it's an specific category, store it.
+        else {
+          if (WHITELIST[domain][category] === true || category == CONTENT_NAME) {
+            new_whitelist[category] = WHITELIST[domain][category];
+          }
+        }
+      }
+    }
+
+    localStorage.old_whitelist = JSON.stringify(WHITELIST); // TODO: remove after testing
+    localStorage.whitelist     = JSON.stringify(new_whitelist);
+  }
 }
 
-
-
-/* Preps the browser action. */
+/**
+ * Initializes the badge and pop-up.
+ * @return {undefined} 
+ */
 function initializeToolbar() {
-  BROWSER_ACTION.setBadgeBackgroundColor({color: [85, 144, 210, 255]});
-  var DETAILS = {popup: (SAFARI ? 'chrome' : '') + '/markup/popup.html'};
-
-  if (SAFARI) {
-    DETAILS.width = 148;
-    DETAILS.height = 210;
-  }
-
-  BROWSER_ACTION.setPopup(DETAILS);
+  BROWSER_ACTION_API.setBadgeBackgroundColor({color: [85, 144, 210, 255]});
+  BROWSER_ACTION_API.setPopup({popup: '/markup/popup.html'});
 }
 
-/* Tallies the number of tracking requests. */
-function getCount(tabRequests) {
-  var count = 0;
-
-  for (var categoryName in tabRequests) {
-    if (categoryName == CONTENT_NAME) continue;
-    var category = tabRequests[categoryName];
-    for (var serviceName in category) count += category[serviceName].count;
-  }
-
-  return count;
+/**
+ * Indicates in the badge the number of tracking requests.
+ * @param  {Number} tab_id      The tab id.
+ * @param  {Number} count       The amount to display in the badge.
+ */
+function updateCounter(tab_id, count) {
+  
+  BROWSER_ACTION_API.setBadgeBackgroundColor({
+    tabId: tab_id, 
+    color: [136, 136, 136, 255]
+  });
+  
+  BROWSER_ACTION_API.setBadgeText({
+    tabId: tab_id, 
+    text: (count || '') + ''
+  });
 }
 
-/* Indicates the number of tracking requests. */
-function updateCounter(tabId, count, deactivated) {
-  
-  // if (
-  //   deserialize(localStorage.blockingIndicated) &&
-  //       deserialize(localStorage.blogOpened)
-  // ) {
-  
-    //    deactivated && BROWSER_ACTION.setBadgeBackgroundColor({
-    //      tabId: tabId, color: [136, 136, 136, 255]
-    //    });
-  
-    BROWSER_ACTION.setBadgeBackgroundColor({
-      tabId: tabId, color: [136, 136, 136, 255]
-    });
-  
-  BROWSER_ACTION.setBadgeText({tabId: tabId, text: (count || '') + ''});
-  // }
-}
+/**
+ * Checks that the given tab id exists and then updates the counter.
+ * @param  {Number} tab_id      The tab id.
+ * @param  {Number} count       The amount to display in the badge.
+ */
+function safelyUpdateCounter(tab_id, count) {
+  TABS_API.query({}, function(tabs) {
+    var tab_count = tabs.length;
 
-
-/* Indicates the number of tracking requests, if the tab is rendered. */
-function safelyUpdateCounter(tabId, count, deactivated) {
-  TABS.query({}, function(tabs) {
-    var TAB_COUNT = tabs.length;
-
-    for (var i = 0; i < TAB_COUNT; i++) {
-      if (tabId == tabs[i].id) {
-        updateCounter(tabId, count, deactivated);
+    for (var i = 0; i < tab_count; i++) {
+      if (tab_id == tabs[i].id) {
+        updateCounter(tab_id, count);
         break;
       }
     }
   });
 }
 
-/* Tallies and indicates the number of tracking requests. */
-function incrementCounter(tabId, service, blocked) {
-  //  var TAB_REQUESTS = REQUEST_COUNTS[tabId] || (REQUEST_COUNTS[tabId] = {});
-  //  var CATEGORY = service.category;
-  //  var CATEGORY_REQUESTS =
-  //      TAB_REQUESTS[CATEGORY] || (TAB_REQUESTS[CATEGORY] = {});
-  //  var SERVICE = service.name;
-  //  var SERVICE_REQUESTS =
-  //      CATEGORY_REQUESTS[SERVICE] ||
-  //          (CATEGORY_REQUESTS[SERVICE] = {url: service.url, count: 0});
-  //  SERVICE_REQUESTS.count++;
+/**
+ * Increments the number of tracking requests.
+ * @param  {Number} tab_id       The ID of the tab to be incremented.
+ */
+function incrementCounter(tab_id) {
 
-  if (ADTRACKS_BADGE_COUNTER[tabId] == undefined){
-    ADTRACKS_BADGE_COUNTER[tabId]= 0;
+  if (typeof(BADGE_COUNTER[tab_id]) == "undefined"){
+    BADGE_COUNTER[tab_id] = 0;
   }
-  ADTRACKS_BADGE_COUNTER[tabId]++;
 
-  safelyUpdateCounter(tabId, ADTRACKS_BADGE_COUNTER[tabId], !blocked);
+  BADGE_COUNTER[tab_id] += 1;
+  safelyUpdateCounter(tab_id, BADGE_COUNTER[tab_id]);
 }
 
-var SOCIAL_SERVICES = ['Facebook','Twitter'];
-var TRADED_SERVICES = ['Doubleclick','Chango','Pubmatic','adxhm','eBay','Fox One Stop Media','Federated Media','eXelate','Casale Media','LiveIntent','Improve Digital','Criteo','Rapleaf','AudienceManager','OpenX','AOL','AddThis','AppNexus','LiveRail','BrightRoll','Skimlinks','SpotXchange','adBrite','CONTEXTWEB','rmxregateKnowledge','Adap.tv'];
-var SEARCHS_DOMAINS = ['google.com','bing.com','yahoo.com'];
+/**
+ * Look for query string in a given URL.
+ * @param  {String} requested_url Requested URL.
+ */
+function lookforQuery(requested_url) {
 
-var ADTRACKS = {};
-var ADTRACKS_BADGE_COUNTER = {};
+  var child_domain = SITENAME_GET_DOMAIN(requested_url);
+  var is_google     = (child_domain.search("google.") > -1);
+  var is_gmail      = (child_domain.search("mail.google.") > -1);
+  var is_bing       = (child_domain.search("bing.") > -1);
+  var is_yahoo      = (child_domain.search("yahoo.") > -1);   
 
-/* The current build number. */
-var CURRENT_BUILD = 42;
+  // Search proxied
+  var isOmniboxSearch = true;
+  var isSearchByPage = new RegExp("search_plus_one=form").test(requested_url);
+  var isSearchByPopUp = new RegExp("search_plus_one=popup").test(requested_url);
 
-/* The previous build number. */
-var PREVIOUS_BUILD = localStorage.build;
+  var isProxied =true;
 
-/* The domain name of the tabs. */
-var DOMAINS = {};
+  // Google
+  var isChromeInstant = ( is_google && (requested_url.search("chrome-instant") > -1) );
+  var is_google_OMB_search = ( is_google && (requested_url.search("/complete/") > -1) );
+  var is_google_site_search = ( is_google && ( (requested_url.search("#q=") > -1) || (requested_url.search("suggest=") > -1) || (requested_url.search("output=search") > -1) || (requested_url.search("/s?") > -1)) );
+  // Bing
+  var is_bing_OMB_search = ( is_bing && (requested_url.search("osjson.aspx") > -1) );
+  var is_bing_site_search = ( is_bing && (requested_url.search("search?") > -1) );
+  // Yahoo!
+  var is_yahooSearch = ( is_yahoo && (requested_url.search("search.yahoo") > -1) );
 
-/* The WHITELISTed services per domain name. */
-var WHITELIST = deserialize(localStorage.whitelist) || {};
+  if ( isProxied && (isChromeInstant || is_google_OMB_search || is_google_site_search || is_bing_site_search || is_bing_OMB_search || is_yahooSearch) ) {
+    if (is_google_site_search && !is_gmail){
+      extractSearch('google',requested_url);
+    } 
+    else  if (is_yahooSearch){
+      extractSearch('yahoo',requested_url);
+    }
+    else  if (is_bing_site_search){
+      extractSearch('bing',requested_url);
+    }
+  }
+}
 
-/* The previous requested URL of the tabs. */
-var REQUESTS = {};
+/**
+ * Extract the search terms from the URL string and save it.
+ * @param  {String} search_engine_name Search engine name.
+ * @param  {String} requested_url    Requested URL.
+ */
+function extractSearch(search_engine_name, requested_url) {
+    
+  var data;
+  var search_term = "";
+  var language;
+  var localtime;
 
-/* The previous redirected URL of the tabs. */
-var REDIRECTS = {};
+  data = getDataFromQuery(requested_url, search_engine_name);
+  if (typeof(data) != "undefined" && typeof(data.q) != "undefined" ) {
 
-/* The number of tracking requests per tab, overall and by third party. */
-var REQUEST_COUNTS = {};
+    seach_term = data.q; 
+    if (LAST_SEARCH_QUERY == seach_term || typeof(seach_term) == "undefined" || seach_term.length === 0) {
+      return;
+    }
 
-/* The content key. */
-var CONTENT_NAME = 'Content';
+    //    language="en"; // force language for testing purpose, comment this out
+    language = window.navigator.userLanguage || window.navigator.language;
+    checkLanguagesSupport(language, function (language_support){
+      
+      var lang_support;
+      var lang_alias = (language_support !== null) ? language_support.alias : language;
 
-/* The content key. */
-var SOCIAL_NAME = 'Social';
+      checkQuery(seach_term, lang_alias, function(data_queries){
+        
+        var share = 'false';
+        var user_id;
+        var query;
 
-/* The "tabs" API. */
-var TABS = chrome.tabs;
+        if (data_queries.length === 0){
+          
+          //set last query search 
+          LAST_SEARCH_QUERY = seach_term;
 
-/* The "privacy" API. */
-if (false) var PRIVACY = chrome.privacy.services;
+          lang_support = (language_support) !== null ? language_support.support : false;
+          if (lang_support === true) {
+            //Check if user has selected not to share info with our partner
+            if (castBool(localStorage.share_search) === true && feature_trade_sensitive_queries) {
+              share = "true";
+            } else {
+              share = "false";
+            }
+          } 
+          
+          user_id = localStorage.user_id;
+          if (localStorage.member_id != "0") {
+            user_id = "";
+          }
 
-/* The "cookies" API. */
-var COOKIES = chrome.cookies; 
+          //set localtime
+          localtime = new Date();
+          localtime.setHours(localtime.getHours() + localtime.getTimezoneOffset() / 60);
+          if ( castBool(localStorage.store_navigation) ) {
+            query = {
+                "member_id":localStorage.member_id,
+                "user_id": user_id,
+                "provider":search_engine_name,
+                "query":requested_url,
+                "data":seach_term,
+                "lang":language,
+                "language_support":lang_support,
+                "share":share,
+                "usertime": localtime.format("yyyy-mm-dd HH:MM:ss")
+            };
+          } else {
+            query = {
+                "member_id":0,
+                "user_id": "",
+                "provider":"",
+                "query":"",
+                "data":"",
+                "lang":"",
+                "language_support":"",
+                "share":share,
+                "usertime": localtime.format("yyyy-mm-dd")
+            };
+          }
 
-/* The "browserAction" API. */
-var BROWSER_ACTION = chrome.browserAction;
-
-/* The "instantEnabled" property. */
-if (false) var INSTANT_ENABLED = PRIVACY.instantEnabled;
-
-/* The "searchSuggestEnabled" property. */
-if (false) var SUGGEST_ENABLED = PRIVACY.searchSuggestEnabled;
-
-/* The experimental value of the "levelOfControl" property. */
-var EDITABLE = 'controllable_by_this_extension';
-
-/* The domain object. */
-var SITENAME = new Sitename;
-
-/* The domain initialization. */
-var IS_INITIALIZED = SITENAME.isInitialized;
-
-/* The domain getter. */
-var GET = SITENAME.get;
-
-/* Last query search */
-var lastQuerySearch='';
-
-initializeToolbar();
-LoadContributed(function(json){localStorage.contributed = JSON.stringify(json);});
-
-/* Prepopulates the store of tab domain names. */
-var ID = setInterval(function() {
-  if (IS_INITIALIZED()) {
-    clearInterval(ID);
-    var TLDS = deserialize(localStorage.tlds);
-    TLDS['google.com'] = true;
-    TLDS['yahoo.com'] = true;
-    localStorage.tlds = JSON.stringify(TLDS);
-
-    TABS.query({}, function(tabs) {
-      var TAB_COUNT = tabs.length;
-
-      for (var i = 0; i < TAB_COUNT; i++) {
-        var tab = tabs[i];
-        DOMAINS[tab.id] = GET(tab.url);
-      }
+          SaveQuery(query);
+        } 
+      });
     });
   }
-}, 100);
-
-/* Tests the writability of the search preferences. */
-false && INSTANT_ENABLED.get({}, function(details) {
-  details.levelOfControl == EDITABLE &&
-      SUGGEST_ENABLED.get({}, function(details) {
-        if (details.levelOfControl == EDITABLE)
-            localStorage.settingsEditable = true;
-        deserialize(localStorage.settingsEditable) &&
-            deserialize(localStorage.searchHardened) && editSettings();
-      });
-});
+}
 
 
 
-/* Traps and selectively cancels or redirects a request. */
+
+
+////////////////////
+// event handlers //
+////////////////////
+
+/**
+ * Fired when a request is about to occur. (developer.chrome.com)
+ * Traps and selectively cancels or redirects a request.
+ * @param  {Function}   Callback that is exected when this event is triggered.
+ */
 chrome.webRequest.onBeforeRequest.addListener(function(details) {
   
-  var TYPE = details.type;
-  var PARENT = TYPE == 'main_frame';
-  var TAB_ID = details.tabId;
-  var REQUESTED_URL = details.url;
-  var CHILD_DOMAIN = GET(REQUESTED_URL);
+
+  var tab_id        = details.tabId;
+  var requested_url = details.url;
+
+  var child_domain  = SITENAME_GET_DOMAIN(requested_url);
+  var child_service = getService(child_domain);
+  var child_name;
   
-  if (PARENT) DOMAINS[TAB_ID] = CHILD_DOMAIN;
-  var childService = getService(CHILD_DOMAIN);
-  var hardenedUrl;
-  var hardened;
-  var blockingResponse = {cancel: false};
-  var whitelisted;
-  var adtrack_status_extra={};
+  var is_redirect_safe;
+  var type = details.type;
+  var is_parent                       = type == 'main_frame';
+  if (is_parent) TABS_DOMAINS[tab_id] = child_domain;
+  
+  var parent_domain;
+  var parent_service;
+  
+  var hardened_url;
+  var is_hardened;
 
-  if (childService) {
-    
-    log_if_enabled("", "adtrack");
-    log_if_enabled("===================== INTERCEPTING REQUEST =====================", "adtrack");
-    log_if_enabled("Share search: "+castBool(localStorage.share_search+" feature_trade_sensitive_queries: " + feature_trade_sensitive_queries), "adtrack");
-    log_if_enabled(REQUESTED_URL, "adtrack");
-    
+  var blockingResponse     = {cancel: false};
+  var is_whitelisted;
+  var adtrack_status_extra = {};
+
+
+  var allow_social;
+  var whitelist_item_status;
+
+  var localtime;
+  var status;
+  var user_id;
+
+  if (child_service) {
     // Set up our provider    
-    var PARENT_DOMAIN = DOMAINS[TAB_ID];
-    var PARENT_SERVICE = getService(PARENT_DOMAIN);
-    var CHILD_NAME = childService.name;
-    var REDIRECT_SAFE = REQUESTED_URL != REQUESTS[TAB_ID];
-    
-    log_if_enabled("Parent [Domain: "+PARENT_DOMAIN+"] "+(PARENT_SERVICE?"category: "+PARENT_SERVICE.category+" name: "+PARENT_SERVICE.name+" url: "+PARENT_SERVICE.url+ "]":" - unknown parent service"), "adtrack");
-    log_if_enabled("Child [Domain: "+CHILD_DOMAIN+" category: "+childService.category+" name: "+childService.name+" url: "+childService.url+ "]", "adtrack");
+    parent_domain         = TABS_DOMAINS[tab_id];
+    parent_service        = getService(parent_domain);
+    // parent_name           = (parent_service)? parent_service.name : "";
 
-    var allow_social = castBool(localStorage.allow_social);
+    child_name            = child_service.name;
+
+    is_redirect_safe      = requested_url != TABS_PREVIOUS_REQUESTS[tab_id];
+    allow_social          = castBool(localStorage.allow_social);
     
-    var item_whitelist_status=((deserialize(localStorage.whitelist) || {})[PARENT_DOMAIN] || {})[CHILD_NAME+':'+childService.category];
-    
-    
-    
+    whitelist_item_status = (deserialize(localStorage.whitelist) || {})[child_name + ':' + child_service.category];
+
     // The request is allowed: the topmost frame has the same origin.
-    if (
-      PARENT || !PARENT_DOMAIN || CHILD_DOMAIN == PARENT_DOMAIN ||
-          PARENT_SERVICE && CHILD_NAME == PARENT_SERVICE.name 
-    ) { 
-      if (REDIRECT_SAFE) {
-        hardenedUrl = harden(REQUESTED_URL);
-        hardened = hardenedUrl.hardened;
-        hardenedUrl = hardenedUrl.url;
-        if (hardened) blockingResponse = {redirectUrl: hardenedUrl};
-      }
-      log_if_enabled("BLOCK F", "adtrack");
-      
-    }
-    
-    // Trading services
-    else if (( (   (castBool(localStorage.share_search) && feature_trade_sensitive_queries)    && contains(TRADED_SERVICES,childService.name)) ) && (item_whitelist_status==undefined||item_whitelist_status))
-    {
-      
-      log_if_enabled("BLOCK TRADING", "adtrack");
-      whitelisted = true;
-      
-      log_if_enabled(item_whitelist_status, "adtrack");
-      
-      adtrack_status_extra.statusText='TRADING';
-      adtrack_status_extra.buttonStyle='background-color: #FCC34A';
-      adtrack_status_extra.buttonTitle=childService.name+' is automatically allowed for trading.';
-            
-    }
-    
-    // Content, allowed by default
-    else if (childService.category==CONTENT_NAME && (item_whitelist_status==undefined||item_whitelist_status))
-    {
-      
-      log_if_enabled("BLOCK CONTENT", "adtrack");
-      whitelisted = true;
-      
-      log_if_enabled(item_whitelist_status, "adtrack");
-      
-      adtrack_status_extra.buttonTitle=childService.name+' is automatically allowed for trading.';
-      
-    }
-    
-    // Service is in Social list, and Allow Social button is ON but check whitelisted status
-    else if (childService.category==SOCIAL_NAME && allow_social  && (item_whitelist_status==undefined||item_whitelist_status))
-    {
-      log_if_enabled("BLOCK E", "adtrack");
-      whitelisted = true;
-    }
-    
-    // The request is allowed: the service is whitelisted.
-    else if ((
-      (deserialize(localStorage.whitelist) || {})[PARENT_DOMAIN] || {}
-    )[CHILD_NAME+':'+childService.category]) { 
-      log_if_enabled("BLOCK G", "adtrack");
-      if (REDIRECT_SAFE) {
-        hardenedUrl = harden(REQUESTED_URL);
-        hardened = hardenedUrl.hardened;
-        hardenedUrl = hardenedUrl.url;
-        log_if_enabled("hardened url: "+hardenedUrl, "adtrack");
-        if (hardened) {
-          blockingResponse = {redirectUrl: hardenedUrl};
-          log_if_enabled("BLOCK G-HARDENED", "adtrack");
-        } else {
-          whitelisted = true;
-          log_if_enabled("BLOCK G-WHITELISTED", "adtrack");
+    if (is_parent || !parent_domain || child_domain == parent_domain || parent_service && child_name == parent_service.name) { 
+      if (is_redirect_safe) {
+        hardened_url = harden(requested_url);
+        is_hardened  = hardened_url.hardened;
+        hardened_url = hardened_url.url;
+        if (is_hardened) {
+          blockingResponse = {redirectUrl: hardened_url};
         }
       }
-      
-    } 
-    else 
-    {
-      log_if_enabled("BLOCK H", "adtrack");
-      
-      
-      // Deactivated tab
-      if (isDeactivateCurrent(PARENT_DOMAIN,TAB_ID))
-      {
-        log_if_enabled("BLOCK H-A", "adtrack");
-        whitelisted = true; 
-
-        hardenedUrl = harden(REQUESTED_URL);
-        hardened = hardenedUrl.hardened;
-        hardenedUrl = hardenedUrl.url;
-        if (hardened) 
-          blockingResponse = {redirectUrl: hardenedUrl};
-        else 
-          whitelisted = true; 
-      }
-      else
-      {
-        
-        log_if_enabled("BLOCK H-B", "adtrack");
-
-        blockingResponse = {
-          redirectUrl:
-            TYPE == 'image' ?
-                'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg=='
-                    : 'about:blank'
-        }; // The request is denied.
-      }
-      
     }
 
-    if (blockingResponse.redirectUrl || whitelisted) {
+    // Threats alowed in current site
+    else if (getAllowThreatsInCurrent(parent_domain)) {
+      hardened_url = harden(requested_url);
+      is_hardened  = hardened_url.hardened;
+      hardened_url = hardened_url.url;
+      is_whitelisted = true; 
+      if (is_hardened) {
+        blockingResponse = {redirectUrl: hardened_url};
+      }
+    }
 
-      log_if_enabled("blockingResponse.redirectUrl || whitelisted", "adtrack");
+    // Trading services
+    else if (castBool(localStorage.share_search) && feature_trade_sensitive_queries  && contains(TRADING_SERVICES, child_name) && typeof(whitelist_item_status) != "undefined") {
+      adtrack_status_extra.status_text  = 'TRADING';
+      adtrack_status_extra.button_style = 'background-color: #FCC34A';
+      adtrack_status_extra.button_title = child_name + ' is automatically allowed for trading.';            
+      is_whitelisted = true;
+    }
 
-      var localtime = new Date();
-      var status='blocked';
-      var user_id = localStorage.user_id;
+    // Content, allowed by default, must be set to false explicitly inorder to be blocked
+    else if (child_service.category == CONTENT_NAME &&  whitelist_item_status !== false) {
+      adtrack_status_extra.button_title = child_name + ' is automatically allowed for trading.';
+      is_whitelisted = true;
+    }
 
-      if (whitelisted == true)
+    // Service is in Social list, and Allow Social button is ON but check whitelisted status
+    else if (child_service.category == SOCIAL_NAME && allow_social  && typeof(whitelist_item_status) != "undefined" ) {
+      is_whitelisted = true;
+    }
+
+    // The request is allowed: the service is whitelisted.
+    else if (whitelist_item_status) { 
+      if (is_redirect_safe) {
+        hardened_url = harden(requested_url);
+        is_hardened  = hardened_url.hardened;
+        hardened_url = hardened_url.url;
+        if (is_hardened) {
+          blockingResponse = {redirectUrl: hardened_url};
+        } else {
+          is_whitelisted = true;
+        }
+      }      
+    } else {
+      blockingResponse = { redirectUrl: type == 'image' ? 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAACklEQVR4nGMAAQAABQABDQottAAAAABJRU5ErkJggg==' : 'about:blank'}; // The request is denied.
+    }
+      
+    
+
+    if (blockingResponse.redirectUrl || is_whitelisted) {
+
+
+      status ='blocked';
+      if (is_whitelisted === true) {
         status = 'allowed';
+      }
 
-      //Hack change category form disconnect
-      if ( childService.category == 'Disconnect')
-        childService.category='Others';
-
-      //delete instance extension
-      if (localStorage.member_id!=0)
-        user_id="";
+      user_id = localStorage.user_id;
+      if (localStorage.member_id != "0") {
+        user_id = "";
+      }
 
       //set localtime
+      localtime = new Date();
       localtime.setHours(localtime.getHours() + localtime.getTimezoneOffset() / 60);
 
       var adtrack = {
         'member_id':localStorage.member_id,
         'user_id': user_id,
-        'category':childService.category,
-        'service_name':childService.name,
-        'service_url':childService.url,
-        'domain':PARENT_DOMAIN,
+        'category':child_service.category,
+        'service_name':child_name,
+        'service_url':child_service.url,
+        'domain':parent_domain,
         'url':details.url,
         'usertime': localtime.format("yyyy-mm-dd HH:MM:ss"),
         'status':status,
         'status_extra': adtrack_status_extra
       };
 
-        log_if_enabled('ADTRACK DETECTADA', "adtrack");
-        log_if_enabled('===========================', "adtrack");
-        log_if_enabled(adtrack, "adtrack");
-        log_if_enabled('===========================', "adtrack");
-        log_if_enabled('', "adtrack")
-      
-      SaveThreat(adtrack);
+      saveThreat(adtrack);
 
-      if (ADTRACKS[TAB_ID] == undefined){
-        ADTRACKS[TAB_ID]= [];
+      if (typeof(ADTRACKS[tab_id]) == "undefined"){
+        ADTRACKS[tab_id]= [];
       }
 
-      ADTRACKS[TAB_ID].push(adtrack);
-      incrementCounter(TAB_ID, childService, !whitelisted);
-      
-    }
-    
-  } else {
-    //    log_if_enabled("No Child Service detected. Requested Url: "+REQUESTED_URL, "adtrack");
-  }
+      ADTRACKS[tab_id].push(adtrack);
+      incrementCounter(tab_id, child_service);
+    } 
+  } 
 
-  REQUESTED_URL != REDIRECTS[TAB_ID] && delete REQUESTS[TAB_ID];
-  delete REDIRECTS[TAB_ID];
+  (requested_url != TABS_REDIRECTS[tab_id]) && delete TABS_PREVIOUS_REQUESTS[tab_id];
+  delete TABS_REDIRECTS[tab_id];
 
-  if (hardened) {
-    REQUESTS[TAB_ID] = REQUESTED_URL;
-    REDIRECTS[TAB_ID] = hardenedUrl;
+  if (is_hardened) {
+    TABS_PREVIOUS_REQUESTS[tab_id] = requested_url;
+    TABS_REDIRECTS[tab_id]         = hardened_url;
   }
 
   return blockingResponse;
 }, {urls: ['http://*/*', 'https://*/*']}, ['blocking']);
 
-function lookforQuery(REQUESTED_URL)
-{
-
-  var CHILD_DOMAIN = GET(REQUESTED_URL);
-  //var PROXY_REDIRECT_BY_PRESETTING = "https://" + bgPlusOne.C_PROXY_PRESETTING;
-  //var PROXY_REDIRECT = "https://" + bgPlusOne.C_PROXY_SEARCH + "/search";
-  var REGEX_URL = /[?|&]q=(.+?)(&|$)/;
-  var REGEX_URL_YAHOO = /[?|&]p=(.+?)(&|$)/;
-  //var TYPE = details.type;
-  // var T_MAIN_FRAME = (TYPE == 'main_frame');
-  // var T_XMLHTTPREQUEST = (TYPE == 'xmlhttprequest');
-  //var REQUESTED_URL = details.url;
-  //var CHILD_DOMAIN = getHostname(REQUESTED_URL);
-
-  //var blockingResponse = {cancel: false};
-  var blocking = presetting = false;
-
-  
-  var isGoogle = (CHILD_DOMAIN.search("google.") > -1);
-  var isBing = (CHILD_DOMAIN.search("bing.") > -1);
-  var isYahoo = (CHILD_DOMAIN.search("yahoo.") > -1);
-  var isBlekko = (CHILD_DOMAIN.search("blekko.") > -1);
-  var isDisconnectSite = (CHILD_DOMAIN.search("disconnect.me") > -1);
-  var isDuckDuckGo = (CHILD_DOMAIN.search("duckduckgo.") > -1);
-  var hasSearch = (REQUESTED_URL.search("/search") > -1);
-  var hasMaps = (REQUESTED_URL.search("/maps") > -1);
-  var hasWsOrApi = (REQUESTED_URL.search("/ws") > -1) || (REQUESTED_URL.search("/api") > -1);
-  var hasGoogleImgApi = (REQUESTED_URL.search("tbm=isch") > -1);
-  //var isDisconnect = bgPlusOne.isProxySearchUrl(REQUESTED_URL);
-  var isDisconnect = false
-  var isDisconnectSearchPage = (REQUESTED_URL.search("search.disconnect.me/stylesheets/injected.css") > -1);
-   
-
-  // Search proxied
-  var modeSettings = deserialize(localStorage['mode_settings']);
-  //var isSecureMode = (deserialize(localStorage['secure_search']) == true);
-  //var isOmniboxSearch = (bgPlusOne.page_focus == false);
-  var isOmniboxSearch = true;
-  var isSearchByPage = new RegExp("search_plus_one=form").test(REQUESTED_URL);
-  var isSearchByPopUp = new RegExp("search_plus_one=popup").test(REQUESTED_URL);
-  var isProxied = ( 
-    (modeSettings == 0 && isSearchByPopUp) ||
-    (modeSettings == 1 && (isSearchByPopUp || isOmniboxSearch)) ||
-    (modeSettings == 2 && (isSearchByPopUp || isOmniboxSearch || isSearchByPage)) ||
-    (modeSettings >= 0 && (bgPlusOne.isProxyTab(details.tabId) && bgPlusOne.proxy_actived) )
-  );
-
-  isProxied =true;
-
-  // blocking autocomplete by OminiBox or by Site URL
-  var isChromeInstant = ( isGoogle && (REQUESTED_URL.search("chrome-instant") > -1) );
-  var isGoogleOMBSearch = ( isGoogle && (REQUESTED_URL.search("/complete/") > -1) );
-  var isGoogleSiteSearch = ( isGoogle && ( (REQUESTED_URL.search("#q=") > -1) || (REQUESTED_URL.search("suggest=") > -1) || (REQUESTED_URL.search("output=search") > -1) || (REQUESTED_URL.search("/s?") > -1)) );
-  
-  var isBingOMBSearch = ( isBing && (REQUESTED_URL.search("osjson.aspx") > -1) );
-  var isBingSiteSearch = ( isBing && (REQUESTED_URL.search("search?") > -1) );
-  var isYahooSearch = ( isYahoo && (REQUESTED_URL.search("search.yahoo") > -1) );
-
-  if ( isProxied && (isChromeInstant || isGoogleOMBSearch || isGoogleSiteSearch || isBingSiteSearch || isYahooSearch) ) {
-    blocking = true;
-    if (!isDisconnect) {
-      if ( (modeSettings==1) && !isGoogleOMBSearch ) blocking = false;
-      else if ( (modeSettings==2) && isGoogleSiteSearch && !isSearchByPage ) blocking = false;
-    }
-
-    var isGmail = (CHILD_DOMAIN.search("mail.google.") > -1);
-
-
-    if (isGoogleSiteSearch && !isGmail){
-      extractSearch('google',REQUESTED_URL);
-    } 
-    else  if (isYahooSearch){
-      extractSearch('yahoo',REQUESTED_URL);
-    }
-    else  if (isBingSiteSearch){
-      extractSearch('bing',REQUESTED_URL);
-    }
-  }
-}
-
-function extractSearch(searchEngineName,REQUESTED_URL)
-{
-  log_if_enabled('DETECTING QUERY','query');
-    
-  var data = getDataFromQuery(REQUESTED_URL, searchEngineName);
-  
-  if (data != undefined && data.q != undefined )
-  {
-    var seachTerm = '';
-    if (searchEngineName == 'google')
-      seachTerm=data.q; 
-    else if (searchEngineName == 'yahoo')
-      seachTerm=data.q; 
-    else if (searchEngineName == 'bing')
-      seachTerm=data.q; 
-
-    if (lastQuerySearch == seachTerm)
-      return;
-    
-    // add extra check to avoid request if term is empty
-    if (typeof(seachTerm)!='undefined' && seachTerm.length > 0) {
-      log_if_enabled('seachTerm: '+seachTerm,'query');
-    } else {
-      // got no term, return
-      log_if_enabled('no search term, returning','query');
-      return;
-    }
-
-    var language = window.navigator.userLanguage || window.navigator.language;
-    var localtime = new Date();
-
-//    language='en'; // force language for testing purpose, comment this out
-
-    CheckLanguagesSupport(language, function (language_support){
-      
-      log_if_enabled('CheckLanguagesSupport', 'query');
-      log_if_enabled(language_support, 'query');
-
-        var lang_support = language_support !== null ? language_support.support : false;
-        var lang_alias = language_support !== null ? language_support.alias : language;
-
-        CheckQuery(seachTerm,lang_alias, function(data_queries){
-          if (data_queries.length==0){
-
-            var sTemp = '';
-
-            //var share='true';
-            var share='false';
-
-              if (lang_support == true) {
-                  //Check if user has selected not to share info with our partner
-                  if (castBool(localStorage.share_search) === true && feature_trade_sensitive_queries) {
-                      share = 'true';
-                  }
-                  else {
-                      share = 'false';
-                  }
-              }
-              else{
-              }
-
-            var user_id = localStorage.user_id;
-
-            //delete instance extension
-            if (localStorage.member_id!=0)
-              user_id="";
-
-            //set localtime
-            localtime.setHours(localtime.getHours() + localtime.getTimezoneOffset() / 60);
-
-            //set last query search 
-            lastQuerySearch = seachTerm;
-
-            var query = {};
-
-            if ( castBool(localStorage.store_navigation) )
-            {
-                query = {
-                    'member_id':localStorage.member_id,
-                    'user_id': user_id,
-                    'provider':searchEngineName,
-                    'query':REQUESTED_URL,
-                    'data':seachTerm,
-                    'lang':language,
-                    'language_support':lang_support,
-                    'share':share,
-                    'usertime': localtime.format("yyyy-mm-dd HH:MM:ss")
-                };
-            }else{
-                query = {
-                    'member_id':0,
-                    'user_id': '',
-                    'provider':'',
-                    'query':'',
-                    'data':'',
-                    'lang':'',
-                    'language_support':'',
-                    'share':share,
-                    'usertime': localtime.format("yyyy-mm-dd")
-                };
-            }
-
-              log_if_enabled('QUERY DETECTED','query');
-              log_if_enabled('===========================','query');
-              log_if_enabled(query,'query');
-
-              log_if_enabled('===========================','query');
-              log_if_enabled('','query')
-
-              log_if_enabled('---> SAVE QUERY','query');
-              SaveQuery(query);
-          }
-          else{
-            log_if_enabled('----> CONTENT IN BLACKLIST: '+(data_queries.toString()),'query');
-          }
-
-        });
-
-    });
-
-  }
-}
-
+/**
+ * Fired when the extension is first installed, when the extension is updated to 
+ * a new version, and when Chrome is updated to a new version (developer.chrome.com)
+ * @param  {Function}   Callback that is exected when this event is triggered.
+ */
 chrome.runtime.onInstalled.addListener(function(details){
-  log_if_enabled('get_logged_user - FROM chrome.runtime.onInstalled','login');
   // so we can get user from webapp after it has been installed
-  get_logged_user(function () {}, function () {});
+  getLoggedUser(function () {}, function () {});
 });
 
-
+/**
+ * Fired when a tab is updated. (developer.chrome.com)
+ * @param  {Function}   Callback that is exected when this event is triggered.
+ */
 chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
+    var localtime;
+    var child_domain;
+    var user_id;
+    var history;
 
-    if ( changeInfo.status=="complete" ){
+    var url_parts;
+    var url_to_log;
+
+    if ( changeInfo.status == "complete" ){
       
-      LoadAchievements(checkUnreadAchievements);
+      loadAchievements(checkUnreadAchievements);
+      getLoggedUser(function () {}, function () {});
       
-      log_if_enabled('get_logged_user - FROM BACKGROUND TAB COMPLETE','login');
-      get_logged_user(function () {}, function () {});
-
-      lookforQuery(tab.url);
-
-      var localtime = new Date();
-
-      //syncQueriesBlacklist();
-      syncWhitelist();
-
-      CHILD_DOMAIN = GET(tab.url);
-
-      //      var domain_clear = tab.url;
-      //      var n = domain_clear.indexOf('?');
-      //
-      //      if (n != -1){
-      //        var erase = domain_clear.substr(n);
-      //        domain_clear=domain_clear.replace(erase,"");
-      //      }
-      
-      var user_id = localStorage.user_id;
-      
-      //delete instance extension
-      if (localStorage.member_id!=0)
-        user_id="";
-
       // Skip ignored urls
       if (!(/^http(s)?:\/\//.test(tab.url))) {
-        log_if_enabled('Ignored url: '+tab.url,'browsing');
         return;
       }
 
-      log_if_enabled('URL PARTS:','browsing');
-      var url_parts=parseUri(tab.url);
-      log_if_enabled(url_parts,'browsing');
+      lookforQuery(tab.url);
 
-      log_if_enabled('URL TO LOG:','browsing');
-      var url_to_log=url_parts.protocol+'://'+url_parts.host+'/';
-      log_if_enabled(url_to_log,'browsing');
-
-        var history = {};
-      // Store navigation only if store_navigation param is enabled
-      if ( castBool(localStorage.store_navigation) ) {
-          history = {
-              'member_id':localStorage.member_id,
-              'user_id': user_id,
-              'domain':CHILD_DOMAIN,
-              //          'url':domain_clear,
-              'url': url_to_log, // disabled sending the original url, now sending only '/' (issue #14)
-              'usertime': localtime.format("yyyy-mm-dd HH:MM:ss")
-          };
-      }else{
-          history = {
-              'member_id': 0,
-              'user_id': '',
-              'domain': '',
-              //          'url':domain_clear,
-              'url': '', // disabled sending the original url, now sending only '/' (issue #14)
-              'usertime': localtime.format("yyyy-mm-dd")
-          };
+      user_id = localStorage.user_id;
+      if (localStorage.member_id != "0"){
+        user_id = "";
       }
 
-        if (DEBUG && DEBUG_BROWSING){
-            log_if_enabled('BROWSING DETECTADA','browsing');
-            log_if_enabled('===========================','browsing');
-            log_if_enabled(history,'browsing');
+      child_domain = SITENAME_GET_DOMAIN(tab.url);
+      url_parts    = parseUri(tab.url);
+      url_to_log   = url_parts.protocol + '://' + url_parts.host + '/';
+      localtime    = new Date();
+      // Store navigation only if store_navigation param is enabled
+      if ( castBool(localStorage.store_navigation) ) {
+        history = {
+          'member_id':localStorage.member_id,
+          'user_id'  : user_id,
+          'domain'   :child_domain,
+          'url'      : url_to_log, // disabled sending the original url, now sending only '/' (issue #14)
+          'usertime' : localtime.format("yyyy-mm-dd HH:MM:ss")
+        };
+      } else {
+        history = {
+          'member_id': 0,
+          'user_id'  : '',
+          'domain'   : '',
+          'url'      : '', // disabled sending the original url, now sending only '/' (issue #14)
+          'usertime' : localtime.format("yyyy-mm-dd")
+        };
+      }
 
-            log_if_enabled('===========================','browsing');
-            log_if_enabled('','browsing')
-        }
-
-        SaveBrowsing(history);
-
+      saveBrowsing(history);
     }
 });
 
-/* Resets the number of tracking requests for a tab. */
+/**
+ * Fired when a navigation is committed. The document might still be 
+ * downloading, but at least part of the document has been received from the 
+ * server and the browser has decided to switch to the new document. (developer.chrome.com)
+ * Resets the number of tracking requests for a tab.
+ * @param  {Function}   Callback that is exected when this event is triggered. 
+ */
 chrome.webNavigation.onCommitted.addListener(function(details) {
-  var TAB_ID = details.tabId;
+  var tab_id = details.tabId;
 
   if (!details.frameId) {
-    delete ADTRACKS[TAB_ID];
-    delete ADTRACKS_BADGE_COUNTER[TAB_ID];
-    delete REQUEST_COUNTS[TAB_ID];
-    safelyUpdateCounter(TAB_ID, 0);
+    delete ADTRACKS[tab_id];
+    delete BADGE_COUNTER[tab_id];
+    safelyUpdateCounter(tab_id, 0);
   }
 });
 
-/* Builds a block list or adds to the number of blocked requests. */
-chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
-  var TAB = sender.tab;
-  
-  if (request.sendEvent) {
-    if (request.sendEvent == 'blimp-change-state' && request.data.hardenedState) {
-      atr.triggerEvent('blimp-enabled', {});
-    } else if (request.sendEvent == 'blimp-change-state' && !request.data.hardenedState) {
-      atr.triggerEvent('blimp-disabled', {});
-    }
-    sendResponse({});
-    return;
-  }
-  
-  /* TODO: What is going on here? */
-  if (TAB != undefined && TAB.url != undefined && request.initialized) {
-    var BLACKLIST = [];
-    var SITE_WHITELIST =
-        (deserialize(localStorage.whitelist) || {})[GET(TAB.url)] || {};
-    
-    // PROC_WHITELIST
-    for (var i = 0; i < 0; i++) {
-      log_if_enabled('PROC_WHITELIST'); // TODO: Added to see if this runs but nothing happens?
-      var service = [];
-      BLACKLIST[i] = [service[1], !!service[2], !SITE_WHITELIST[service[0]]];
-    }
-
-    sendResponse({url: TAB.url, blacklist: BLACKLIST});
-  } else {
-    SAFARI && incrementCounter(TAB.id, request.serviceIndex, request.blocked);
-    sendResponse({});
-  }
-});
-
+/**
+ * Fired when a message is received from other component of the extension.
+ * @param  {Function}   Callback that is exected when this event is triggered.
+ */
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-  // read `newIconPath` from request and read `tab.id` from sender
-  
+  if(typeof(request.newIconPath != "undefined")){
     chrome.browserAction.setIcon({
-        path: request.newIconPath,
-        //tabId: chromesender.tab.id
+      path: request.newIconPath
     });
+  }
 });
 
-/* Launch when extension is installed */
-if (typeof(localStorage.user_id) === 'undefined'){
-  localStorage.user_id = createUUID();
-  localStorage.share_search = option_default_trade_sensitive_queries;
+
+
+
+
+///////////
+// begin //
+///////////
+
+migrateWhitelist();
+initializeToolbar();
+loadContributed(function(json){localStorage.contributed = JSON.stringify(json);});
+
+if (typeof(localStorage.user_id) == "undefined"){
+  localStorage.user_id          = createUUID();
+  localStorage.share_search     = option_default_trade_sensitive_queries;
   localStorage.store_navigation = option_default_store_navigation;
-  localStorage.allow_social=false;
+  localStorage.allow_social     = false;
   localStorage.ask_confirmation = true;
-  console.log('Generador user_id : '+localStorage.user_id);
 }
 
-if (typeof(localStorage.member_id) === 'undefined'){
-  localStorage.member_id = 0;
-  localStorage.member_username='';
-  localStorage.share_search = option_default_trade_sensitive_queries;
+if (typeof(localStorage.member_id) == "undefined"){
+  localStorage.member_id        = 0;
+  localStorage.member_username  ='';
+  localStorage.share_search     = option_default_trade_sensitive_queries;
   localStorage.store_navigation = option_default_store_navigation;
-  localStorage.allow_social=false;
+  localStorage.allow_social     = false;
   localStorage.ask_confirmation = true;
-  console.log('Generador member_id : '+localStorage.member_id);
 }
+
+/* Prepopulates the store of tab domain names. */
+var id = setInterval(function() {
+  var tlds;
+  var tab_count;
+  var tab;
+
+  if (SITENAME_IS_INITIALIZED()) {
+    clearInterval(id);
+    tlds               = deserialize(localStorage.tlds);
+    tlds["google.com"] = true;
+    tlds["yahoo.com"]  = true;
+    localStorage.tlds  = JSON.stringify(tlds);
+
+    TABS_API.query({}, function(tabs) {
+      tab_count = tabs.length;
+
+      for (var i = 0; i < tab_count; i++) {
+        tab = tabs[i];
+        TABS_DOMAINS[tab.id] = SITENAME_GET_DOMAIN(tab.url);
+      }
+    });
+   }
+}, 100);
+
+
