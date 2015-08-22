@@ -465,14 +465,14 @@ chrome.webRequest.onBeforeRequest.addListener(function(details) {
       is_whitelisted = true;
     }
 
-    // Content, allowed by default, must be set to false explicitly inorder to be blocked
+    // Content, allowed by default, must be set to false explicitly in order to be blocked
     else if (child_service.category == CONTENT_NAME &&  whitelist_item_status !== false) {
       adtrack_status_extra.button_title = child_name + ' is automatically allowed for trading.';
       is_whitelisted = true;
     }
 
     // Service is in Social list, and Allow Social button is ON but check whitelisted status
-    else if (child_service.category == SOCIAL_NAME && allow_social  && typeof(whitelist_item_status) != "undefined" ) {
+    else if (child_service.category == SOCIAL_NAME && allow_social && (typeof(whitelist_item_status) == "undefined" || whitelist_item_status) ) {
       is_whitelisted = true;
     }
 

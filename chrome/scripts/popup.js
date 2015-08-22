@@ -1134,7 +1134,6 @@ function onEvents(domain, tab) {
             },2000);
           }
       });
-      
     });
 
     // Event click button "BECOME A MEMBER"

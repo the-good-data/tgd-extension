@@ -417,7 +417,7 @@ function setWhitelistStatus(service_name, category, status){
   if(status) {
     whitelist[service_name + ':' + category] = status;
   } else {
-    if(category == CONTENT_NAME) {
+    if(category == CONTENT_NAME || category == SOCIAL_NAME) {
       whitelist[service_name + ':' + category] = status;
     } else {
       delete whitelist[service_name + ':' + category];
