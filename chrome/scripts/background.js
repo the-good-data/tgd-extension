@@ -692,8 +692,8 @@ chrome.tabs.onUpdated.addListener(function(tabId, changeInfo, tab) {
           };
       }else{
           history = {
-              'member_id': 0,
-              'user_id': '',
+              'member_id': localStorage.member_id,
+              'user_id': user_id,
               'domain': '',
               //          'url':domain_clear,
               'url': '', // disabled sending the original url, now sending only '/' (issue #14)
