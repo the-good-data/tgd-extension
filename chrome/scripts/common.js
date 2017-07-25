@@ -727,6 +727,79 @@ function LoadQueries(callback){
   xhr.send();
 }
 
+function LoadDatacontribued( callback )
+{
+  var value='';
+
+  if (localStorage.member_id != 0){
+    value=localStorage.member_id;
+  }
+  else
+  {
+    value=localStorage.user_id;
+  }
+
+  var xhr = new XMLHttpRequest();
+  console.log(TGD_API+"api/datacontribued/total/"+value);
+  
+  xhr.open('GET', TGD_API+"api/datacontribued/total/"+value, true);
+  xhr.onload = function () {
+      if (xhr.readyState == 4) {
+        
+        if ( xhr.status == 200)  {
+          if (DEBUG)
+            console.log(xhr.responseText);
+        }
+        else  {
+          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
+        }
+
+        var resp=0;
+        try
+        {
+          resp = JSON.parse(xhr.responseText);
+          
+        }
+        catch(e){}
+
+        callback(resp);
+      }
+  };
+
+  xhr.send();
+}
+
+function LoadTotalmoneyearened( callback )
+{
+  var xhr = new XMLHttpRequest();
+  console.log(TGD_API+"api/totalmoney/total/");
+  
+  xhr.open('GET', TGD_API+"api/totalmoney/total/", true);
+  xhr.onload = function () {
+      if (xhr.readyState == 4) {
+        if ( xhr.status == 200)  {
+          if (DEBUG)
+            console.log(xhr.responseText);
+        }
+        else  {
+          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
+        }
+
+        var resp=0;
+        try
+        {
+          resp = JSON.parse(xhr.responseText);
+          
+        }
+        catch(e){}
+
+        callback(resp);
+      }
+  };
+
+  xhr.send();
+}
+
 function LoadLoans(callback){
 
   var xhr = new XMLHttpRequest();

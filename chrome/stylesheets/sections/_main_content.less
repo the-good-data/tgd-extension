@@ -7,7 +7,7 @@ section#content {
   header {
     > div {
       position: relative;
-      padding-right: 40px;
+      /*padding-right: 40px;*/
     }
 
     .button {
@@ -66,19 +66,35 @@ section#content {
           vertical-align: middle;
           color: @color-text;
           font-size: 1.25em;
-          border-left: 1px solid @color-table-border;
+          //border-left: 1px solid @color-table-border;
+          width: auto;
+          padding-right: 34px;
+          font-size: 12px;
           &:hover {
-            background-color: @color-background-button-signing-hover;
-            color: white;
+            //background-color: @color-background-button-signing-hover;
+            //color: white;
           }
           &:active {
             position: absolute;
             top:0px;
           }
         }  
-        #btnLogin.button{
-          color: @lightGray;
-        }  
+        #btnLogin.button {
+          color: @tgd-green;
+          background: url("../images/sign-in-top-extention.svg") no-repeat;
+          background-position: 46px;
+        }
+        #btnLogout.button {
+          color: @tgd-orange;
+          background: url("../images/sign-out-top-extention.svg") no-repeat;
+          background-position: 59px;
+        }
+        
+        #btnLogin.button, #btnLogout.button {
+          font-family: ProximaNovaSoft-Regular,Arial,sans-serif;
+          font-weight: bold;
+        }
+               
       }
     } // .welcome
         
@@ -86,17 +102,34 @@ section#content {
     .message {
       color: white;
       background-color: @color-background-message-bar;
-      margin-bottom: 10px;
       font-size: 12px;
       font-family: @font-semi-bold;
-      height: 35px;
+      height: 94px;
       
       > div:first-child  {
-        padding: 15px 5px 0px 30px;
+        padding: 23px 5px 0 5px;
       }
       #layer_achievement_value {
         p {
           display: table-cell;
+          padding-left: 17px;
+        }
+        img {
+          
+        }
+        .achievement-image-default {
+          float: left;
+          width: 40px;
+        }
+        .achievement-image {
+          width: 50px;
+          float: left;
+          border-radius: 1000px;
+          border: 1.5px #fff solid;
+        }
+        .achievement-arrow {
+          float: right;
+          padding: 8px;
         }
       }
 
@@ -119,7 +152,7 @@ section#content {
           vertical-align: middle;
           margin:0;
           height: 36px;
-          line-height: 12px;
+          line-height: 13px;
           a {
             color: white;
             text-decoration: none;
@@ -129,7 +162,7 @@ section#content {
           }
           i {
             position: absolute;
-            top: 6px;
+            top: 28px;
             left: 10px;
             font-size: 20px;
             width: 24px;
@@ -151,19 +184,23 @@ section#content {
     }// .message    
   }
   #body section:first-child {
-    margin-top:16px;
+    //margin-top:16px;
   }
   .content {
     border-top: 1px solid @lightGray;
     position: relative;
-    padding: 18px 10px 18px 18px;
+    padding: 15px 10px 5px 18px;
     font-size:14px;
     font-family: @font-bold;
     color: @color-text;
     
     >p {
       margin: 0;
-      font-size: 14px;
+      font-size: 13.5px;
+    }
+    img {
+      float: left;
+      padding: 4px 0px;
     }
     img + p{
       margin-left: 45px;
@@ -177,7 +214,7 @@ section#content {
     }
   }
   .content-options {
-    font-size: 12px;
+    font-size: 11px;
     color: @color-text;
     margin: 0px 0px 0px 6px;
     padding-left: 12px;
@@ -189,7 +226,7 @@ section#content {
       }
     }
     .button {
-      padding-top: 3px;
+      padding-top: 2px;
       padding-bottom:2px;
       line-height: 1em;
       margin-right: 5px;
@@ -242,17 +279,19 @@ section#content {
     } 
 
     section#good-data {
-      background-color : @color-background-good-data;
       .title, .more {
         background-image: url("../images/good-background.png");
       }
       .more {
         display: inline-block;
       }
+      .content {
+        padding: 15px 10px 20px 18px;
+      }
     }
 
     section#evil-data {
-      background-color : @color-background-evil-data;
+      //background-color : @color-background-evil-data;
       th {
         text-align: left;
         font-size: @small-font-size;
@@ -301,6 +340,7 @@ section#content {
       .title, .more {
         background-image: url("../images/evil-background.png");
       }
+
     }
 
     section#level {
@@ -317,10 +357,20 @@ section#content {
       }
       .content-options {
         .button {
-          width: 30px;
+          width: 13px;
         }
       }
-    }
+      .left-bloc span, .right-bloc span {
+        margin-left: 15px;
+      }
+      .left-bloc p, .right-bloc p {
+        font-size: 11px;
+        margin-top: 0;
+        display: inline-block;
+      }
+      .content {
+        overflow: hidden;
+      }
   }
   &.authenticated {
     div#body {
@@ -336,3 +386,59 @@ section#content {
 .center{
   text-align: center;
 }
+
+/************* new styles *********************/
+
+#layer_adtracks_count, #layer_loans_value, #layer_data_contribued, #layer_total_money_earned {
+  font-size: 24px;
+  margin-right: 5px;
+}
+
+div#not-working {
+  margin-top: 13px;
+  .content-options {
+    li {
+      display: inline-block;
+      p {
+        display: inline;
+        font-size: 10.5px;
+      }
+      
+      &:last-of-type {
+        margin-left: 10px;
+      }
+    }
+    
+  }
+}
+
+#level, #good-data {
+  background: #DEF2FB;
+  //luego borrar esto
+  overflow: auto; 
+}
+
+.left-bloc {
+    float: left;
+    width: 47%;
+    #layer_data_contribued {
+      font-size: 17px;
+      float: left;
+      margin: 9px;
+    }
+}
+
+.right-bloc {
+    float: right;
+    width: 47%;
+    #layer_total_money_earned {
+      font-size: 17px;
+      float: left;
+      margin: 9px;
+    }
+}
+
+
+
+}
+

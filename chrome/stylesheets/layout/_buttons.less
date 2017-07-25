@@ -27,9 +27,9 @@
     .pressed();
   }    
   &.on {
-    background-color: @tgd-green;
+    background: url('../images/ico-on.svg') no-repeat;
     &:hover {
-      background-color: lighten(@tgd-green,10%);
+      //background-color: lighten(@tgd-green,10%);
     }
   }
   &.delete {
@@ -42,11 +42,16 @@
     padding: 2px 6px;
   }
   &.off {
-    background-color: @lightGray;
-    color: @darkGray;
+    background: url('../images/ico-off.svg') no-repeat;
     &:hover {
-      background-color: lighten(@lightGray,10%);
+      //background-color: lighten(@lightGray,10%);
     }
+  }
+  
+  &.on,&.off {
+    color: transparent;
+    padding: 0;
+    width: 10px;
   }
 
   &.allowed {
@@ -70,7 +75,7 @@
   }
   &.share,&.add,&.store/*,&.facebook,&.twitter,&.google-plus*/ {
    display: inline-block;
-   margin-left: 5px;
+   margin-left: 3px;
   }
   &.fa-facebook,&.fa-twitter,&.fa-google-plus {
     padding:3px;
@@ -83,26 +88,24 @@
       color: white;
     }
   }
-  &.share {
-    background-color: @tgd-red;
-    &:hover {
-      background-color: lighten(@tgd-red,10%);
-      color: white;
-    }
-  }
   &.expanded {
-    background-color: @gray;
+    background: url('../images/threats-arrow-up.svg') no-repeat;
     &:hover {
-      background-color: lighten(@gray,10%);
-      color: white;
+      //background-color: lighten(@gray,10%);
+      //color: white;
     }
   }
   &.collapsed {
-    background-color: @tgd-red;
+    background: url('../images/threats-arrow-down.svg') no-repeat;
     &:hover {
-      background-color: lighten(@tgd-red,10%);
-      color: white;
+      //background-color: lighten(@tgd-red,10%);
+      //color: white;
     }
+  }
+  
+  &.expanded, &.collapsed {
+    color: transparent;
+    width: 26px;
   }
   &.donate,
   &.become-owner {
@@ -116,11 +119,22 @@
     width: 100%;
   }
   &.single-char {
-     padding: 4px 5px 2px 5px;
-     margin: 1px 0 0 4px;
+     //padding: 0 5px 2px 5px;
+     //margin: 1px 0 0 10px;
+  }
+  &#btnLogin {
+  color: @gray;
+  }
+  &#btnExpandAdtracks {
+    margin-left: 16px;
+  }
+  &#moreProjects {
+    background: url(../images/arrow-right.svg) no-repeat;
+    color: transparent;
+    width: 26px;
+    height: 27px;
+    vertical-align: middle;
+    margin-left: 9px;
   }
 }
 
-#btnLogin {
-  color: @gray;
-}

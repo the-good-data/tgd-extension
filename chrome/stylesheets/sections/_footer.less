@@ -1,11 +1,10 @@
 footer#footer {
-  background-color : @xxLightGray;
   border-top : 1px solid @lightGray;
   color: @gray;
-  padding: 8px;
+  padding: 9px 11px 5px 11px;
 
   &>div {
-    float:left;
+    /*float:left;*/
     vertical-align: top;
     &#not-working .button {
       width: 30px;
@@ -66,5 +65,48 @@ footer#footer {
     &:hover{
       text-decoration: underline;
     }
+  }  
+  h2 {
+    font-size: 13px;
+    margin-left: 7px;
   }
+  a {
+    text-decoration: none;
+  }
+  .button.invite-friends {
+    color: #428bca;
+    font-size: 13px;
+    &:hover {
+      color: #2a6496;
+    }
+  }
+  #invite-friends-expand {
+    margin-top: 5px;
+    i.fa {
+      padding: 6px;
+      margin: 2px 1px;
+    }
+    
+    .fa-facebook {
+      background-color: #3b5998;
+      color: #fff;
+      padding-left: 9px !important;
+      padding-right: 10px !important;
+    }
+    .fa-twitter {
+      color: #fff;
+      background-color: #55acee;
+    }
+    .fa-google-plus {
+      background-color: #cb4437;
+      color: #fff;
+    }
+    
+    .social-share-container {
+      display: inline-block;
+      padding-left: 4px;
+    }
+    
+  }
+     
 }

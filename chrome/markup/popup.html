@@ -105,21 +105,20 @@ Authors (one per line):
         <div  class="welcome anonymous">
           <div class="logo"></div>
           <h1>TheGoodData</h1>
-          <button id="btnLogin" class="button fa fa-power-off" data-toggle="tooltip" data-placement="left" title="sign in"></button>
+          <button id="btnLogin" class="button fa" data-toggle="tooltip" data-placement="left" title="sign in">SIGN IN</button>
         </div>
         <!-- welcome for authenticated -->
         <div class="welcome authenticated">
           <div class="logo"></div>
           <h1>Welcome <span class="username">Juan</span>!</h1>
-          <button id="btnLogout" class="fa fa-power-off button " data-toggle="tooltip" data-placement="left" title="sign out"></button>
+          <button id="btnLogout" class="fa button" data-toggle="tooltip" data-placement="left" title="sign out">SIGN OUT</button>
         </div>
         <!-- achievements messages -->                   
         <div class="message">
-          <div style="padding-top:0px">
+          <div>
             <ul id="layer_achievement_value">
             </ul>
           </div>
-          <button id="layer_achievement_id" class="button" data-toggle="tooltip"></button>
         </div>
       </header>
 
@@ -127,17 +126,13 @@ Authors (one per line):
         
         <div class="body_main">
           <section id="evil-data">
-            <div class="title-more">
-              <div class="title">EVIL DATA</div>
-              <div class="more"><a id="moreStats" class="more-inner" href="#" data-target="evilData">MORE STATS</a></div>
-            </div>
-
             <div class="content">
-              <p>
-                <span id="layer_adtracks_count" class="red">0</span> threats found on this page
+              <img src="../images/ico-shield.svg">
+              <p class="red">
+                <span id="layer_adtracks_count">0</span> threats found on this page
                 <button id="btnExpandAdtracks" class="button single-char collapsed fa fa-plus"></button>
               </p>
-
+              
               <div id="layer_adtracks_expand" style="display:none">
                 <table id="layer_adtracks" cellspacing="0">
                   <thead>
@@ -153,53 +148,39 @@ Authors (one per line):
                   </tbody>
                 </table>
               </div>
+              
+              <div id="not-working">
+                <ul class="content-options">
+                  <li>
+                    <button id="layer_config_deactivate_current" class="button btnDeactivateCurrent on">ON</button>
+                    <p><span class="status-text">Block</span> threats on this site</p>
+                  </li>
+                  <li>
+                    <button id="layer_config_allow_social" class="button btnAllowSocial off">OFF</button>
+                    <p><span class="status-text">Allow</span> social networks</p>
+                  </li>
+                </ul>
+              </div>
             </div>
           </section> <!-- id="evil-data" -->
-
-          <section id="good-data">
-            <div class="title-more">
-              <div class="title">GOOD DATA</div>
-              <div class="more"><a id="moreAchievements" class="more-inner" href="#" data-target="goodData">MORE ACHIEVEMENTS</a></div>
-            </div>
-
-            <div class="content">
-              <p>
-                <span id="layer_loans_value" class="green">0</span> projects funded with your help
-                <a id="moreProjects" href="" target="_blank" class="button single-char share fa fa-plus"></a>
-              </p>
-              <!--<button class="button add">&nbsp;</button><br><br>
-                <div id="layer_loans_expand"> 
-                <table id="layer_loans_more" cellspacing="0">
-                <tbody>
-                  <tr>
-                      <th>PROJECTS</th>
-                      <th>COUNTRIES</th>
-                      <th>INVESTED</th>
-                  </tr>
-                </tbody>
-                </table>
-                </div>
-              -->
-            </div>
-          </section> <!-- id="good-data" -->
-
+          
           <section id="level">
-            <div class="title-more">
-              <div class="title" id="layer_usertype_title"></div>
-              <div class="more"><a id="moreAboutYou" class="more-inner" href="#" data-target="userData">MORE ABOUT YOU</a></div>
-            </div>
 
             <div class="content">
-              <img id="layer_usertype_image" src="../images/apprentice.png" class="icon apprentice" style="display:none;"/>
-              <p>
-                You've contributed with 
-                <span class="green" id="layer_achievement_contributions">0</span>
-                <span class="green"> pieces</span> 
-                of data this month.
-                <button id="button_delete_stored_data" class="button delete deleteQueries">delete stored data</button>
-              </p>
+              <div class="left-bloc">
+                <img src="../images/ico-aid.svg">
+                <span id="layer_data_contribued" class="green"></span> 
+                <p>pieces of data contribued this month</p>
+              </div>
+              <img src="../images/line-pieces.svg">
+              <div class="right-bloc">
+                <img src="../images/ico-box.svg">
+                <span id="layer_total_money_earned" class="green"></span>
+                <p>value collected so far</p>
+              </div>
+             
             </div>    
-            <ul class="content-options">
+           <ul class="content-options">
               <li>
                 <button id="layer_config_store_navigation" class="btnStoreNavigation button"></button>Store navigation and non-sensitive queries
               </li>
@@ -208,62 +189,50 @@ Authors (one per line):
               </li>
             </ul>
           </section><!-- id="level" -->
+
+          <section id="good-data">
+            <div class="content">
+              <img src="../images/ico-projects.svg">
+              <p>
+                <span id="layer_loans_value" class="green">0</span> projects funded with your help
+                <a id="moreProjects" href="" target="_blank" class="button single-char share fa fa-plus"></a>
+              </p>
+            </div>
+          </section> <!-- id="good-data" -->
+
+          
         </div>
       </div>
 
       <footer id="footer" class="clearfix" style="overflow-x:hidden;">
-
-        <div id="not-working">
-          <h2>Not working properly?</h2>
-          <ul class="content-options">
-            <li>
-              <button id="layer_config_deactivate_current" class="button btnDeactivateCurrent off">OFF</button>
-              <p>Allow threats on this site</p>
-            </li>
-            <li>
-              <button id="layer_config_allow_social" class="button btnAllowSocial on">ON</button>
-              <p>Allow social networks</p>
-            </li>
-            <li>
-              <button id="reset_site_pref" class="button off">OK</button>
-              <p>Reset all settings</p>
-            </li>
-          </ul>
+        <div class="left-bloc">
+          <img src="../images/ico-invite-friends.svg"> 
+          <button id="invite-friends" class="button invite-friends">Invite friends</button>
         </div>
-
-        <div id="in-love">
-          <h2>In love with us?</h2>
-          <ul class="content-options">
-            <li class="clearfix">
-              <a href="https://www.thegooddata.org/donate" class="button donate">DONATE</a>
-              <a href="http://www.facebook.com/sharer.php?s=100&p[url]=https://www.thegooddata.org&p[images][0]=https://www.thegooddata.org/img/final-logo-200px.png&p[title]=TheGoodData!&p[summary]=Be in control of your data while doing some good." class="button fa fa-facebook"></a>
-              <a href="https://twitter.com/home?status=http://www.thegooddata.org%20TheGoodData%20%7C%20Enjoy%20your%20data" class="button fa fa-twitter"></a>
-              <a href="https://plus.google.com/share?url=http://www.thegooddata.org" class="button fa fa-google-plus"></a>
-            </li>
-            <li class="clearfix">
-              <a href="https://www.thegooddata.org/apply" class="button become-owner">COLLABORATE</a>
-            </li>
-            <li class="clearfix">
-              <span class="button email-us">Suggest improvements</span>
-            </li>
-          </ul>
+        <img src="../images/line-footer.svg">
+        <div class="right-bloc">
+          <img src="../images/ico-stats.svg">
+          <a id="supportUs" href="" target="_blank"><h2>Support us</h2></a>
         </div>
+        <div id="invite-friends-expand" style="display:none;">
+          <h2>Social Share: </h2>
+          <div class="social-share-container">
+            
+            <a href="http://www.facebook.com/sharer.php?s=100&amp;p[url]=https://www.thegooddata.org&amp;p[images][0]=https://www.thegooddata.org/img/final-logo-200px.png&amp;p[title]=TheGoodData!&amp;p[summary]=Be in control of your data while doing some good.">
+              <i class="fa fa-facebook"></i>
+            </a>
+            <a href="https://twitter.com/home?status=http://www.thegooddata.org%20TheGoodData%20%7C%20Enjoy%20your%20data">
+              <i class="fa fa-twitter"></i>
+            </a>
+            <a href="https://plus.google.com/share?url=http://www.thegooddata.org">
+              <i class="fa fa-google-plus"></i>
+            </a>           
+          </div>
+        </div>
+      </div>  
       </footer>
       
-      <div id="confirmation" class="clearfix">
-      
-        <div class="wrapper">
 
-          <div class="message">Do you want to reset preferences for all the sites?
-            <div class="buttons">
-              <label><input type="checkbox" id="ask_confirmation" value="1">do not ask for confirmation again</label><br/>
-              <button id="reset_pref_ok" class="button btnResetPref off">OK</button>
-              <button id="reset_pref_cancel" class="button btnCancel off">CANCEL</button>
-            </div>
-          </div>
-          <div class="alert">Local whitelist has been reset!</div>
-        </div>
-      </div>
 
     </section><!-- id="content" -->
   </div>

@@ -304,7 +304,10 @@ function writeAchievement(achievements){
   }
   reorderedAchievements = reorderedAchievementsFirst.concat(reorderedAchievementsLast);
   
-  
+  if ( 0 == reorderedAchievements.length )
+  {
+    $( 'div.message' ).hide();
+  }
 
   for(var i = 0; i < reorderedAchievements.length; i++){
     var achievement = reorderedAchievements[i];
@@ -312,9 +315,26 @@ function writeAchievement(achievements){
     // mark first achievement already as read because it has been already displayed when the popup was opened
     if (i===0) {
       markAchievementAsRead(achievement.id);
-    }
+    }  
     
-    $("#layer_achievement_value").append('<li data-id="'+achievement.id+'"><p><i></i><a href="'+achievement['link'+LANG]+'" target="_blank">'+achievement['text'+LANG]+'</a></p></li>');
+    var img_src   = '';
+    var img_class = '';
+    
+    if ( achievement.image != null && achievement.image != '' )
+    {
+      img_src   = TGD_URL+"uploads/"+achievement.id+"-"+achievement.image;
+      img_class = 'achievement-image';
+    }
+    else
+    {
+      img_src   = '../images/ico-bell.svg';
+      img_class = 'achievement-image-default';
+    }
+
+    $("#layer_achievement_value").append('<li data-id="'+achievement.id+'"><img class="'+img_class+'" src="'+img_src+'"/><p><a href="'+achievement['link'+LANG]+'" target="_blank"><img class="achievement-arrow" src="../images/notification-arrow-right.svg"/></a><a href="'+achievement['link'+LANG]+'" target="_blank">'+achievement['text'+LANG]+'</a></p></li>');
+
+    
+    
   }
 
   var element = $('#layer_achievement_value li'),
@@ -333,7 +353,7 @@ function renderAchievement(){
   LoadAchievements(writeAchievement);
 }
 
-//Write Achievements values
+//Write Queries values
 function writeQueries(queries){
   $("#layer_achievement_contributions").html(queries.toString());
 }
@@ -344,6 +364,38 @@ function renderQueries(){
   }
   LoadQueries(writeQueries);
 }
+
+//Write Data contribued values
+function writeDatacontribued( datacontribued )
+{
+  $( "#layer_data_contribued" ).html( datacontribued.toString() );
+}
+
+//Render Data contribued in extension
+function renderDatacontribued()
+{
+  LoadDatacontribued( writeDatacontribued );
+}
+
+
+
+//Write Total money earned values
+function writeTotalmoneyearned( totalmoney )
+{
+  $( "#layer_total_money_earned" ).html( totalmoney.toString() );
+}
+
+//Render Total money earned in extension
+function renderTotalmoneyearned()
+{
+  LoadTotalmoneyearened( writeTotalmoneyearned );
+}
+
+
+
+
+
+
 
 function writeLoans(loans){
   $('#layer_loans_value').html(loans);
@@ -394,12 +446,14 @@ function setButtonOn(id){
   $(id).html('ON');
   $(id).removeClass('off');
   $(id).addClass('on');
+  $(id).next().find('.status-text').html('Block');
 }
 
 function setButtonOff(id){
   $(id).html('OFF');
   $(id).removeClass('on');
   $(id).addClass('off');
+  $(id).next().find('.status-text').html('Allow');
 }
 
 function setButton(status, id){
@@ -491,7 +545,9 @@ function renderLinks(){
   $('#moreStats').attr('href',TGD_URL+'evil-data');
   $('#moreAchievements').attr('href',TGD_URL+'good-data');
   $('#moreProjects').attr('href',TGD_URL+'good-data');
+  $('#supportUs').attr('href',TGD_URL+'donate');
   $('#moreAboutYou').attr('href',TGD_URL+'your-data'); // todo change this to your-data after deploying webapp to prod
+  
 }
 
 function setSuggestionFormDimensions() {
@@ -617,7 +673,13 @@ function onLoad(){
 
   //Render Queries counter
   renderQueries();
-
+  
+  //Render Datacontribued total
+  renderDatacontribued();
+  
+  //Render Totalmoneyearn total
+  renderTotalmoneyearned();
+  
   //Render Contributed counter
   renderContributed();
 
@@ -663,6 +725,24 @@ function onEvents(DOMAIN, TAB)
             $( "#layer_adtracks_expand" ).hide();
             $('#btnExpandAdtracks').removeClass("fa-minus expanded");
             $('#btnExpandAdtracks').addClass("fa-plus collapsed");
+        }
+        event.preventDefault();
+    });
+    
+    
+    //Event click button "invite-friends"
+    $('#invite-friends').click(function () {
+        if ( $( "#invite-friends-expand" ).is( ":hidden" ) ) {
+            // $( "#layer_adtracks_expand" ).slideDown( "slow" );
+            $( "#invite-friends-expand" ).show();
+            //$('#btnExpandAdtracks').removeClass("fa-plus collapsed");
+            //$('#btnExpandAdtracks').addClass("fa-minus expanded");
+
+        } else {
+            // $( "#layer_adtracks_expand" ).slideUp( "slow" );
+            $( "#invite-friends-expand" ).hide();
+            //$('#btnExpandAdtracks').removeClass("fa-minus expanded");
+            //$('#btnExpandAdtracks').addClass("fa-plus collapsed");
         }
         event.preventDefault();
     });
@@ -790,6 +870,8 @@ function onEvents(DOMAIN, TAB)
 
       var sStatus=$(this).html();
       var status=false;
+      
+      //throw new Error(sStatus);
 
       if (sStatus == 'ON') {
         status=false;
@@ -1053,7 +1135,7 @@ function onEvents(DOMAIN, TAB)
     });
 
     // Activate tooltips for sing-in sign-out buttons
-    $('#btnLogin, #btnLogout').tooltip();
+    //$('#btnLogin, #btnLogout').tooltip();
 
     // Activate tooltip for sharing header message
     $('#layer_achievement_id').tooltip({
