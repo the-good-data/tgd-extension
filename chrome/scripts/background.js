@@ -770,6 +770,38 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     });
 });
 
+///// IMPORTED FROM tab for a cause extension ///////////
+
+// Background pages: 
+//   https://developer.chrome.com/extensions/background_pages
+// Event pages:
+//   https://developer.chrome.com/extensions/event_pages
+
+// Listen for new tabs.
+chrome.tabs.onCreated.addListener(function(tab) {
+  
+  var d = new Date();
+  var n = d.getSeconds();
+  
+  /**
+   * TODO: Put somewhere some logic to know if we must insert the tab or not.
+   */ 
+  
+  var url = 'https://pre.thegooddata.org/notification';
+
+  // Check if this is a blank new tab (not opened by clicking a link).
+  var isBlankTab = tab.url == 'chrome://newtab/';
+  if (isBlankTab) {
+    
+    if (n > 25) {
+      // Redirect to Tab for a Cause new tab page.
+      chrome.tabs.update(tab.id, {url: url});
+    }
+
+    
+  }
+});
+
 /* Launch when extension is installed */
 if (typeof(localStorage.user_id) === 'undefined'){
   localStorage.user_id = createUUID();
