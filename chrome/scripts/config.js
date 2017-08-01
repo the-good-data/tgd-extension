@@ -76,6 +76,7 @@ const LANG = '_'+'en';
 var feature_trade_sensitive_queries=false;
 var option_default_trade_sensitive_queries=false;
 var option_default_store_navigation=true;
+var option_default_show_tab_notification=true;
 
 // set debug settings --------------------------------------------------------------
 

@@ -477,6 +477,18 @@ function renderOptions(tab){
   var store_navigation = castBool(localStorage.store_navigation) ;
   setButton(store_navigation,'#layer_config_store_navigation');
 
+  // show_tab_notification
+  if (typeof(localStorage.show_tab_notification) === 'undefined') {
+    localStorage.show_tab_notification=option_default_show_tab_notification;
+  }
+
+  var show_tab_notification = castBool(localStorage.show_tab_notification);
+//  alert(show_tab_notification);
+//  alert(localStorage.show_tab_notification);
+
+  setButton(show_tab_notification,'#layer_allow_show_tab_notification');
+  
+
   // Trade non-sensitive queries?
   if (feature_trade_sensitive_queries) {
       $('#layer_config_share_search_container').show();
@@ -525,7 +537,8 @@ function deactivateCurrent(tab){
 
 function renderHeader(){
 
-  //console.log(localStorage.member_id);
+//  console.log('member_id: '+localStorage.member_id);
+//  console.log('user_id: '+localStorage.user_id);
   if (localStorage.member_id != 0){
     $('header .username').text(localStorage.member_username);
     $('header .authenticated').show();
@@ -949,6 +962,28 @@ function onEvents(DOMAIN, TAB)
       saveUserSettingsToAPI();
 
       //console.log('visualizar '+store_navigation);
+      renderOptions(TAB);
+    });
+    
+    // Event click button "Show Tab Notification"
+    $('#level').on('click', '.btnShowTabNotification', function() { 
+      var show_tab_notification = castBool(localStorage.show_tab_notification);
+
+      show_tab_notification=!show_tab_notification;
+
+      localStorage.show_tab_notification = show_tab_notification;
+      
+      if ( true == show_tab_notification )
+      {
+        LoadNotificationStatus('true','POST');
+        localStorage.notification = 'true';
+      }
+      else
+      {
+        LoadNotificationStatus('false','POST');
+        localStorage.notification = 'false';
+      }
+      
       renderOptions(TAB);
     });
     

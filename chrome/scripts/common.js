@@ -1672,3 +1672,36 @@ function log_if_enabled(msg, category) {
       console.log(msg);
   }
 }
+
+
+function LoadNotificationStatus($status = null, $verb = 'GET') {
+  
+  var xhr = new XMLHttpRequest();
+  xhr.open($verb, TGD_API+"api/notification", true);
+  xhr.onload = function () {
+      if (xhr.readyState == 4) {
+        var resp = JSON.parse(xhr.responseText);        
+        if ( xhr.status == 200)  {
+            if ( 'false' == resp )
+            {
+              localStorage.show_tab_notification = false;
+            }
+            localStorage.notification = resp;    
+        } else {
+          console.log( "Error: " + xhr.status + ": " + xhr.statusText);
+        }        
+      }
+  };
+  
+  if ( 'POST' == $verb )
+  {
+    var data = new FormData();
+    data.append('status', $status );
+    xhr.send( data );
+  }
+  else
+  {
+    xhr.send();
+  }
+
+}

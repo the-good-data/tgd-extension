@@ -778,6 +778,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
 //   https://developer.chrome.com/extensions/event_pages
 
 // Listen for new tabs.
+
 chrome.tabs.onCreated.addListener(function(tab) {
   
   var d = new Date();
@@ -788,16 +789,24 @@ chrome.tabs.onCreated.addListener(function(tab) {
    */ 
   
   var url = 'https://pre.thegooddata.org/notification';
+//  var url = 'http://www.tgd.local/index-test.php/notification';
 
   // Check if this is a blank new tab (not opened by clicking a link).
   var isBlankTab = tab.url == 'chrome://newtab/';
   if (isBlankTab) {
     
-    if (n > 25) {
-      // Redirect to Tab for a Cause new tab page.
+//    if (n > 25) {
+//      // Redirect to Tab for a Cause new tab page.
+//      chrome.tabs.update(tab.id, {url: url});
+//    }
+
+    LoadNotificationStatus(null,'GET');
+
+    if ( 'false' !== localStorage.notification )
+    {
       chrome.tabs.update(tab.id, {url: url});
     }
-
+ 
     
   }
 });
