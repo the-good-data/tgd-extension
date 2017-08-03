@@ -311,7 +311,7 @@ function writeAchievement(achievements){
 
   for(var i = 0; i < reorderedAchievements.length; i++){
     var achievement = reorderedAchievements[i];
-    
+    console.log(achievement);
     // mark first achievement already as read because it has been already displayed when the popup was opened
     if (i===0) {
       markAchievementAsRead(achievement.id);
@@ -330,9 +330,16 @@ function writeAchievement(achievements){
       img_src   = '../images/ico-bell.svg';
       img_class = 'achievement-image-default';
     }
+    
 
-    $("#layer_achievement_value").append('<li data-id="'+achievement.id+'"><img class="'+img_class+'" src="'+img_src+'"/><p><a href="'+achievement['link'+LANG]+'" target="_blank"><img class="achievement-arrow" src="../images/notification-arrow-right.svg"/></a><a href="'+achievement['link'+LANG]+'" target="_blank">'+achievement['text'+LANG]+'</a></p></li>');
-
+    $("#layer_achievement_value").append(
+            '<li data-id="'+achievement.id+'">\n\
+              <img class="'+img_class+'" src="'+img_src+'"/>\n\
+              <p>\n\
+                 <a href="'+TGD_URL+'notification?id='+achievement.id+'" target="_blank"><img class="achievement-arrow" src="../images/notification-arrow-right.svg"/></a>\n\
+                 <a href="'+TGD_URL+'notification?id='+achievement.id+'" target="_blank">'+achievement.title+'</a>\n\
+              </p>\n\
+             </li>');
     
     
   }
@@ -972,7 +979,7 @@ function onEvents(DOMAIN, TAB)
       show_tab_notification=!show_tab_notification;
 
       localStorage.show_tab_notification = show_tab_notification;
-      
+  
       if ( true == show_tab_notification )
       {
         LoadNotificationStatus('true','POST');

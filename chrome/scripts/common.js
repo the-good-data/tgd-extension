@@ -842,7 +842,7 @@ function LoadLoans(callback){
 
 // Loads achievements from API and executes a callback
 function LoadAchievements(callback) {
-  
+  log_if_enabled('ESTAMOS DENTRO DE LOADACHIEVEMENTS');
   // check if we've got it cached
   var achievements=jsCache.get('achievements', null);
   
@@ -875,6 +875,7 @@ function LoadAchievements(callback) {
         var resp = JSON.parse(xhr.responseText);
         
         // now save results to cache 
+        //TODO: change 10 seg to minutes (2min)
         jsCache.set('achievements', resp, 10);
         
         callback(resp);

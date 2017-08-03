@@ -101,7 +101,8 @@ switch (TGD_ENV) {
       log_categories.query=true;
       log_categories.browsing=false;
       log_categories.jsCache=false;
-      log_categories.achievements=false;
+//      log_categories.achievements=false;
+      log_categories.achievements=true;
       break;
   }
   default: {

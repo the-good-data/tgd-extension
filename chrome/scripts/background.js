@@ -784,31 +784,58 @@ chrome.tabs.onCreated.addListener(function(tab) {
   var d = new Date();
   var n = d.getSeconds();
   
+//  LoadAchievements(checkUnreadAchievements);
   /**
    * TODO: Put somewhere some logic to know if we must insert the tab or not.
    */ 
   
-  var url = 'https://pre.thegooddata.org/notification';
-//  var url = 'http://www.tgd.local/index-test.php/notification';
+  // check if we've got it cached
+  var achievements = jsCache.get('achievements', null);
 
-  // Check if this is a blank new tab (not opened by clicking a link).
-  var isBlankTab = tab.url == 'chrome://newtab/';
-  if (isBlankTab) {
+//  var url = 'https://pre.thegooddata.org/notification';
+//  var url = TGD_URL+'notification?id='+achievements[0].id;
+//  log_if_enabled("localstorage show tab notification:");
+//  log_if_enabled(localStorage.show_tab_notification);
+  
+
+  
+  if ( null != achievements )
+  {
     
-//    if (n > 25) {
-//      // Redirect to Tab for a Cause new tab page.
-//      chrome.tabs.update(tab.id, {url: url});
-//    }
+    var url = TGD_URL+'notification?id='+achievements[0].id;
 
-    LoadNotificationStatus(null,'GET');
+    // Check if this is a blank new tab (not opened by clicking a link).
+    var isBlankTab = tab.url == 'chrome://newtab/';
+    if (isBlankTab) {
 
-    if ( 'false' !== localStorage.notification )
-    {
-      chrome.tabs.update(tab.id, {url: url});
+  //    if (n > 25) {
+  //      // Redirect to Tab for a Cause new tab page.
+  //      chrome.tabs.update(tab.id, {url: url});
+  //    }
+  
+//      if ( true == localStorage.show_tab_notification )
+//      {
+//        LoadNotificationStatus('true','POST');
+//        localStorage.notification = 'true';
+//      }
+//      else
+//      {
+//        LoadNotificationStatus('false','POST');
+//        localStorage.notification = 'false';
+//      }
+
+      LoadNotificationStatus(null,'GET');
+
+      if ( 'false' !== localStorage.notification )
+      {
+        chrome.tabs.update(tab.id, {url: url});
+      }
+
     }
- 
-    
   }
+  
+
+  
 });
 
 /* Launch when extension is installed */
